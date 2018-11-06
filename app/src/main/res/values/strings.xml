@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">CardMaker</string>
+
+
+    <string name="bottom_menu_template">Szablony</string>
+    <string name="bottom_menu_reverse">Rewersy</string>
+    <string name="bottom_menu_history">Poprzednie</string>
+    <string name="bottom_menu_settings">Ustawienia</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

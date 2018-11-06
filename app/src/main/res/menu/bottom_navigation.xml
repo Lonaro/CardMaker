@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/nav_template"
+        android:title="@string/bottom_menu_template"
+        android:icon="@drawable/template_icon" />
+
+    <item android:id="@+id/nav_reverse"
+        android:title="@string/bottom_menu_reverse"
+        android:icon="@drawable/reverse_icon" />
+
+    <item android:id="@+id/nav_history"
+        android:title="@string/bottom_menu_history"
+        android:icon="@drawable/history_icon" />
+
+    <item android:id="@+id/nav_settings"
+        android:title="@string/bottom_menu_settings"
+        android:icon="@drawable/settings_icon" />
+</menu>
