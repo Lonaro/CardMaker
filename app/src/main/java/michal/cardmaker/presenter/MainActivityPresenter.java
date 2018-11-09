@@ -1,6 +1,5 @@
 package michal.cardmaker.presenter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -14,7 +13,5 @@ public class MainActivityPresenter {
         FragmentTransaction fragmentTransaction = ((FragmentActivity)context).getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.frame_navigation, fragment);
         fragmentTransaction.commit();
-
     }
-
 }
