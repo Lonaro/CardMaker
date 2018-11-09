@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         settingsFragment = new SettingsFragment();
 
         mainActivityPresenter = new MainActivityPresenter();
+        mainActivityPresenter.setFragment(MainActivity.this, templateFragment);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
