@@ -6,28 +6,55 @@
     android:layout_height="match_parent"
     tools:context=".TemplateSinglePhoto">
 
-    <ImageView
-        android:id="@+id/background"
-        android:layout_width="300sp"
-        android:layout_height="200sp"
+    <FrameLayout
+        android:id="@+id/frame_template"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="15dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:src="@color/colorPrimary"
-        android:contentDescription="Border"/>
+        app:layout_constraintTop_toTopOf="parent">
 
-    <ImageView
-        android:id="@+id/temp_single_photo"
-        android:layout_width="280sp"
-        android:layout_height="180sp"
-        app:layout_constraintBottom_toBottomOf="@+id/background"
-        app:layout_constraintEnd_toEndOf="@+id/background"
-        app:layout_constraintStart_toStartOf="@+id/background"
-        app:layout_constraintTop_toTopOf="@+id/background"
-        android:background="@android:color/holo_green_light"
-        android:src="@drawable/camera"
-        android:contentDescription="Photo"/>
+        <ImageView
+            android:id="@+id/background"
+            android:layout_width="300sp"
+            android:layout_height="200sp"
+            android:contentDescription="Border"
+            android:src="@color/colorPrimary" />
+
+        <ImageView
+            android:id="@+id/temp_single_photo"
+            android:layout_width="280sp"
+            android:layout_height="180sp"
+            android:layout_margin="10dp"
+            android:background="@android:color/holo_green_light"
+            android:contentDescription="Photo"
+            android:src="@drawable/camera" />
+
+        <ImageView
+            android:id="@+id/item"
+            android:layout_width="100sp"
+            android:layout_height="100sp"
+            android:layout_gravity="center"
+            android:contentDescription="Border"
+            android:src="@color/colorAccent"/>
+
+
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/add_item_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add item"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/merge_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/merge_button"

@@ -21,7 +21,7 @@ public class TemplateSinglePhotoPresenter {
         this.activity = activity;
     }
 
-    public void startCropper(int requestCode, Intent data) {
+    public void startCropper(int requestCode, Intent data, int width, int height) {
         Uri uri = null;
         if (requestCode == REQUEST_CODE_CAMERA) {
             uri = mCameraImageUri;
@@ -32,8 +32,8 @@ public class TemplateSinglePhotoPresenter {
         }
         Intent intent = new Intent(activity, CropActivity.class);
         intent.setData(uri);
-        intent.putExtra("outputX", CropUtils.dip2px(activity, 280));
-        intent.putExtra("outputY", CropUtils.dip2px(activity, 180));
+        intent.putExtra("outputX", CropUtils.dip2px(activity, width));
+        intent.putExtra("outputY", CropUtils.dip2px(activity, height));
         intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
         activity.startActivity(intent);
     }
