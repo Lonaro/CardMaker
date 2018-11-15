@@ -4,10 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
-import android.provider.MediaStore;
 
-import michal.cardmaker.CropActivity;
+import michal.cardmaker.view.CropActivity;
 import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
 
 public class TemplateSinglePhotoPresenter {
