@@ -31,7 +31,7 @@ public class TemplateAdapter extends RecyclerView.Adapter<TemplateViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TemplateViewHolder templateViewHolder, int i) {
+    public void onBindViewHolder(@NonNull TemplateViewHolder templateViewHolder, final int i) {
         templateViewHolder.imageView.setImageResource(templates[i]);
         
         templateViewHolder.itemView.setOnClickListener(new View.OnClickListener() {

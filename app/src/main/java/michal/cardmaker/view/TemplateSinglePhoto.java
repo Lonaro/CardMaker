@@ -340,15 +340,26 @@ public class TemplateSinglePhoto extends AppCompatActivity {
             return;
         }
 
-        switch (requestCode) {
-            case REQUEST_CODE_CAMERA:
-                templateSinglePhotoPresenter.startCropper(REQUEST_CODE_CAMERA, data, 280, 180);
-                break;
-            case REQUEST_CODE_ALBUM:
-                templateSinglePhotoPresenter.startCropper(REQUEST_CODE_ALBUM, data, 280, 180);
-                break;
-            default:
-                break;
+
+        if(ContextCompat.checkSelfPermission(TemplateSinglePhoto.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
+            switch (requestCode) {
+                case REQUEST_CODE_CAMERA:
+                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_CAMERA, data, 280, 180);
+                    break;
+                case REQUEST_CODE_ALBUM:
+                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_ALBUM, data, 280, 180);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            ActivityCompat.requestPermissions(TemplateSinglePhoto.this,
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
         }
     }
 }
