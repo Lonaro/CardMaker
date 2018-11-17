@@ -143,6 +143,7 @@ public class CropLayout extends FrameLayout {
         mCropBitmapTask = new CropBitmapTask(mSourceUri, destUri,
                 mOutputFormat, result, mOriginalBounds, mCropRect.width(),
                 mCropRect.height());
+
         mCropBitmapTask.execute();
     }
 

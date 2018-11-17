@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 
 import michal.cardmaker.R;
 import michal.cardmaker.presenter.GridSpacingItemDecoration;
-import michal.cardmaker.presenter.TemplateAdapter;
+import michal.cardmaker.presenter.adapter.TemplateAdapter;
 
 
 public class TemplateFragment extends Fragment {

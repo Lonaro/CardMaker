@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="template_button_margin_inner">5dp</dimen>
+
+</resources>

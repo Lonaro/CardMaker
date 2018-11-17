@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.util.Log;
 
 import michal.cardmaker.view.CropActivity;
 import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
@@ -30,8 +31,11 @@ public class TemplateSinglePhotoPresenter {
         }
         Intent intent = new Intent(activity, CropActivity.class);
         intent.setData(uri);
-        intent.putExtra("outputX", CropUtils.dip2px(activity, width));
-        intent.putExtra("outputY", CropUtils.dip2px(activity, height));
+
+        Log.d("Size_push", String.valueOf(width) + " " + String.valueOf(height));
+
+        intent.putExtra("outputX", width);//CropUtils.dip2px(activity, width));
+        intent.putExtra("outputY", height); //CropUtils.dip2px(activity, height));
         intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
         activity.startActivity(intent);
     }

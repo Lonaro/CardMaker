@@ -2,6 +2,7 @@ package michal.cardmaker.view;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -14,9 +15,14 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,7 +39,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import michal.cardmaker.R;
+import michal.cardmaker.presenter.MainActivityPresenter;
 import michal.cardmaker.presenter.TemplateSinglePhotoPresenter;
+import michal.cardmaker.presenter.adapter.ItemAdapter;
 import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
 import michal.cardmaker.presenter.cropViewLibrary.GeometryMathUtils;
 
@@ -46,6 +54,8 @@ public class TemplateSinglePhoto extends AppCompatActivity {
 
     private SeekBar seekBar_rotate;
     private SeekBar seekBar_scale;
+
+    private StickerFragment stickerFragment;
 
     private TemplateSinglePhotoPresenter templateSinglePhotoPresenter;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
@@ -88,6 +98,9 @@ public class TemplateSinglePhoto extends AppCompatActivity {
         add_item_button = findViewById(R.id.add_item_button);
         seekBar_rotate = findViewById(R.id.seekBar_rotate);
         seekBar_scale = findViewById(R.id.seekBar_scale);
+
+        stickerFragment = new StickerFragment();
+        setFragment(this, stickerFragment);
 
         seekBar_rotate.setMax(360);
         seekBar_rotate.setProgress(180);
@@ -235,6 +248,8 @@ public class TemplateSinglePhoto extends AppCompatActivity {
 
 
                 Bitmap item_1 = ((BitmapDrawable)item.getDrawable()).getBitmap();
+
+
                 Bitmap b = Bitmap.createScaledBitmap(item_1, (int)(item_1.getWidth()*item.getScaleX()), (int)(item_1.getHeight()*item.getScaleX()), false);
                 Matrix mat = new Matrix();
                 mat.postRotate(item.getRotation(), b.getWidth()/2, b.getHeight()/2);
@@ -244,6 +259,9 @@ public class TemplateSinglePhoto extends AppCompatActivity {
 
 
                 back.eraseColor(getResources().getColor(R.color.colorPrimary));
+
+                Log.d("Backgroud_size", String.valueOf(back.getWidth()) + " " + String.valueOf(back.getHeight()));
+                Log.d("Photo_size", String.valueOf(pho.getWidth()) + " " + String.valueOf(pho.getHeight()));
 
                 int width = back.getWidth();
                 int height = back.getHeight();
@@ -268,6 +286,12 @@ public class TemplateSinglePhoto extends AppCompatActivity {
                 save_merged();
             }
         });
+    }
+
+    public void setFragment(Context context, Fragment fragment) {
+        FragmentTransaction fragmentTransaction = ((FragmentActivity)context).getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.frameLayout2, fragment);
+        fragmentTransaction.commit();
     }
 
     private void save_merged() {
@@ -340,16 +364,16 @@ public class TemplateSinglePhoto extends AppCompatActivity {
             return;
         }
 
-
         if(ContextCompat.checkSelfPermission(TemplateSinglePhoto.this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
             switch (requestCode) {
                 case REQUEST_CODE_CAMERA:
-                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_CAMERA, data, 280, 180);
+                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_CAMERA, data, photo.getWidth()-20, photo.getHeight()-20);
                     break;
                 case REQUEST_CODE_ALBUM:
-                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_ALBUM, data, 280, 180);
+                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_ALBUM, data, photo.getWidth()-20, photo.getHeight()-20);
+
                     break;
                 default:
                     break;

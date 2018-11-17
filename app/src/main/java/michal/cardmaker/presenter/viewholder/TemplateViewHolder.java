@@ -1,4 +1,4 @@
-package michal.cardmaker.presenter;
+package michal.cardmaker.presenter.viewholder;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -8,7 +8,7 @@ import michal.cardmaker.R;
 
 public class TemplateViewHolder extends RecyclerView.ViewHolder {
 
-    ImageView imageView;
+    public ImageView imageView;
 
     public TemplateViewHolder(View imageView) {
         super(imageView);

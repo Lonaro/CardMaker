@@ -1,4 +1,4 @@
-package michal.cardmaker.presenter;
+package michal.cardmaker.presenter.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,10 +7,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import michal.cardmaker.R;
+import michal.cardmaker.presenter.viewholder.TemplateViewHolder;
 import michal.cardmaker.view.TemplateSinglePhoto;
 
 public class TemplateAdapter extends RecyclerView.Adapter<TemplateViewHolder> {
