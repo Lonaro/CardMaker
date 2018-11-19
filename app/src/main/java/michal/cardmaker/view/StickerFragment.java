@@ -31,8 +31,8 @@ public class StickerFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_sticker, container,false);
 
         // TYMACZASOWE DANE
-        int[] stickers_data = {R.drawable.smile_item, R.drawable.smile_item, R.drawable.smile_item,
-                R.drawable.smile_item};
+        int[] stickers_data = {R.drawable.smile_item, R.drawable.sun, R.drawable.palm_tree,
+                R.drawable.wave};
 
         stickerRecyclerView = view.findViewById(R.id.recyclerview_stickers);
         stickerAdapter = new ItemAdapter(stickers_data, getContext());

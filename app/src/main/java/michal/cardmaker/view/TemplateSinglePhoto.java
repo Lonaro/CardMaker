@@ -234,7 +234,7 @@ public class TemplateSinglePhoto extends AppCompatActivity {
                 item.setVisibility(View.VISIBLE);
                 item.setClickable(true);
                 item.setEnabled(true);
-                item.setImageResource(R.drawable.smile_item);
+                item.setImageResource(R.drawable.sun);
 
             }
         });
