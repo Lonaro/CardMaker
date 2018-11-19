@@ -4,10 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
-import android.provider.MediaStore;
+import android.util.Log;
 
-import michal.cardmaker.CropActivity;
+import michal.cardmaker.view.CropActivity;
 import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
 
 public class TemplateSinglePhotoPresenter {
@@ -21,7 +20,7 @@ public class TemplateSinglePhotoPresenter {
         this.activity = activity;
     }
 
-    public void startCropper(int requestCode, Intent data) {
+    public void startCropper(int requestCode, Intent data, int width, int height) {
         Uri uri = null;
         if (requestCode == REQUEST_CODE_CAMERA) {
             uri = mCameraImageUri;
@@ -32,8 +31,11 @@ public class TemplateSinglePhotoPresenter {
         }
         Intent intent = new Intent(activity, CropActivity.class);
         intent.setData(uri);
-        intent.putExtra("outputX", CropUtils.dip2px(activity, 280));
-        intent.putExtra("outputY", CropUtils.dip2px(activity, 180));
+
+        Log.d("Size_push", String.valueOf(width) + " " + String.valueOf(height));
+
+        intent.putExtra("outputX", width);//CropUtils.dip2px(activity, width));
+        intent.putExtra("outputY", height); //CropUtils.dip2px(activity, height));
         intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
         activity.startActivity(intent);
     }

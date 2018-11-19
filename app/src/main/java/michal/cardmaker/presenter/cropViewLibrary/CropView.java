@@ -205,14 +205,10 @@ public class CropView extends View {
                     float degrees = getDegrees(event) - mOriginalDegrees;
                     float distance = getDistance(event);
                     float scale = distance / mOriginalDistance;
-                    mDisplayImageMatrix.postScale(scale, scale, mEventCenter.x,
-                            mEventCenter.y);
-                    mImageCropInverse.postScale(scale, scale, mEventCenter.x,
-                            mEventCenter.y);
-                    mDisplayImageMatrix.postRotate(degrees % 360, mEventCenter.x,
-                            mEventCenter.y);
-                    mImageCropInverse.postRotate((degrees) % 360, mEventCenter.x,
-                            mEventCenter.y);
+                    mDisplayImageMatrix.postScale(scale, scale, mEventCenter.x, mEventCenter.y);
+                    mImageCropInverse.postScale(scale, scale, mEventCenter.x, mEventCenter.y);
+                    mDisplayImageMatrix.postRotate(degrees % 360, mEventCenter.x, mEventCenter.y);
+                    mImageCropInverse.postRotate((degrees) % 360, mEventCenter.x, mEventCenter.y);
                     invalidate();
                 } else if (mTouchMode == TOUCH_MODE_DRAG) {
                     mDisplayImageMatrix.set(mSavedImageMatrix);

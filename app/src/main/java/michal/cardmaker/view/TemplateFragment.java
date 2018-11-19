@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 
 import michal.cardmaker.R;
 import michal.cardmaker.presenter.GridSpacingItemDecoration;
-import michal.cardmaker.presenter.TemplateAdapter;
+import michal.cardmaker.presenter.adapter.TemplateAdapter;
 
 
 public class TemplateFragment extends Fragment {
@@ -21,32 +21,31 @@ public class TemplateFragment extends Fragment {
 
     protected RecyclerView.LayoutManager mLayoutManager;
 
-    public TemplateFragment() {
-        // Required empty public constructor
-    }
+        public TemplateFragment() {
+            // Required empty public constructor
+        }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_template, container,false);
+            View view = inflater.inflate(R.layout.fragment_template, container,false);
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_template);
+            recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_template);
 
-        // TYMACZASOWE DANE
-        int[] templates_data = {R.drawable.template1, R.drawable.template1, R.drawable.template1,
-                R.drawable.template1, R.drawable.template1, R.drawable.template1,
-                R.drawable.template1, R.drawable.template1, R.drawable.template1,
-                R.drawable.template1};
+            // TYMACZASOWE DANE
+            int[] templates_data = {R.drawable.template1, R.drawable.template1, R.drawable.template1,
+                    R.drawable.template1, R.drawable.template1, R.drawable.template1,
+                    R.drawable.template1, R.drawable.template1, R.drawable.template1,
+                    R.drawable.template1};
 
-        templateAdapter = new TemplateAdapter(templates_data, getContext());
+            templateAdapter = new TemplateAdapter(templates_data, getContext());
 
-        mLayoutManager = new GridLayoutManager(getActivity(),2 );
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.addItemDecoration(new GridSpacingItemDecoration(2,20,false));
-        recyclerView.setAdapter(templateAdapter);
+            mLayoutManager = new GridLayoutManager(getActivity(),2 );
+            recyclerView.setLayoutManager(mLayoutManager);
+            recyclerView.addItemDecoration(new GridSpacingItemDecoration(20, true));
+            recyclerView.setAdapter(templateAdapter);
 
-        return view;
-    }
-
+            return view;
+        }
     }
