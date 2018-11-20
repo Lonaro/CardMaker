@@ -6,12 +6,14 @@ import android.widget.ImageView;
 
 import michal.cardmaker.R;
 
-public class TemplateViewHolder extends RecyclerView.ViewHolder {
+public class HistoryPostcardViewHolder extends RecyclerView.ViewHolder {
 
     public ImageView imageView;
 
-    public TemplateViewHolder(View view) {
+    public HistoryPostcardViewHolder(View view) {
         super(view);
-        this.imageView = view.findViewById(R.id.template_item_image);
+        this.imageView = view.findViewById(R.id.template_history_postcard_image);
     }
+
+
 }

@@ -16,6 +16,10 @@ import android.widget.FrameLayout;
 
 import michal.cardmaker.R;
 import michal.cardmaker.presenter.MainActivityPresenter;
+import michal.cardmaker.view.fragment.HistoryFragment;
+import michal.cardmaker.view.fragment.ReverseFragment;
+import michal.cardmaker.view.fragment.SettingsFragment;
+import michal.cardmaker.view.fragment.TemplateFragment;
 
 public class MainActivity extends AppCompatActivity {
 

@@ -5,14 +5,17 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
+import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -20,15 +23,14 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -39,23 +41,30 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import michal.cardmaker.R;
-import michal.cardmaker.presenter.MainActivityPresenter;
+import michal.cardmaker.presenter.BorderSettingsFragmentListener;
+import michal.cardmaker.presenter.StickerFragmentListener;
 import michal.cardmaker.presenter.TemplateSinglePhotoPresenter;
-import michal.cardmaker.presenter.adapter.ItemAdapter;
 import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
-import michal.cardmaker.presenter.cropViewLibrary.GeometryMathUtils;
+import michal.cardmaker.view.fragment.BorderSettingFragment;
+import michal.cardmaker.view.fragment.InsertTextFragment;
+import michal.cardmaker.view.fragment.SeekBarsFragment;
+import michal.cardmaker.view.fragment.StickerFragment;
 
-public class TemplateSinglePhoto extends AppCompatActivity {
+public class TemplateSinglePhoto extends AppCompatActivity implements StickerFragmentListener, BorderSettingsFragmentListener {
 
     private ImageView background;
     private ImageView photo;
     private Button merge_button;
     private Button add_item_button;
+    private Button borderSettingsButton;
+    private Button add_text_button;
 
-    private SeekBar seekBar_rotate;
-    private SeekBar seekBar_scale;
+    private TextView insertedText;
 
     private StickerFragment stickerFragment;
+    private SeekBarsFragment seekBarsFragment;
+    private BorderSettingFragment borderSettingFragment;
+    private InsertTextFragment insertTextFragment;
 
     private TemplateSinglePhotoPresenter templateSinglePhotoPresenter;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
@@ -67,21 +76,19 @@ public class TemplateSinglePhoto extends AppCompatActivity {
     public static final int REQUEST_CODE_CAMERA = 1;
     public static final int REQUEST_CODE_ALBUM = 2;
 
-    //***************************************************************
-    private float xCoOrdinate, yCoOrdinate;
-    float move_x;
-    float move_y;
+    private float xCorItem, yCorItem;
+    private float xCorText, yCorText;
+    float move_x_item;
+    float move_y_item;
 
+    float move_x_text;
+    float move_y_text;
 
     private static final int TOUCH_MODE_NONE = 0;
     private static final int TOUCH_MODE_DRAG = 1;
     int mTouchMode = TOUCH_MODE_NONE;
 
-    float mLastX = 0;
-    float mLastY = 0;
-
-
-    //***************************************************************
+    private int sticker;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -96,15 +103,28 @@ public class TemplateSinglePhoto extends AppCompatActivity {
         background = findViewById(R.id.background);
         item = findViewById(R.id.item);
         add_item_button = findViewById(R.id.add_item_button);
-        seekBar_rotate = findViewById(R.id.seekBar_rotate);
-        seekBar_scale = findViewById(R.id.seekBar_scale);
+        borderSettingsButton = findViewById(R.id.border_button);
+        add_text_button = findViewById(R.id.add_text_button);
+        insertedText = findViewById(R.id.text);
+
+        insertedText.setVisibility(View.INVISIBLE);
+        insertedText.setClickable(false);
+        insertedText.setEnabled(false);
+
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) photo.getLayoutParams();
+        int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
+        params.topMargin = first_margin;
+        params.leftMargin = first_margin;
+        params.bottomMargin = first_margin;
+        params.rightMargin = first_margin;
+        photo.setLayoutParams(params);
+        photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
         stickerFragment = new StickerFragment();
-        setFragment(this, stickerFragment);
-
-        seekBar_rotate.setMax(360);
-        seekBar_rotate.setProgress(180);
-        seekBar_scale.setMax(200);
+        seekBarsFragment = new SeekBarsFragment(item);
+        borderSettingFragment = new BorderSettingFragment();
+        insertTextFragment = new InsertTextFragment();
+        // setFragment(this, stickerFragment);
 
         item.setClickable(false);
         item.setEnabled(false);
@@ -137,39 +157,50 @@ public class TemplateSinglePhoto extends AppCompatActivity {
             }
         });
 
-        seekBar_rotate.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        borderSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                item.setRotation(progress-180);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
+            public void onClick(View v) {
+                photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, borderSettingFragment);
             }
         });
 
-        seekBar_scale.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        add_text_button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                item.setScaleX((float)(progress)/100.f);
-                item.setScaleY((float)(progress)/100.f);
-
+            public void onClick(View v) {
+                templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, insertTextFragment);
             }
+        });
 
+        insertedText.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
+            public boolean onTouch(View v, MotionEvent event) {
 
-            }
+                switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                    case MotionEvent.ACTION_DOWN:
+                        mTouchMode = TOUCH_MODE_DRAG;
 
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
+                        xCorText = v.getX() - event.getRawX();
+                        yCorText = v.getY() - event.getRawY();
 
+                    case MotionEvent.ACTION_MOVE:
+                        if (mTouchMode == TOUCH_MODE_DRAG) {
+                            move_x_text = event.getRawX() + xCorText;
+                            move_y_text =  event.getRawY() + yCorText;
+                            v.animate().x(move_x_text).y(move_y_text).setDuration(0).start();
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        photo.setEnabled(true);
+                        photo.setClickable(true);
+                        background.setEnabled(true);
+                        background.setClickable(true);
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_POINTER_UP:
+                        mTouchMode = TOUCH_MODE_NONE;
+                        break;
+                }
+                return true;
             }
         });
 
@@ -183,14 +214,14 @@ public class TemplateSinglePhoto extends AppCompatActivity {
                     case MotionEvent.ACTION_DOWN:
                         mTouchMode = TOUCH_MODE_DRAG;
 
-                        xCoOrdinate = v.getX() - event.getRawX();
-                        yCoOrdinate = v.getY() - event.getRawY();
+                        xCorItem = v.getX() - event.getRawX();
+                        yCorItem = v.getY() - event.getRawY();
 
                     case MotionEvent.ACTION_MOVE:
                         if (mTouchMode == TOUCH_MODE_DRAG) {
-                            move_x = event.getRawX() + xCoOrdinate;
-                            move_y =  event.getRawY() + yCoOrdinate;
-                            v.animate().x(move_x).y(move_y).setDuration(0).start();
+                            move_x_item = event.getRawX() + xCorItem;
+                            move_y_item =  event.getRawY() + yCorItem;
+                            v.animate().x(move_x_item).y(move_y_item).setDuration(0).start();
                         }
                         break;
                     case MotionEvent.ACTION_UP:
@@ -208,21 +239,7 @@ public class TemplateSinglePhoto extends AppCompatActivity {
                 return true;
             }
 
-            private float getDistance(MotionEvent event) {
-                return GeometryMathUtils.getDistance(event.getX(0), event.getY(0),
-                        event.getX(1), event.getY(1));
-            }
 
-            private void getCenter(PointF point, MotionEvent event) {
-                float x = mLastX + event.getX(1);
-                float y = mLastY + event.getY(1);
-                point.set(x / 2, y / 2);
-            }
-
-            private float getDegrees(MotionEvent event) {
-                return GeometryMathUtils.getDegrees(event.getX(0), event.getY(0),
-                        event.getX(1), event.getY(1));
-            }
         });
 
 
@@ -231,10 +248,7 @@ public class TemplateSinglePhoto extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                item.setVisibility(View.VISIBLE);
-                item.setClickable(true);
-                item.setEnabled(true);
-                item.setImageResource(R.drawable.sun);
+                templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, stickerFragment);
 
             }
         });
@@ -242,8 +256,15 @@ public class TemplateSinglePhoto extends AppCompatActivity {
         merge_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bitmap pho = ((BitmapDrawable)photo.getDrawable()).getBitmap();
+
+                FrameLayout.LayoutParams background_params = (FrameLayout.LayoutParams) photo.getLayoutParams();
+                Bitmap p = ((BitmapDrawable)photo.getDrawable()).getBitmap();
+
+                Bitmap pho = Bitmap.createScaledBitmap(p, background.getWidth()-background_params.leftMargin*2, background.getHeight()-background_params.topMargin*2, false);
+
                 Bitmap back = Bitmap.createBitmap(background.getWidth(), background.getHeight(), Bitmap.Config.ARGB_8888);
+
+                Log.d("Background_margins", String.valueOf(background_params.topMargin) + " " + String.valueOf(background_params.leftMargin) + " " + String.valueOf(background_params.bottomMargin) + " " + String.valueOf(background_params.rightMargin));
 
 
 
@@ -260,7 +281,7 @@ public class TemplateSinglePhoto extends AppCompatActivity {
 
                 back.eraseColor(getResources().getColor(R.color.colorPrimary));
 
-                Log.d("Backgroud_size", String.valueOf(back.getWidth()) + " " + String.valueOf(back.getHeight()));
+                Log.d("Background_size", String.valueOf(back.getWidth()) + " " + String.valueOf(back.getHeight()));
                 Log.d("Photo_size", String.valueOf(pho.getWidth()) + " " + String.valueOf(pho.getHeight()));
 
                 int width = back.getWidth();
@@ -288,11 +309,6 @@ public class TemplateSinglePhoto extends AppCompatActivity {
         });
     }
 
-    public void setFragment(Context context, Fragment fragment) {
-        FragmentTransaction fragmentTransaction = ((FragmentActivity)context).getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.frameLayout2, fragment);
-        fragmentTransaction.commit();
-    }
 
     private void save_merged() {
         // Here, thisActivity is the current activity
@@ -302,9 +318,14 @@ public class TemplateSinglePhoto extends AppCompatActivity {
 
             //MediaStore.Images.Media.insertImage(getContentResolver(), cs, "merged.jpg", "merged photo");
             //Toast.makeText(getApplicationContext(), "Zapisano", Toast.LENGTH_SHORT).show();
+            File direct = new File(Environment.getExternalStorageDirectory() + "/Pictures/CardMaker");
+            if (!direct.exists()) {
+                File wallpaperDirectory = new File("/sdcard/Pictures/CardMaker/");
+                wallpaperDirectory.mkdirs();
+            }
 
             File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File file = new File(path, "merged.jpg");
+            File file = new File(new File("/sdcard/Pictures/CardMaker/"), "merged.jpg");
             try {
                 OutputStream out = null;
                 out = new FileOutputStream(file);
@@ -345,17 +366,8 @@ public class TemplateSinglePhoto extends AppCompatActivity {
             startActivityForResult(intent, REQUEST_CODE_ALBUM);
         }
 
-//		if (Build.VERSION.SDK_INT < 19) {
-//			Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-//			intent.setType("image/*");
-//			startActivityForResult(intent, REQUEST_CODE_ALBUM);
-//		} else {
-//			Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-//			intent.addCategory(Intent.CATEGORY_OPENABLE);
-//			intent.setType("image/*");
-//			startActivityForResult(intent, REQUEST_CODE_ALBUM);
-//		}
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -367,17 +379,23 @@ public class TemplateSinglePhoto extends AppCompatActivity {
         if(ContextCompat.checkSelfPermission(TemplateSinglePhoto.this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
+
+            FrameLayout.LayoutParams backgroundParams = (FrameLayout.LayoutParams) photo.getLayoutParams();
+
             switch (requestCode) {
                 case REQUEST_CODE_CAMERA:
-                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_CAMERA, data, photo.getWidth()-20, photo.getHeight()-20);
+                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_CAMERA, data, background.getWidth()-backgroundParams.leftMargin*2, background.getHeight()-backgroundParams.topMargin*2);
+                    Log.d("First_size", String.valueOf(background.getWidth()-backgroundParams.leftMargin*2) + " " + String.valueOf(background.getHeight()-backgroundParams.topMargin*2));
                     break;
                 case REQUEST_CODE_ALBUM:
-                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_ALBUM, data, photo.getWidth()-20, photo.getHeight()-20);
-
+                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_ALBUM, data, background.getWidth()-backgroundParams.leftMargin*2, background.getHeight()-backgroundParams.topMargin*2);
+                    Log.d("First_size", String.valueOf(background.getWidth()-backgroundParams.leftMargin*2) + " " + String.valueOf(background.getHeight()-backgroundParams.topMargin*2));
                     break;
                 default:
                     break;
             }
+            photo.setBackgroundColor(Color.TRANSPARENT);
+            photo.setBackground(null);
         }
         else
         {
@@ -385,5 +403,43 @@ public class TemplateSinglePhoto extends AppCompatActivity {
                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
         }
+
+    }
+
+    @Override
+    public void onFragmentInteraction(int s) {
+        this.sticker = s;
+
+        item.setVisibility(View.VISIBLE);
+        item.setClickable(true);
+        item.setEnabled(true);
+        item.setImageResource(sticker);
+
+        templateSinglePhotoPresenter.setFragment(this, seekBarsFragment);
+
+        item.setRotation(0);
+        item.setScaleX(1);
+        item.setScaleY(1);
+        item.setX(background.getX() + background.getWidth()/2 - item.getWidth()/2);
+        item.setY(background.getY() + background.getHeight()/2 - item.getHeight()/2);
+
+        Log.d("Sticker_click", String.valueOf(sticker));
+
+
+    }
+
+    @Override
+    public void changeBorderSize(int size) {
+        if(size >= 0)
+        {
+            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) photo.getLayoutParams();
+            int real_size = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, size, Resources.getSystem().getDisplayMetrics()));
+            params.setMargins(real_size, real_size, real_size, real_size);
+//            photo.setScaleY(params.height/(params.height-real_size*2));
+//            photo.setScaleX(1.f);
+//            Log.d("Y_SCALE", String.valueOf((photo.getHeight()/(float)(photo.getHeight()-real_size*2))));
+            photo.setLayoutParams(params);
+        }
+
     }
 }

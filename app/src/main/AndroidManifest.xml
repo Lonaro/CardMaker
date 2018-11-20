@@ -21,7 +21,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.TemplateSinglePhoto" />
-        <activity android:name=".view.CropActivity"></activity>
+        <activity android:name=".view.CropActivity"
+            android:noHistory="true"/>
     </application>
 
 </manifest>
