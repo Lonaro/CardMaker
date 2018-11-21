@@ -1,8 +1,12 @@
 package michal.cardmaker.view.fragment;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +23,20 @@ public class BorderSettingFragment extends Fragment {
     Button borderSizeUp;
     Button borderSizeDown;
     TextView borderSizeValue;
+    int sizeValue;
+    Context context;
 
     BorderSettingsFragmentListener borderSettingsFragmentListener;
 
     public BorderSettingFragment() {
         // Required empty public constructor
+    }
+
+    @SuppressLint("ValidFragment")
+    public BorderSettingFragment(Context c, int size) {
+        context = c;
+        sizeValue = (int) (size / context.getResources().getDisplayMetrics().density);//Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, size, Resources.getSystem().getDisplayMetrics()));
+
     }
 
     @Override
@@ -35,7 +48,7 @@ public class BorderSettingFragment extends Fragment {
         borderSizeValue = view.findViewById(R.id.border_size_value);
         borderSizeUp = view.findViewById(R.id.increment_border_value);
         borderSizeDown = view.findViewById(R.id.decrement_border_value);
-        borderSizeValue.setText(String.valueOf(10));
+        borderSizeValue.setText(String.valueOf(sizeValue));
 
         borderSettingsFragmentListener = (BorderSettingsFragmentListener) getContext();
 

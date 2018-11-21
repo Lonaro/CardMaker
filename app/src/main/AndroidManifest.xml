@@ -20,7 +20,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.TemplateSinglePhoto" />
+        <activity android:name=".view.TemplateSinglePhoto"
+            android:windowSoftInputMode="adjustNothing"/>
         <activity android:name=".view.CropActivity"
             android:noHistory="true"/>
     </application>

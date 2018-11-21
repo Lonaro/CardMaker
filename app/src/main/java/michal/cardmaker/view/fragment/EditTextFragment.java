@@ -108,8 +108,8 @@ public class EditTextFragment extends Fragment {
         seekBarTextScale.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                insertedText.setScaleX((float) (progress) / 10.f);
-                insertedText.setScaleY((float) (progress) / 10.f);
+                insertedText.setScaleX((float) (progress) / 30.f);
+                insertedText.setScaleY((float) (progress) / 30.f);
             }
 
             @Override

@@ -2,8 +2,9 @@ package michal.cardmaker.view;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -15,12 +16,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -42,15 +39,17 @@ import java.io.OutputStream;
 
 import michal.cardmaker.R;
 import michal.cardmaker.presenter.BorderSettingsFragmentListener;
+import michal.cardmaker.presenter.InsertTextFragmentListener;
 import michal.cardmaker.presenter.StickerFragmentListener;
 import michal.cardmaker.presenter.TemplateSinglePhotoPresenter;
 import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
 import michal.cardmaker.view.fragment.BorderSettingFragment;
+import michal.cardmaker.view.fragment.EditTextFragment;
 import michal.cardmaker.view.fragment.InsertTextFragment;
 import michal.cardmaker.view.fragment.SeekBarsFragment;
 import michal.cardmaker.view.fragment.StickerFragment;
 
-public class TemplateSinglePhoto extends AppCompatActivity implements StickerFragmentListener, BorderSettingsFragmentListener {
+public class TemplateSinglePhoto extends AppCompatActivity implements StickerFragmentListener, BorderSettingsFragmentListener, InsertTextFragmentListener {
 
     private ImageView background;
     private ImageView photo;
@@ -68,6 +67,10 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
     private TemplateSinglePhotoPresenter templateSinglePhotoPresenter;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
+
+    private static final String PREFERENCES_NAME = "myPreferences";
+    private static final String PREFERENCES_BORDER_MARGIN = "BORDER_MARGIN";
+    private SharedPreferences preferences;
 
     Bitmap cs;
     Canvas comboImage;
@@ -110,25 +113,42 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         insertedText.setVisibility(View.INVISIBLE);
         insertedText.setClickable(false);
         insertedText.setEnabled(false);
+        preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
 
-        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) photo.getLayoutParams();
-        int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
-        params.topMargin = first_margin;
-        params.leftMargin = first_margin;
-        params.bottomMargin = first_margin;
-        params.rightMargin = first_margin;
-        photo.setLayoutParams(params);
-        photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        int border_margin_text = preferences.getInt(PREFERENCES_BORDER_MARGIN, 30);
 
         stickerFragment = new StickerFragment();
         seekBarsFragment = new SeekBarsFragment(item);
-        borderSettingFragment = new BorderSettingFragment();
-        insertTextFragment = new InsertTextFragment();
+        borderSettingFragment = new BorderSettingFragment(this, border_margin_text);
+        insertTextFragment = new InsertTextFragment(this);
+
+
+        if(preferences.contains(PREFERENCES_BORDER_MARGIN))
+        {
+            int border_margin = preferences.getInt(PREFERENCES_BORDER_MARGIN, 30);
+            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) photo.getLayoutParams();
+            params.setMargins(border_margin, border_margin, border_margin, border_margin);
+            photo.setLayoutParams(params);
+            preferences.edit().remove(PREFERENCES_BORDER_MARGIN).commit();
+        }
+        else {
+            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) photo.getLayoutParams();
+            int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
+            params.setMargins(first_margin, first_margin, first_margin, first_margin);
+            photo.setLayoutParams(params);
+            photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        }
+
         // setFragment(this, stickerFragment);
 
         item.setClickable(false);
         item.setEnabled(false);
         item.setVisibility(View.INVISIBLE);
+
+        insertedText.setClickable(false);
+        insertedText.setEnabled(false);
+        insertedText.setVisibility(View.INVISIBLE);
+
 
         Intent intent = getIntent();
 
@@ -153,6 +173,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                saveData();
                 onSelectAlbum();
             }
         });
@@ -267,18 +288,6 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                 Log.d("Background_margins", String.valueOf(background_params.topMargin) + " " + String.valueOf(background_params.leftMargin) + " " + String.valueOf(background_params.bottomMargin) + " " + String.valueOf(background_params.rightMargin));
 
 
-
-                Bitmap item_1 = ((BitmapDrawable)item.getDrawable()).getBitmap();
-
-
-                Bitmap b = Bitmap.createScaledBitmap(item_1, (int)(item_1.getWidth()*item.getScaleX()), (int)(item_1.getHeight()*item.getScaleX()), false);
-                Matrix mat = new Matrix();
-                mat.postRotate(item.getRotation(), b.getWidth()/2, b.getHeight()/2);
-                mat.postTranslate(item.getX() + item.getWidth()/2-b.getWidth()/2, item.getY() + item.getHeight()/2-b.getHeight()/2);
-                item.setImageMatrix(mat);
-                //Bitmap r = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), mat, true);
-
-
                 back.eraseColor(getResources().getColor(R.color.colorPrimary));
 
                 Log.d("Background_size", String.valueOf(back.getWidth()) + " " + String.valueOf(back.getHeight()));
@@ -296,7 +305,30 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
                 if(item.getVisibility() == View.VISIBLE)
                 {
+                    Bitmap item_1 = ((BitmapDrawable) item.getDrawable()).getBitmap();
+                    Bitmap b = Bitmap.createScaledBitmap(item_1, (int) (item_1.getWidth() * item.getScaleX()), (int) (item_1.getHeight() * item.getScaleX()), false);
+                    Matrix mat = new Matrix();
+                    mat.postRotate(item.getRotation(), b.getWidth() / 2, b.getHeight() / 2);
+                    mat.postTranslate(item.getX() + item.getWidth() / 2 - b.getWidth() / 2, item.getY() + item.getHeight() / 2 - b.getHeight() / 2);
+                    item.setImageMatrix(mat);
                     comboImage.drawBitmap(b, mat , null);
+                    Log.d("Item_1", String.valueOf(item.getX() + item.getWidth()/2) + " " + String.valueOf(item.getY() + item.getHeight()/2));
+                }
+
+                if(insertedText.getVisibility() == View.VISIBLE)
+                {
+                    insertedText.buildDrawingCache();
+                    Bitmap insertedText_1 = Bitmap.createBitmap(insertedText.getDrawingCache());
+                    Bitmap b = Bitmap.createScaledBitmap(insertedText_1, (int) (insertedText_1.getWidth() * insertedText.getScaleX()), (int) (insertedText_1.getHeight() * insertedText.getScaleX()), false);
+                    Matrix mat = new Matrix();
+                    mat.postRotate(insertedText.getRotation(), b.getWidth() / 2, b.getHeight() / 2);
+                    mat.postTranslate(insertedText.getX() + insertedText.getWidth() / 2 - b.getWidth() / 2, insertedText.getY() + insertedText.getHeight() / 2 - b.getHeight() / 2);
+
+                    //Bitmap textAftrMat = Bitmap.createBitmap(insertedText_1, (int)insertedText.getX(), (int)insertedText.getY(), insertedText_1.getWidth(), insertedText_1.getHeight(), mat, false);
+
+
+                    //insertedText_1.setImageMatrix(mat);
+                    comboImage.drawBitmap(b, mat, null);
                     Log.d("Item_1", String.valueOf(item.getX() + item.getWidth()/2) + " " + String.valueOf(item.getY() + item.getHeight()/2));
                 }
 
@@ -309,6 +341,25 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         });
     }
 
+
+    private void saveData() {
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) photo.getLayoutParams();
+        SharedPreferences.Editor preferencesEditor = preferences.edit();
+        preferencesEditor.putInt(PREFERENCES_BORDER_MARGIN, params.bottomMargin);
+        preferencesEditor.commit();
+    }
+
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        int border_margin = savedInstanceState.getInt("BORDER_MARGIN");
+
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) photo.getLayoutParams();
+        params.setMargins(border_margin, border_margin, border_margin, border_margin);
+        photo.setLayoutParams(params);
+    }
 
     private void save_merged() {
         // Here, thisActivity is the current activity
@@ -441,5 +492,10 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
             photo.setLayoutParams(params);
         }
 
+    }
+
+    @Override
+    public void sendTextView() {
+        templateSinglePhotoPresenter.setFragment(this, new EditTextFragment());
     }
 }

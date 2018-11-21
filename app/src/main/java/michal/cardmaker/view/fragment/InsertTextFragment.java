@@ -1,5 +1,7 @@
 package michal.cardmaker.view.fragment;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,6 +12,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import michal.cardmaker.R;
+import michal.cardmaker.presenter.InsertTextFragmentListener;
+import michal.cardmaker.presenter.StickerFragmentListener;
 import michal.cardmaker.view.TemplateSinglePhoto;
 
 
@@ -18,10 +22,16 @@ public class InsertTextFragment extends Fragment {
     Button add_button;
     TextView textView;
     EditText editText;
+    InsertTextFragmentListener insertTextFragmentListener;
 
-    public InsertTextFragment() {
+    public InsertTextFragment(){
+
+    }
+
+    @SuppressLint("ValidFragment")
+    public InsertTextFragment(Context context) {
         // Required empty public constructor
-
+        insertTextFragmentListener = (InsertTextFragmentListener) context;
     }
 
 
@@ -41,7 +51,7 @@ public class InsertTextFragment extends Fragment {
                 textView.setVisibility(View.VISIBLE);
                 textView.setClickable(true);
                 textView.setEnabled(true);
-                ((TemplateSinglePhoto)getActivity()).setFragment(view.getContext(), new EditTextFragment());
+                insertTextFragmentListener.sendTextView();
             }
         });
 
