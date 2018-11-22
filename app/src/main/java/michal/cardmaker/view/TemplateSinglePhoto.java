@@ -11,31 +11,26 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.lang.reflect.Type;
 
 import michal.cardmaker.R;
 import michal.cardmaker.presenter.BorderSettingsFragmentListener;
@@ -57,6 +52,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     private Button add_item_button;
     private Button borderSettingsButton;
     private Button add_text_button;
+    private ImageView item;
 
     private TextView insertedText;
 
@@ -70,11 +66,22 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
     private static final String PREFERENCES_NAME = "myPreferences";
     private static final String PREFERENCES_BORDER_MARGIN = "BORDER_MARGIN";
-    private SharedPreferences preferences;
 
-    Bitmap cs;
-    Canvas comboImage;
-    ImageView item;
+    private static final String PREFERENCES_ITEM_X= "ITEM_X";
+    private static final String PREFERENCES_ITEM_Y = "ITEM_Y";
+    private static final String PREFERENCES_ITEM_SCALE = "ITEM_SCALE";
+    private static final String PREFERENCES_ITEM_ROTATION = "ITEM_ROTATION";
+    private static final String PREFERENCES_ITEM_IMAGE = "ITEM_IMAGE";
+
+    private static final String PREFERENCES_TEXT_X= "TEXT_X";
+    private static final String PREFERENCES_TEXT_Y = "TEXT_Y";
+    private static final String PREFERENCES_TEXT_SCALE = "TEXT_SCALE";
+    private static final String PREFERENCES_TEXT_ROTATION = "TEXT_ROTATION";
+    private static final String PREFERENCES_TEXT_FONT = "TEXT_FONT";
+    private static final String PREFERENCES_TEXT_COLOR = "TEXT_COLOR";
+    private static final String PREFERENCES_TEXT_VALUE = "TEXT_VALUE";
+
+    private SharedPreferences preferences;
 
     public static final int REQUEST_CODE_CAMERA = 1;
     public static final int REQUEST_CODE_ALBUM = 2;
@@ -83,6 +90,8 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     private float xCorText, yCorText;
     float move_x_item;
     float move_y_item;
+    int actual_sticker;
+    public String actual_font;
 
     float move_x_text;
     float move_y_text;
@@ -110,9 +119,6 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         add_text_button = findViewById(R.id.add_text_button);
         insertedText = findViewById(R.id.text);
 
-        insertedText.setVisibility(View.INVISIBLE);
-        insertedText.setClickable(false);
-        insertedText.setEnabled(false);
         preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
 
         int border_margin_text = preferences.getInt(PREFERENCES_BORDER_MARGIN, 30);
@@ -122,34 +128,87 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         borderSettingFragment = new BorderSettingFragment(this, border_margin_text);
         insertTextFragment = new InsertTextFragment(this);
 
-
         if(preferences.contains(PREFERENCES_BORDER_MARGIN))
         {
             int border_margin = preferences.getInt(PREFERENCES_BORDER_MARGIN, 30);
-            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) photo.getLayoutParams();
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
             params.setMargins(border_margin, border_margin, border_margin, border_margin);
             photo.setLayoutParams(params);
             preferences.edit().remove(PREFERENCES_BORDER_MARGIN).commit();
         }
         else {
-            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) photo.getLayoutParams();
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
             int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
             params.setMargins(first_margin, first_margin, first_margin, first_margin);
             photo.setLayoutParams(params);
             photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
         }
 
+        if(preferences.contains(PREFERENCES_ITEM_X))
+        {
+            item.setEnabled(true);
+            item.setClickable(true);
+            item.setVisibility(View.VISIBLE);
+
+            item.setScaleX(preferences.getFloat(PREFERENCES_ITEM_SCALE, 1));
+            item.setScaleY(preferences.getFloat(PREFERENCES_ITEM_SCALE, 1));
+            item.setX((int)preferences.getFloat(PREFERENCES_ITEM_X, 500));
+            item.setY((int)preferences.getFloat(PREFERENCES_ITEM_Y, 500));
+            item.setRotation(preferences.getFloat(PREFERENCES_ITEM_ROTATION, 0));
+            item.setImageResource(preferences.getInt(PREFERENCES_ITEM_IMAGE, R.drawable.smile_item));
+            actual_sticker = preferences.getInt(PREFERENCES_ITEM_IMAGE, R.drawable.smile_item);
+
+            preferences.edit().remove(PREFERENCES_ITEM_SCALE).commit();
+            preferences.edit().remove(PREFERENCES_ITEM_X).commit();
+            preferences.edit().remove(PREFERENCES_ITEM_Y).commit();
+            preferences.edit().remove(PREFERENCES_ITEM_ROTATION).commit();
+            preferences.edit().remove(PREFERENCES_ITEM_IMAGE).commit();
+        }
+        else
+        {
+            item.setClickable(false);
+            item.setEnabled(false);
+            item.setVisibility(View.INVISIBLE);
+        }
+
+        if(preferences.contains(PREFERENCES_TEXT_X))
+        {
+            insertedText.setClickable(true);
+            insertedText.setEnabled(true);
+            insertedText.setVisibility(View.VISIBLE);
+
+            insertedText.setScaleX(preferences.getFloat(PREFERENCES_TEXT_SCALE, 1));
+            insertedText.setScaleY(preferences.getFloat(PREFERENCES_TEXT_SCALE, 1));
+            insertedText.setX((int)preferences.getFloat(PREFERENCES_TEXT_X, 500));
+            insertedText.setY((int)preferences.getFloat(PREFERENCES_TEXT_Y, 500));
+            insertedText.setRotation(preferences.getFloat(PREFERENCES_TEXT_ROTATION, 0));
+
+            String fontName = (preferences.getString(PREFERENCES_TEXT_FONT, "arial")).replaceAll("\\s+","_").toLowerCase();
+            Typeface fontStyle = ResourcesCompat.getFont(this, getResources().getIdentifier(fontName, "font", getPackageName()));
+            insertedText.setTypeface(fontStyle);
+            insertedText.setTextColor(preferences.getInt(PREFERENCES_TEXT_COLOR, 0));
+            actual_font = fontName;
+
+            insertedText.setText(preferences.getString(PREFERENCES_TEXT_VALUE, ""));
+
+            preferences.edit().remove(PREFERENCES_TEXT_X).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_Y).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_SCALE).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_ROTATION).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_FONT).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_COLOR).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_VALUE).commit();
+        }
+        else
+        {
+            insertedText.setClickable(false);
+            insertedText.setEnabled(false);
+            insertedText.setVisibility(View.INVISIBLE);
+        }
+
         // setFragment(this, stickerFragment);
-
-        item.setClickable(false);
-        item.setEnabled(false);
-        item.setVisibility(View.INVISIBLE);
-
-        insertedText.setClickable(false);
-        insertedText.setEnabled(false);
-        insertedText.setVisibility(View.INVISIBLE);
-
-
+        Log.d("ITEM_CONFIG", String.valueOf(item.getX()) + " " + String.valueOf(item.getY()) + " " + String.valueOf(item.getScaleX()) + " " + String.valueOf(item.getRotation()));
+        Log.d("TEXT_CONFIG", String.valueOf(insertedText.getX()) + " " + String.valueOf(insertedText.getY()) + " " + String.valueOf(insertedText.getScaleX()) + " " + String.valueOf(insertedText.getRotation()));
         Intent intent = getIntent();
 
         if (intent == null && intent.getData() == null) {
@@ -208,7 +267,10 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                         if (mTouchMode == TOUCH_MODE_DRAG) {
                             move_x_text = event.getRawX() + xCorText;
                             move_y_text =  event.getRawY() + yCorText;
-                            v.animate().x(move_x_text).y(move_y_text).setDuration(0).start();
+                            //v.animate().x(move_x_text).y(move_y_text).setDuration(0).start();
+                            Log.d("CorText", String.valueOf(move_x_text) + " " + String.valueOf(move_y_text));
+                            insertedText.setX(move_x_text);
+                            insertedText.setY(move_y_text);
                         }
                         break;
                     case MotionEvent.ACTION_UP:
@@ -224,7 +286,6 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                 return true;
             }
         });
-
 
         item.setOnTouchListener(new View.OnTouchListener() {
 
@@ -242,7 +303,10 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                         if (mTouchMode == TOUCH_MODE_DRAG) {
                             move_x_item = event.getRawX() + xCorItem;
                             move_y_item =  event.getRawY() + yCorItem;
-                            v.animate().x(move_x_item).y(move_y_item).setDuration(0).start();
+                            //v.animate().x(move_x_item).y(move_y_item).setDuration(0).start();
+                            Log.d("CorItem", String.valueOf(move_x_item) + " " + String.valueOf(move_y_item));
+                            item.setX(move_x_item);
+                            item.setY(move_y_item);
                         }
                         break;
                     case MotionEvent.ACTION_UP:
@@ -255,22 +319,14 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                         mTouchMode = TOUCH_MODE_NONE;
                         break;
                 }
-
-
                 return true;
             }
-
-
         });
-
-
 
         add_item_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, stickerFragment);
-
             }
         });
 
@@ -278,128 +334,58 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
             @Override
             public void onClick(View v) {
 
-                FrameLayout.LayoutParams background_params = (FrameLayout.LayoutParams) photo.getLayoutParams();
-                Bitmap p = ((BitmapDrawable)photo.getDrawable()).getBitmap();
+                Bitmap bitmapPostcard = Bitmap.createBitmap(background.getWidth(), background.getHeight(), Bitmap.Config.ARGB_8888);
+                bitmapPostcard.eraseColor(getResources().getColor(R.color.colorPrimary));
 
-                Bitmap pho = Bitmap.createScaledBitmap(p, background.getWidth()-background_params.leftMargin*2, background.getHeight()-background_params.topMargin*2, false);
+                Canvas canvasPostcard = new Canvas(bitmapPostcard);
 
-                Bitmap back = Bitmap.createBitmap(background.getWidth(), background.getHeight(), Bitmap.Config.ARGB_8888);
-
-                Log.d("Background_margins", String.valueOf(background_params.topMargin) + " " + String.valueOf(background_params.leftMargin) + " " + String.valueOf(background_params.bottomMargin) + " " + String.valueOf(background_params.rightMargin));
-
-
-                back.eraseColor(getResources().getColor(R.color.colorPrimary));
-
-                Log.d("Background_size", String.valueOf(back.getWidth()) + " " + String.valueOf(back.getHeight()));
-                Log.d("Photo_size", String.valueOf(pho.getWidth()) + " " + String.valueOf(pho.getHeight()));
-
-                int width = back.getWidth();
-                int height = back.getHeight();
-
-                cs = Bitmap.createBitmap(width, height, back.getConfig());
-
-                comboImage = new Canvas(cs);
-
-                comboImage.drawBitmap(back, 0f, 0f, null);
-                comboImage.drawBitmap(pho, (width-pho.getWidth())/2, (height-pho.getHeight())/2, null);
+                // Drawing photo
+                templateSinglePhotoPresenter.mergePhoto(photo, canvasPostcard, background);
 
                 if(item.getVisibility() == View.VISIBLE)
                 {
-                    Bitmap item_1 = ((BitmapDrawable) item.getDrawable()).getBitmap();
-                    Bitmap b = Bitmap.createScaledBitmap(item_1, (int) (item_1.getWidth() * item.getScaleX()), (int) (item_1.getHeight() * item.getScaleX()), false);
-                    Matrix mat = new Matrix();
-                    mat.postRotate(item.getRotation(), b.getWidth() / 2, b.getHeight() / 2);
-                    mat.postTranslate(item.getX() + item.getWidth() / 2 - b.getWidth() / 2, item.getY() + item.getHeight() / 2 - b.getHeight() / 2);
-                    item.setImageMatrix(mat);
-                    comboImage.drawBitmap(b, mat , null);
-                    Log.d("Item_1", String.valueOf(item.getX() + item.getWidth()/2) + " " + String.valueOf(item.getY() + item.getHeight()/2));
+                    templateSinglePhotoPresenter.mergeItem(item, canvasPostcard);
                 }
 
                 if(insertedText.getVisibility() == View.VISIBLE)
                 {
-                    insertedText.buildDrawingCache();
-                    Bitmap insertedText_1 = Bitmap.createBitmap(insertedText.getDrawingCache());
-                    Bitmap b = Bitmap.createScaledBitmap(insertedText_1, (int) (insertedText_1.getWidth() * insertedText.getScaleX()), (int) (insertedText_1.getHeight() * insertedText.getScaleX()), false);
-                    Matrix mat = new Matrix();
-                    mat.postRotate(insertedText.getRotation(), b.getWidth() / 2, b.getHeight() / 2);
-                    mat.postTranslate(insertedText.getX() + insertedText.getWidth() / 2 - b.getWidth() / 2, insertedText.getY() + insertedText.getHeight() / 2 - b.getHeight() / 2);
-
-                    //Bitmap textAftrMat = Bitmap.createBitmap(insertedText_1, (int)insertedText.getX(), (int)insertedText.getY(), insertedText_1.getWidth(), insertedText_1.getHeight(), mat, false);
-
-
-                    //insertedText_1.setImageMatrix(mat);
-                    comboImage.drawBitmap(b, mat, null);
-                    Log.d("Item_1", String.valueOf(item.getX() + item.getWidth()/2) + " " + String.valueOf(item.getY() + item.getHeight()/2));
+                    templateSinglePhotoPresenter.mergeText(insertedText, canvasPostcard);
                 }
 
-                Toast.makeText(getApplicationContext(), "Zmergowano", Toast.LENGTH_SHORT).show();
-
-                //mergePhoto.setImageBitmap(cs);
-
-                save_merged();
+                templateSinglePhotoPresenter.savePostcard(TemplateSinglePhoto.this, bitmapPostcard);
             }
         });
     }
 
 
     private void saveData() {
-        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) photo.getLayoutParams();
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
         SharedPreferences.Editor preferencesEditor = preferences.edit();
         preferencesEditor.putInt(PREFERENCES_BORDER_MARGIN, params.bottomMargin);
-        preferencesEditor.commit();
-    }
 
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        int border_margin = savedInstanceState.getInt("BORDER_MARGIN");
-
-        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) photo.getLayoutParams();
-        params.setMargins(border_margin, border_margin, border_margin, border_margin);
-        photo.setLayoutParams(params);
-    }
-
-    private void save_merged() {
-        // Here, thisActivity is the current activity
-        if (ContextCompat.checkSelfPermission(TemplateSinglePhoto.this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED) {
-
-            //MediaStore.Images.Media.insertImage(getContentResolver(), cs, "merged.jpg", "merged photo");
-            //Toast.makeText(getApplicationContext(), "Zapisano", Toast.LENGTH_SHORT).show();
-            File direct = new File(Environment.getExternalStorageDirectory() + "/Pictures/CardMaker");
-            if (!direct.exists()) {
-                File wallpaperDirectory = new File("/sdcard/Pictures/CardMaker/");
-                wallpaperDirectory.mkdirs();
-            }
-
-            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File file = new File(new File("/sdcard/Pictures/CardMaker/"), "merged.jpg");
-            try {
-                OutputStream out = null;
-                out = new FileOutputStream(file);
-
-                cs.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                out.flush();
-                out.close();
-
-                Toast.makeText(getApplicationContext(), "Zapisano", Toast.LENGTH_SHORT).show();
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }
-        else
+        if(item.getVisibility() == View.VISIBLE)
         {
-            ActivityCompat.requestPermissions(TemplateSinglePhoto.this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+            //Log.d("ITEM_CONFIG_BEFORE", String.valueOf(item.getX()) + " " + String.valueOf(item.getY()) + " " + String.valueOf(item.getScaleX()) + " " + String.valueOf(item.getRotation()));
+            preferencesEditor.putFloat(PREFERENCES_ITEM_X, item.getX());
+            preferencesEditor.putFloat(PREFERENCES_ITEM_Y, item.getY());
+            preferencesEditor.putFloat(PREFERENCES_ITEM_SCALE, item.getScaleX());
+            preferencesEditor.putFloat(PREFERENCES_ITEM_ROTATION, item.getRotation());
+            preferencesEditor.putInt(PREFERENCES_ITEM_IMAGE, actual_sticker);
         }
+
+        if(insertedText.getVisibility() == View.VISIBLE)
+        {
+            Log.d("TEXT_CONFIG_BEFORE", String.valueOf(insertedText.getX()) + " " + String.valueOf(insertedText.getY()) + " " + String.valueOf(insertedText.getScaleX()) + " " + String.valueOf(insertedText.getRotation()));
+            preferencesEditor.putFloat(PREFERENCES_TEXT_X, insertedText.getX());
+            preferencesEditor.putFloat(PREFERENCES_TEXT_Y, insertedText.getY());
+            preferencesEditor.putFloat(PREFERENCES_TEXT_SCALE, insertedText.getScaleX());
+            preferencesEditor.putFloat(PREFERENCES_TEXT_ROTATION, insertedText.getRotation());
+            preferencesEditor.putString(PREFERENCES_TEXT_FONT, actual_font);
+            preferencesEditor.putInt(PREFERENCES_TEXT_COLOR, insertedText.getCurrentTextColor());
+            preferencesEditor.putString(PREFERENCES_TEXT_VALUE, String.valueOf(insertedText.getText()));
+        }
+
+        preferencesEditor.commit();
     }
 
     public void onSelectAlbum() {
@@ -431,7 +417,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
 
-            FrameLayout.LayoutParams backgroundParams = (FrameLayout.LayoutParams) photo.getLayoutParams();
+            RelativeLayout.LayoutParams backgroundParams = (RelativeLayout.LayoutParams) photo.getLayoutParams();
 
             switch (requestCode) {
                 case REQUEST_CODE_CAMERA:
@@ -465,6 +451,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         item.setClickable(true);
         item.setEnabled(true);
         item.setImageResource(sticker);
+        actual_sticker = sticker;
 
         templateSinglePhotoPresenter.setFragment(this, seekBarsFragment);
 
@@ -483,7 +470,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     public void changeBorderSize(int size) {
         if(size >= 0)
         {
-            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) photo.getLayoutParams();
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
             int real_size = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, size, Resources.getSystem().getDisplayMetrics()));
             params.setMargins(real_size, real_size, real_size, real_size);
 //            photo.setScaleY(params.height/(params.height-real_size*2));

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".view.TemplateSinglePhoto">
 
-    <FrameLayout
+    <RelativeLayout
         android:id="@+id/frame_template"
         android:layout_width="360dp"
         android:layout_height="240dp"
@@ -38,22 +38,23 @@
             android:id="@+id/item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:contentDescription="Border"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
             android:scaleType="fitCenter"
-            />
+            tools:srcCompat="@drawable/sun" />
 
         <TextView
             android:id="@+id/text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:textColor="#000000"
             android:textSize="30dp"
-            android:fontFamily="@font/arial"/>
+            tools:text="Pozdrowienia" />
 
 
-    </FrameLayout>
+    </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/frameLayout2"

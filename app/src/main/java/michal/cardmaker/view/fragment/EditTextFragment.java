@@ -18,6 +18,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import michal.cardmaker.R;
+import michal.cardmaker.view.TemplateSinglePhoto;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class EditTextFragment extends Fragment {
@@ -64,8 +65,8 @@ public class EditTextFragment extends Fragment {
 
         String [] font_list = {"Arial", "Comics Sans", "Segoe"};
         Typeface [] fonts = {ResourcesCompat.getFont(getContext(), R.font.arial),
-                            ResourcesCompat.getFont(getContext(), R.font.comic),
-                            ResourcesCompat.getFont(getContext(), R.font.segoepr)};
+                            ResourcesCompat.getFont(getContext(), R.font.comics_sans),
+                            ResourcesCompat.getFont(getContext(), R.font.segoe)};
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item, font_list);
         fontListSpinner.setAdapter(dataAdapter);
 
@@ -75,6 +76,7 @@ public class EditTextFragment extends Fragment {
                 insertedText.setTypeface(fonts[position]);
                 insertedText.setPivotX(insertedText.getMeasuredWidth()/2);
                 insertedText.setPivotY(insertedText.getMeasuredHeight()/2);
+                ((TemplateSinglePhoto)getActivity()).actual_font = font_list[position];
             }
 
             @Override
