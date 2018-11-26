@@ -272,6 +272,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
                         mTouchMode = TOUCH_MODE_DRAG;
+                        templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, insertTextFragment);
 
                         xCorText = v.getX() - event.getRawX();
                         yCorText = v.getY() - event.getRawY();
@@ -308,7 +309,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
                         mTouchMode = TOUCH_MODE_DRAG;
-
+                        templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, seekBarsFragment);
                         xCorItem = v.getX() - event.getRawX();
                         yCorItem = v.getY() - event.getRawY();
 

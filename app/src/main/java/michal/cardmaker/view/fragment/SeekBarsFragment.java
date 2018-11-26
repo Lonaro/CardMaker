@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
@@ -18,6 +19,8 @@ public class SeekBarsFragment extends Fragment {
 
     private SeekBar seekBar_rotate;
     private SeekBar seekBar_scale;
+    private Button button_reset;
+    private ImageView item;
     ImageView sticker;
 
     public SeekBarsFragment(){
@@ -48,11 +51,13 @@ public class SeekBarsFragment extends Fragment {
 
         seekBar_rotate = view.findViewById(R.id.seekBar_rotate);
         seekBar_scale = view.findViewById(R.id.seekBar_scale);
+        button_reset = view.findViewById(R.id.button_reset_seek_bars);
+        item = getActivity().findViewById(R.id.item);
 
         seekBar_rotate.setMax(360);
         seekBar_rotate.setProgress(180);
         seekBar_scale.setMax(200);
-        seekBar_scale.setMax(100);
+        seekBar_scale.setProgress(100);
 
 
         seekBar_rotate.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -88,6 +93,21 @@ public class SeekBarsFragment extends Fragment {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
 
+            }
+        });
+
+        button_reset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                seekBar_rotate.setProgress(180);
+                seekBar_scale.setProgress(100);
+
+                item.setX(0);
+                item.setY(0);
+
+                sticker.setScaleX(1);
+                sticker.setScaleY(1);
+                sticker.setRotation(0);
             }
         });
 

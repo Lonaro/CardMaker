@@ -50,7 +50,8 @@
             android:layout_height="wrap_content"
             android:textColor="#000000"
             android:textSize="30dp"
-            tools:text="Pozdrowienia" />
+            tools:text="Pozdrowienia"
+            android:textAlignment="center"/>
 
 
     </RelativeLayout>
