@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -66,6 +67,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
     private static final String PREFERENCES_NAME = "myPreferences";
     private static final String PREFERENCES_BORDER_MARGIN = "BORDER_MARGIN";
+    private static final String PREFERENCES_BORDER_COLOR = "BORDER_COLOR";
 
     private static final String PREFERENCES_ITEM_X= "ITEM_X";
     private static final String PREFERENCES_ITEM_Y = "ITEM_Y";
@@ -80,6 +82,8 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     private static final String PREFERENCES_TEXT_FONT = "TEXT_FONT";
     private static final String PREFERENCES_TEXT_COLOR = "TEXT_COLOR";
     private static final String PREFERENCES_TEXT_VALUE = "TEXT_VALUE";
+
+
 
     private SharedPreferences preferences;
 
@@ -134,7 +138,9 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
             params.setMargins(border_margin, border_margin, border_margin, border_margin);
             photo.setLayoutParams(params);
+
             preferences.edit().remove(PREFERENCES_BORDER_MARGIN).commit();
+
         }
         else {
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
@@ -142,6 +148,13 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
             params.setMargins(first_margin, first_margin, first_margin, first_margin);
             photo.setLayoutParams(params);
             photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        }
+
+        if(preferences.contains(PREFERENCES_BORDER_COLOR))
+        {
+            int border_color = preferences.getInt(PREFERENCES_BORDER_COLOR, Color.rgb(13,71,161));
+            background.setBackgroundColor(border_color);
+            preferences.edit().remove(PREFERENCES_BORDER_COLOR).commit();
         }
 
         if(preferences.contains(PREFERENCES_ITEM_X))
@@ -335,7 +348,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
             public void onClick(View v) {
 
                 Bitmap bitmapPostcard = Bitmap.createBitmap(background.getWidth(), background.getHeight(), Bitmap.Config.ARGB_8888);
-                bitmapPostcard.eraseColor(getResources().getColor(R.color.colorPrimary));
+                bitmapPostcard.eraseColor(((ColorDrawable)background.getBackground()).getColor());
 
                 Canvas canvasPostcard = new Canvas(bitmapPostcard);
 
@@ -362,6 +375,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
         SharedPreferences.Editor preferencesEditor = preferences.edit();
         preferencesEditor.putInt(PREFERENCES_BORDER_MARGIN, params.bottomMargin);
+        preferencesEditor.putInt(PREFERENCES_BORDER_COLOR, ((ColorDrawable)background.getBackground()).getColor());
 
         if(item.getVisibility() == View.VISIBLE)
         {

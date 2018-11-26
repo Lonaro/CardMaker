@@ -11,10 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import michal.cardmaker.R;
 import michal.cardmaker.presenter.BorderSettingsFragmentListener;
+import yuku.ambilwarna.AmbilWarnaDialog;
 
 
 public class BorderSettingFragment extends Fragment {
@@ -23,13 +26,24 @@ public class BorderSettingFragment extends Fragment {
     Button borderSizeUp;
     Button borderSizeDown;
     TextView borderSizeValue;
+    ImageView borderImage;
     int sizeValue;
     Context context;
+
+    int default_color;
+    Spinner fontListSpinner;
 
     BorderSettingsFragmentListener borderSettingsFragmentListener;
 
     public BorderSettingFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        default_color = R.color.colorPrimary;
     }
 
     @SuppressLint("ValidFragment")
@@ -49,6 +63,9 @@ public class BorderSettingFragment extends Fragment {
         borderSizeUp = view.findViewById(R.id.increment_border_value);
         borderSizeDown = view.findViewById(R.id.decrement_border_value);
         borderSizeValue.setText(String.valueOf(sizeValue));
+        borderImage = getActivity().findViewById(R.id.background);
+
+        fontListSpinner = view.findViewById(R.id.fontListSpinner);
 
         borderSettingsFragmentListener = (BorderSettingsFragmentListener) getContext();
 
@@ -75,7 +92,29 @@ public class BorderSettingFragment extends Fragment {
             }
         });
 
+        borderButtonColor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openColorPicker();
+            }
+        });
+
         return view;
+    }
+
+    private void openColorPicker() {
+        AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(getContext(), default_color, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            @Override
+            public void onCancel(AmbilWarnaDialog dialog) {
+            }
+
+            @Override
+            public void onOk(AmbilWarnaDialog dialog, int color) {
+                default_color = color;
+                borderImage.setBackgroundColor(default_color);
+            }
+        });
+        colorPicker.show();
     }
 
 }

@@ -21,9 +21,8 @@
             android:id="@+id/background"
             android:layout_width="360dp"
             android:layout_height="240dp"
-
             android:contentDescription="Border"
-            android:src="@color/colorPrimary"
+            android:background="@color/colorPrimary"
             android:layout_gravity="center"/>
 
         <ImageView
