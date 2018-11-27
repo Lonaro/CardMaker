@@ -30,7 +30,6 @@ public class InsertTextFragment extends Fragment {
 
     @SuppressLint("ValidFragment")
     public InsertTextFragment(Context context) {
-        // Required empty public constructor
         insertTextFragmentListener = (InsertTextFragmentListener) context;
     }
 
@@ -58,4 +57,8 @@ public class InsertTextFragment extends Fragment {
         return view;
     }
 
+    public void clearText() {
+        editText.getText().clear();
+        editText.setText("");
+    }
 }

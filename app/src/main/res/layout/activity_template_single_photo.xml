@@ -8,11 +8,12 @@
 
     <RelativeLayout
         android:id="@+id/frame_template"
-        android:layout_width="360dp"
-        android:layout_height="240dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="10dp"
+        app:layout_constraintDimensionRatio="H, 3:2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -77,14 +78,16 @@
         android:layout_height="150dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+
+        android:layout_marginBottom="15dp">
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/template_left_buttons"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginBottom="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/merge_button"
             app:layout_constraintStart_toStartOf="parent"
@@ -130,7 +133,6 @@
             android:layout_marginLeft="@dimen/template_button_margin_inner"
             android:layout_marginTop="@dimen/template_button_margin_inner"
             android:layout_marginRight="@dimen/template_button_margin_inner"
-            android:layout_marginBottom="15dp"
             android:text="Merge"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/template_right_buttons"
@@ -143,8 +145,6 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginLeft="@dimen/template_button_margin_inner"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/merge_button"

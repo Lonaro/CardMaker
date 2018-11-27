@@ -25,17 +25,20 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.lang.reflect.Type;
 
 import michal.cardmaker.R;
 import michal.cardmaker.presenter.BorderSettingsFragmentListener;
 import michal.cardmaker.presenter.InsertTextFragmentListener;
+import michal.cardmaker.presenter.ResetItemFragmentListener;
+import michal.cardmaker.presenter.ResetTextFragmentListener;
 import michal.cardmaker.presenter.StickerFragmentListener;
 import michal.cardmaker.presenter.TemplateSinglePhotoPresenter;
 import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
@@ -45,22 +48,23 @@ import michal.cardmaker.view.fragment.InsertTextFragment;
 import michal.cardmaker.view.fragment.SeekBarsFragment;
 import michal.cardmaker.view.fragment.StickerFragment;
 
-public class TemplateSinglePhoto extends AppCompatActivity implements StickerFragmentListener, BorderSettingsFragmentListener, InsertTextFragmentListener {
+public class TemplateSinglePhoto extends AppCompatActivity implements StickerFragmentListener, BorderSettingsFragmentListener, InsertTextFragmentListener, ResetItemFragmentListener, ResetTextFragmentListener {
 
     private ImageView background;
     private ImageView photo;
+    private ImageView item;
     private Button merge_button;
     private Button add_item_button;
     private Button borderSettingsButton;
     private Button add_text_button;
-    private ImageView item;
-
+    private Button clear_button;
     private TextView insertedText;
 
     private StickerFragment stickerFragment;
     private SeekBarsFragment seekBarsFragment;
     private BorderSettingFragment borderSettingFragment;
     private InsertTextFragment insertTextFragment;
+    private EditTextFragment editTextFragment;
 
     private TemplateSinglePhotoPresenter templateSinglePhotoPresenter;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
@@ -82,8 +86,6 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     private static final String PREFERENCES_TEXT_FONT = "TEXT_FONT";
     private static final String PREFERENCES_TEXT_COLOR = "TEXT_COLOR";
     private static final String PREFERENCES_TEXT_VALUE = "TEXT_VALUE";
-
-
 
     private SharedPreferences preferences;
 
@@ -122,15 +124,17 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         borderSettingsButton = findViewById(R.id.border_button);
         add_text_button = findViewById(R.id.add_text_button);
         insertedText = findViewById(R.id.text);
+        clear_button = findViewById(R.id.clear_button);
 
         preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
 
         int border_margin_text = preferences.getInt(PREFERENCES_BORDER_MARGIN, 30);
 
         stickerFragment = new StickerFragment();
-        seekBarsFragment = new SeekBarsFragment(item);
+        seekBarsFragment = new SeekBarsFragment(item, this);
         borderSettingFragment = new BorderSettingFragment(this, border_margin_text);
         insertTextFragment = new InsertTextFragment(this);
+        editTextFragment = new EditTextFragment(this);
 
         if(preferences.contains(PREFERENCES_BORDER_MARGIN))
         {
@@ -272,6 +276,8 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
                         mTouchMode = TOUCH_MODE_DRAG;
+                        editTextFragment.setValues((int)(insertedText.getScaleX()*50), (int)insertedText.getRotation(), (int)insertedText.getCurrentTextColor());
+                        templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, editTextFragment);
 
                         xCorText = v.getX() - event.getRawX();
                         yCorText = v.getY() - event.getRawY();
@@ -308,6 +314,9 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
                         mTouchMode = TOUCH_MODE_DRAG;
+                        seekBarsFragment.setValues((int)(item.getScaleX()*100), (int)item.getRotation());
+                        templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, seekBarsFragment);
+
 
                         xCorItem = v.getX() - event.getRawX();
                         yCorItem = v.getY() - event.getRawY();
@@ -368,6 +377,50 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                 templateSinglePhotoPresenter.savePostcard(TemplateSinglePhoto.this, bitmapPostcard);
             }
         });
+
+        clear_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                int border_color = preferences.getInt(PREFERENCES_BORDER_COLOR, Color.rgb(13,71,161));
+                background.setBackgroundColor(border_color);
+
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+                int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
+                params.setMargins(first_margin, first_margin, first_margin, first_margin);
+                photo.setLayoutParams(params);
+                photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                photo.setImageResource(R.drawable.camera);
+
+                if(item.isEnabled())
+                {
+                    seekBarsFragment.clearItem();
+//                    item.setClickable(false);
+//                    item.setEnabled(false);
+//                    item.setVisibility(View.INVISIBLE);
+//                    item.setRotation(0);
+//                    item.setScaleX(1);
+//                    item.setScaleY(1);
+//                    item.setX(0);
+//                    item.setY(0);
+//
+//                    SeekBar seekBarItemScale = (SeekBar) findViewById(R.id.seekBar_scale);
+//                    seekBarItemScale.setProgress(100);
+//
+//                    SeekBar seekBarItemRotate = (SeekBar) findViewById(R.id.seekBar_rotate);
+//                    seekBarItemRotate.setProgress(180);
+                }
+
+                if(insertedText.isEnabled())
+                {
+                        editTextFragment.clearText();
+                }
+
+                FrameLayout frameLayout = findViewById(R.id.frameLayout2);
+                frameLayout.removeAllViews();
+
+            }
+        });
     }
 
 
@@ -419,6 +472,13 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
+        goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(goToMainActivity);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -497,6 +557,18 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
     @Override
     public void sendTextView() {
-        templateSinglePhotoPresenter.setFragment(this, new EditTextFragment());
+        templateSinglePhotoPresenter.setFragment(this, editTextFragment);
+    }
+
+    @Override
+    public void changeFragmentOnItemReset() {
+        templateSinglePhotoPresenter.setFragment(this, stickerFragment);
+    }
+
+    @Override
+    public void changeFragmentOnTextReset() {
+        insertTextFragment.clearText();
+        templateSinglePhotoPresenter.setFragment(this, insertTextFragment);
+        insertTextFragment.clearText();
     }
 }

@@ -118,6 +118,21 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        Fragment f = getSupportFragmentManager().findFragmentById(R.id.frame_navigation);
+        if(f instanceof TemplateFragment)
+        {
+            super.onBackPressed();
+        }
+        else
+        {
+            setFragment(templateFragment);
+            bottomNavigationView.setSelectedItemId(R.id.nav_template);
+        }
+    }
+
     private void setFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.frame_navigation, fragment);

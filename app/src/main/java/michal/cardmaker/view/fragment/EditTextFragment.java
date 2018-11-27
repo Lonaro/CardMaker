@@ -1,5 +1,7 @@
 package michal.cardmaker.view.fragment;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -18,6 +20,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import michal.cardmaker.R;
+import michal.cardmaker.presenter.ResetTextFragmentListener;
 import michal.cardmaker.view.TemplateSinglePhoto;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
@@ -28,22 +31,31 @@ public class EditTextFragment extends Fragment {
     TextView insertedText;
     Spinner fontListSpinner;
     Button changeColor;
+    Button button_reset_text;
+    Button button_clear_text;
     int default_color;
+
+    ResetTextFragmentListener resetTextFragmentListener;
 
     public EditTextFragment() {
 
     }
 
+    @SuppressLint("ValidFragment")
+    public EditTextFragment(Context context) {
+        resetTextFragmentListener = (ResetTextFragmentListener) context;
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-        seekBarTextRotation.setMax(360);
-        seekBarTextRotation.setProgress(180);
-
-        seekBarTextScale.setMax(60);
-        seekBarTextScale.setProgress(30);
-
-        default_color = Color.BLACK;
+//        seekBarTextRotation.setMax(360);
+//        seekBarTextRotation.setProgress(180);
+//
+//        seekBarTextScale.setMax(60);
+//        seekBarTextScale.setProgress(30);
+//
+//        default_color = Color.BLACK;
     }
 
     @Nullable
@@ -56,12 +68,16 @@ public class EditTextFragment extends Fragment {
         insertedText = getActivity().findViewById(R.id.text);
         changeColor = view.findViewById(R.id.changeColorButton);
         fontListSpinner = view.findViewById(R.id.fontListSpinner);
+        button_reset_text = view.findViewById(R.id.button_reset_text);
+        button_clear_text = view.findViewById(R.id.button_clear_text);
 
         seekBarTextRotation.setMax(360);
         seekBarTextRotation.setProgress(180);
 
         seekBarTextScale.setMax(100);
         seekBarTextScale.setProgress(50);
+
+//        default_color = Color.BLACK;
 
         String [] font_list = {"Arial", "Comics Sans", "Segoe"};
         Typeface [] fonts = {ResourcesCompat.getFont(getContext(), R.font.arial),
@@ -110,8 +126,8 @@ public class EditTextFragment extends Fragment {
         seekBarTextScale.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                insertedText.setScaleX((float) (progress) / 30.f);
-                insertedText.setScaleY((float) (progress) / 30.f);
+                insertedText.setScaleX((float) (progress) / 50.f);
+                insertedText.setScaleY((float) (progress) / 50.f);
             }
 
             @Override
@@ -123,7 +139,55 @@ public class EditTextFragment extends Fragment {
             }
         });
 
+        button_reset_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetText();
+            }
+        });
+
+        button_clear_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearText();
+
+                resetTextFragmentListener.changeFragmentOnTextReset();
+            }
+        });
+
         return view;
+    }
+
+    public void clearText()  {
+        insertedText.setScaleX(1);
+        insertedText.setScaleY(1);
+        insertedText.setRotation(0);
+        insertedText.setX(0);
+        insertedText.setY(0);
+        insertedText.setTextColor(Color.BLACK);
+        default_color = Color.BLACK;
+        seekBarTextRotation.setProgress(180);
+        seekBarTextScale.setProgress(50);
+        insertedText.setTypeface(ResourcesCompat.getFont(getContext(), R.font.arial));
+        fontListSpinner.setSelection(0);
+
+        insertedText.setEnabled(false);
+        insertedText.setClickable(false);
+        insertedText.setVisibility(View.INVISIBLE);
+    }
+
+    public void resetText() {
+        insertedText.setScaleX(1);
+        insertedText.setScaleY(1);
+        insertedText.setRotation(0);
+        insertedText.setX(0);
+        insertedText.setY(0);
+        insertedText.setTextColor(Color.BLACK);
+        default_color = Color.BLACK;
+        seekBarTextRotation.setProgress(180);
+        seekBarTextScale.setProgress(50);
+        insertedText.setTypeface(ResourcesCompat.getFont(getContext(), R.font.arial));
+        fontListSpinner.setSelection(0);
     }
 
     private void openColorPicker() {
@@ -139,5 +203,11 @@ public class EditTextFragment extends Fragment {
             }
         });
         colorPicker.show();
+    }
+
+    public void setValues(int scale, int rotation, int color) {
+        seekBarTextRotation.setProgress(rotation + 180);
+        seekBarTextScale.setProgress(scale);
+        default_color = color;
     }
 }
