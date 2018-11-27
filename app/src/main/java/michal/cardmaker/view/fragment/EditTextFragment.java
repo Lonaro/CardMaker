@@ -49,6 +49,8 @@ public class EditTextFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
+
 //        seekBarTextRotation.setMax(360);
 //        seekBarTextRotation.setProgress(180);
 //

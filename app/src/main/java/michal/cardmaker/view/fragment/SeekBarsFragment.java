@@ -20,8 +20,13 @@ public class SeekBarsFragment extends Fragment {
 
     private SeekBar seekBar_rotate;
     private SeekBar seekBar_scale;
+
     private Button button_reset_item;
     private Button button_clear_item;
+
+    private Button button_reset;
+    private ImageView item;
+
     ImageView sticker;
 
     ResetItemFragmentListener resetItemFragmentListener;
@@ -41,6 +46,9 @@ public class SeekBarsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
+
+
 //        seekBar_rotate.setMax(360);
 //        seekBar_rotate.setProgress(180);
 //
@@ -57,8 +65,12 @@ public class SeekBarsFragment extends Fragment {
 
         seekBar_rotate = view.findViewById(R.id.seekBar_rotate);
         seekBar_scale = view.findViewById(R.id.seekBar_scale);
+
         button_reset_item = view.findViewById(R.id.button_reset_item);
         button_clear_item = view.findViewById(R.id.button_clear_item);
+
+        item = getActivity().findViewById(R.id.item);
+
 
         seekBar_rotate.setMax(360);
         seekBar_rotate.setProgress(180);
@@ -114,12 +126,13 @@ public class SeekBarsFragment extends Fragment {
             public void onClick(View v) {
                 clearItem();
 
-                resetItemFragmentListener.changeFragmentOnItemReset();
             }
         });
 
         return view;
+
     }
+
 
     public void resetItem() {
         sticker.setScaleX(1);

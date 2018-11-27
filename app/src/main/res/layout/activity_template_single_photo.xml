@@ -20,8 +20,8 @@
 
         <ImageView
             android:id="@+id/background"
-            android:layout_width="360dp"
-            android:layout_height="240dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:contentDescription="Border"
             android:background="@color/colorPrimary"
             android:layout_gravity="center"/>
@@ -186,10 +186,5 @@
         </android.support.constraint.ConstraintLayout>
 
     </android.support.constraint.ConstraintLayout>
-
-
-
-
-
 
 </android.support.constraint.ConstraintLayout>

@@ -16,19 +16,22 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.FileNotFoundException;
@@ -86,6 +89,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     private static final String PREFERENCES_TEXT_FONT = "TEXT_FONT";
     private static final String PREFERENCES_TEXT_COLOR = "TEXT_COLOR";
     private static final String PREFERENCES_TEXT_VALUE = "TEXT_VALUE";
+    private static final String PREFERENCES_VERTICAL_ORIENTATION = "VERTICAL_ORIENTATION";
 
     private SharedPreferences preferences;
 
@@ -105,6 +109,8 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     private static final int TOUCH_MODE_NONE = 0;
     private static final int TOUCH_MODE_DRAG = 1;
     int mTouchMode = TOUCH_MODE_NONE;
+
+    private boolean VERTICAL_ORIENTATION = true;
 
     private int sticker;
 
@@ -135,6 +141,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         borderSettingFragment = new BorderSettingFragment(this, border_margin_text);
         insertTextFragment = new InsertTextFragment(this);
         editTextFragment = new EditTextFragment(this);
+
 
         if(preferences.contains(PREFERENCES_BORDER_MARGIN))
         {
@@ -223,6 +230,35 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
             insertedText.setVisibility(View.INVISIBLE);
         }
 
+
+
+
+        if(preferences.contains(PREFERENCES_VERTICAL_ORIENTATION)) {
+            VERTICAL_ORIENTATION = preferences.getBoolean(PREFERENCES_VERTICAL_ORIENTATION, true);
+            if (!VERTICAL_ORIENTATION) {
+                RelativeLayout photoAll = findViewById(R.id.frame_template);
+                ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
+                int layout_height = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 270, Resources.getSystem().getDisplayMetrics()));
+                fullPhoto.height = layout_height;
+                fullPhoto.width = 0;
+                fullPhoto.dimensionRatio = "V, 2:3";
+                photoAll.setLayoutParams(fullPhoto);
+
+                photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+            } else {
+                RelativeLayout photoAll = findViewById(R.id.frame_template);
+                ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
+                fullPhoto.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
+                fullPhoto.height = 0;
+                fullPhoto.dimensionRatio = "H, 3:2";
+                photoAll.setLayoutParams(fullPhoto);
+                photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            }
+            preferences.edit().remove(PREFERENCES_VERTICAL_ORIENTATION).commit();
+        }
+
+
         // setFragment(this, stickerFragment);
         Log.d("ITEM_CONFIG", String.valueOf(item.getX()) + " " + String.valueOf(item.getY()) + " " + String.valueOf(item.getScaleX()) + " " + String.valueOf(item.getRotation()));
         Log.d("TEXT_CONFIG", String.valueOf(insertedText.getX()) + " " + String.valueOf(insertedText.getY()) + " " + String.valueOf(insertedText.getScaleX()) + " " + String.valueOf(insertedText.getRotation()));
@@ -276,8 +312,9 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
                         mTouchMode = TOUCH_MODE_DRAG;
-                        editTextFragment.setValues((int)(insertedText.getScaleX()*50), (int)insertedText.getRotation(), (int)insertedText.getCurrentTextColor());
+
                         templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, editTextFragment);
+                        //editTextFragment.setValues((int)(insertedText.getScaleX()*50), (int)insertedText.getRotation(), (int)insertedText.getCurrentTextColor());
 
                         xCorText = v.getX() - event.getRawX();
                         yCorText = v.getY() - event.getRawY();
@@ -314,7 +351,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
                         mTouchMode = TOUCH_MODE_DRAG;
-                        seekBarsFragment.setValues((int)(item.getScaleX()*100), (int)item.getRotation());
+                        //seekBarsFragment.setValues((int)(item.getScaleX()*100), (int)item.getRotation());
                         templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, seekBarsFragment);
 
 
@@ -395,25 +432,12 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                 if(item.isEnabled())
                 {
                     seekBarsFragment.clearItem();
-//                    item.setClickable(false);
-//                    item.setEnabled(false);
-//                    item.setVisibility(View.INVISIBLE);
-//                    item.setRotation(0);
-//                    item.setScaleX(1);
-//                    item.setScaleY(1);
-//                    item.setX(0);
-//                    item.setY(0);
-//
-//                    SeekBar seekBarItemScale = (SeekBar) findViewById(R.id.seekBar_scale);
-//                    seekBarItemScale.setProgress(100);
-//
-//                    SeekBar seekBarItemRotate = (SeekBar) findViewById(R.id.seekBar_rotate);
-//                    seekBarItemRotate.setProgress(180);
+
                 }
 
                 if(insertedText.isEnabled())
                 {
-                        editTextFragment.clearText();
+                    editTextFragment.clearText();
                 }
 
                 FrameLayout frameLayout = findViewById(R.id.frameLayout2);
@@ -432,7 +456,6 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
         if(item.getVisibility() == View.VISIBLE)
         {
-            //Log.d("ITEM_CONFIG_BEFORE", String.valueOf(item.getX()) + " " + String.valueOf(item.getY()) + " " + String.valueOf(item.getScaleX()) + " " + String.valueOf(item.getRotation()));
             preferencesEditor.putFloat(PREFERENCES_ITEM_X, item.getX());
             preferencesEditor.putFloat(PREFERENCES_ITEM_Y, item.getY());
             preferencesEditor.putFloat(PREFERENCES_ITEM_SCALE, item.getScaleX());
@@ -442,7 +465,6 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
         if(insertedText.getVisibility() == View.VISIBLE)
         {
-            Log.d("TEXT_CONFIG_BEFORE", String.valueOf(insertedText.getX()) + " " + String.valueOf(insertedText.getY()) + " " + String.valueOf(insertedText.getScaleX()) + " " + String.valueOf(insertedText.getRotation()));
             preferencesEditor.putFloat(PREFERENCES_TEXT_X, insertedText.getX());
             preferencesEditor.putFloat(PREFERENCES_TEXT_Y, insertedText.getY());
             preferencesEditor.putFloat(PREFERENCES_TEXT_SCALE, insertedText.getScaleX());
@@ -452,11 +474,53 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
             preferencesEditor.putString(PREFERENCES_TEXT_VALUE, String.valueOf(insertedText.getText()));
         }
 
+        preferencesEditor.putBoolean(PREFERENCES_VERTICAL_ORIENTATION, VERTICAL_ORIENTATION);
+
         preferencesEditor.commit();
     }
 
-    public void onSelectAlbum() {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.topbar_menu, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch(item.getItemId()) {
+            case R.id.nav_rotate_template:
+                if(VERTICAL_ORIENTATION) {
+                    RelativeLayout photoAll = findViewById(R.id.frame_template);
+                    ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
+                    int layout_height = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 270, Resources.getSystem().getDisplayMetrics()));
+                    fullPhoto.height = layout_height;
+                    fullPhoto.width = 0;
+                    fullPhoto.dimensionRatio = "V, 2:3";
+                    photoAll.setLayoutParams(fullPhoto);
+
+                    photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    VERTICAL_ORIENTATION = false;
+                }
+                else
+                {
+                    RelativeLayout photoAll = findViewById(R.id.frame_template);
+                    ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
+                    fullPhoto.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
+                    fullPhoto.height = 0;
+                    fullPhoto.dimensionRatio = "H, 3:2";
+                    photoAll.setLayoutParams(fullPhoto);
+                    photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                    VERTICAL_ORIENTATION = true;
+
+                }
+        }
+
+        return true;
+    }
+
+    public void onSelectAlbum() {
 
         if (Build.VERSION.SDK_INT <= 19) {
             Intent intent = new Intent();
@@ -469,7 +533,6 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
             intent.setType("image/*");
             startActivityForResult(intent, REQUEST_CODE_ALBUM);
         }
-
     }
 
     @Override
