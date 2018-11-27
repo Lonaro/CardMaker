@@ -16,6 +16,10 @@ import android.widget.FrameLayout;
 
 import michal.cardmaker.R;
 import michal.cardmaker.presenter.MainActivityPresenter;
+import michal.cardmaker.view.fragment.HistoryFragment;
+import michal.cardmaker.view.fragment.ReverseFragment;
+import michal.cardmaker.view.fragment.SettingsFragment;
+import michal.cardmaker.view.fragment.TemplateFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -112,6 +116,21 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        Fragment f = getSupportFragmentManager().findFragmentById(R.id.frame_navigation);
+        if(f instanceof TemplateFragment)
+        {
+            super.onBackPressed();
+        }
+        else
+        {
+            setFragment(templateFragment);
+            bottomNavigationView.setSelectedItemId(R.id.nav_template);
+        }
     }
 
     private void setFragment(Fragment fragment) {

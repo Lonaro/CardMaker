@@ -2,86 +2,117 @@ package michal.cardmaker.view;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.graphics.PointF;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.provider.MediaStore;
+import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.SeekBar;
-import android.widget.Toast;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import michal.cardmaker.R;
-import michal.cardmaker.presenter.MainActivityPresenter;
+import michal.cardmaker.presenter.BorderSettingsFragmentListener;
+import michal.cardmaker.presenter.InsertTextFragmentListener;
+import michal.cardmaker.presenter.ResetItemFragmentListener;
+import michal.cardmaker.presenter.ResetTextFragmentListener;
+import michal.cardmaker.presenter.StickerFragmentListener;
 import michal.cardmaker.presenter.TemplateSinglePhotoPresenter;
-import michal.cardmaker.presenter.adapter.ItemAdapter;
 import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
-import michal.cardmaker.presenter.cropViewLibrary.GeometryMathUtils;
+import michal.cardmaker.view.fragment.BorderSettingFragment;
+import michal.cardmaker.view.fragment.EditTextFragment;
+import michal.cardmaker.view.fragment.InsertTextFragment;
+import michal.cardmaker.view.fragment.SeekBarsFragment;
+import michal.cardmaker.view.fragment.StickerFragment;
 
-public class TemplateSinglePhoto extends AppCompatActivity {
+public class TemplateSinglePhoto extends AppCompatActivity implements StickerFragmentListener, BorderSettingsFragmentListener, InsertTextFragmentListener, ResetItemFragmentListener, ResetTextFragmentListener {
 
     private ImageView background;
     private ImageView photo;
+    private ImageView item;
     private Button merge_button;
     private Button add_item_button;
-
-    private SeekBar seekBar_rotate;
-    private SeekBar seekBar_scale;
+    private Button borderSettingsButton;
+    private Button add_text_button;
+    private Button clear_button;
+    private TextView insertedText;
 
     private StickerFragment stickerFragment;
+    private SeekBarsFragment seekBarsFragment;
+    private BorderSettingFragment borderSettingFragment;
+    private InsertTextFragment insertTextFragment;
+    private EditTextFragment editTextFragment;
 
     private TemplateSinglePhotoPresenter templateSinglePhotoPresenter;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
 
-    Bitmap cs;
-    Canvas comboImage;
-    ImageView item;
+    private static final String PREFERENCES_NAME = "myPreferences";
+    private static final String PREFERENCES_BORDER_MARGIN = "BORDER_MARGIN";
+    private static final String PREFERENCES_BORDER_COLOR = "BORDER_COLOR";
+
+    private static final String PREFERENCES_ITEM_X= "ITEM_X";
+    private static final String PREFERENCES_ITEM_Y = "ITEM_Y";
+    private static final String PREFERENCES_ITEM_SCALE = "ITEM_SCALE";
+    private static final String PREFERENCES_ITEM_ROTATION = "ITEM_ROTATION";
+    private static final String PREFERENCES_ITEM_IMAGE = "ITEM_IMAGE";
+
+    private static final String PREFERENCES_TEXT_X= "TEXT_X";
+    private static final String PREFERENCES_TEXT_Y = "TEXT_Y";
+    private static final String PREFERENCES_TEXT_SCALE = "TEXT_SCALE";
+    private static final String PREFERENCES_TEXT_ROTATION = "TEXT_ROTATION";
+    private static final String PREFERENCES_TEXT_FONT = "TEXT_FONT";
+    private static final String PREFERENCES_TEXT_COLOR = "TEXT_COLOR";
+    private static final String PREFERENCES_TEXT_VALUE = "TEXT_VALUE";
+    private static final String PREFERENCES_VERTICAL_ORIENTATION = "VERTICAL_ORIENTATION";
+
+    private SharedPreferences preferences;
 
     public static final int REQUEST_CODE_CAMERA = 1;
     public static final int REQUEST_CODE_ALBUM = 2;
 
-    //***************************************************************
-    private float xCoOrdinate, yCoOrdinate;
-    float move_x;
-    float move_y;
+    private float xCorItem, yCorItem;
+    private float xCorText, yCorText;
+    float move_x_item;
+    float move_y_item;
+    int actual_sticker;
+    public String actual_font;
 
+    float move_x_text;
+    float move_y_text;
 
     private static final int TOUCH_MODE_NONE = 0;
     private static final int TOUCH_MODE_DRAG = 1;
     int mTouchMode = TOUCH_MODE_NONE;
 
-    float mLastX = 0;
-    float mLastY = 0;
+    private boolean VERTICAL_ORIENTATION = true;
 
-
-    //***************************************************************
+    private int sticker;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -96,20 +127,141 @@ public class TemplateSinglePhoto extends AppCompatActivity {
         background = findViewById(R.id.background);
         item = findViewById(R.id.item);
         add_item_button = findViewById(R.id.add_item_button);
-        seekBar_rotate = findViewById(R.id.seekBar_rotate);
-        seekBar_scale = findViewById(R.id.seekBar_scale);
+        borderSettingsButton = findViewById(R.id.border_button);
+        add_text_button = findViewById(R.id.add_text_button);
+        insertedText = findViewById(R.id.text);
+        clear_button = findViewById(R.id.clear_button);
+
+        preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
+
+        int border_margin_text = preferences.getInt(PREFERENCES_BORDER_MARGIN, 30);
 
         stickerFragment = new StickerFragment();
-        setFragment(this, stickerFragment);
+        seekBarsFragment = new SeekBarsFragment(item, this);
+        borderSettingFragment = new BorderSettingFragment(this, border_margin_text);
+        insertTextFragment = new InsertTextFragment(this);
+        editTextFragment = new EditTextFragment(this);
 
-        seekBar_rotate.setMax(360);
-        seekBar_rotate.setProgress(180);
-        seekBar_scale.setMax(200);
 
-        item.setClickable(false);
-        item.setEnabled(false);
-        item.setVisibility(View.INVISIBLE);
+        if(preferences.contains(PREFERENCES_BORDER_MARGIN))
+        {
+            int border_margin = preferences.getInt(PREFERENCES_BORDER_MARGIN, 30);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+            params.setMargins(border_margin, border_margin, border_margin, border_margin);
+            photo.setLayoutParams(params);
 
+            preferences.edit().remove(PREFERENCES_BORDER_MARGIN).commit();
+
+        }
+        else {
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+            int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
+            params.setMargins(first_margin, first_margin, first_margin, first_margin);
+            photo.setLayoutParams(params);
+            photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        }
+
+        if(preferences.contains(PREFERENCES_BORDER_COLOR))
+        {
+            int border_color = preferences.getInt(PREFERENCES_BORDER_COLOR, Color.rgb(13,71,161));
+            background.setBackgroundColor(border_color);
+            preferences.edit().remove(PREFERENCES_BORDER_COLOR).commit();
+        }
+
+        if(preferences.contains(PREFERENCES_ITEM_X))
+        {
+            item.setEnabled(true);
+            item.setClickable(true);
+            item.setVisibility(View.VISIBLE);
+
+            item.setScaleX(preferences.getFloat(PREFERENCES_ITEM_SCALE, 1));
+            item.setScaleY(preferences.getFloat(PREFERENCES_ITEM_SCALE, 1));
+            item.setX((int)preferences.getFloat(PREFERENCES_ITEM_X, 500));
+            item.setY((int)preferences.getFloat(PREFERENCES_ITEM_Y, 500));
+            item.setRotation(preferences.getFloat(PREFERENCES_ITEM_ROTATION, 0));
+            item.setImageResource(preferences.getInt(PREFERENCES_ITEM_IMAGE, R.drawable.smile_item));
+            actual_sticker = preferences.getInt(PREFERENCES_ITEM_IMAGE, R.drawable.smile_item);
+
+            preferences.edit().remove(PREFERENCES_ITEM_SCALE).commit();
+            preferences.edit().remove(PREFERENCES_ITEM_X).commit();
+            preferences.edit().remove(PREFERENCES_ITEM_Y).commit();
+            preferences.edit().remove(PREFERENCES_ITEM_ROTATION).commit();
+            preferences.edit().remove(PREFERENCES_ITEM_IMAGE).commit();
+        }
+        else
+        {
+            item.setClickable(false);
+            item.setEnabled(false);
+            item.setVisibility(View.INVISIBLE);
+        }
+
+        if(preferences.contains(PREFERENCES_TEXT_X))
+        {
+            insertedText.setClickable(true);
+            insertedText.setEnabled(true);
+            insertedText.setVisibility(View.VISIBLE);
+
+            insertedText.setScaleX(preferences.getFloat(PREFERENCES_TEXT_SCALE, 1));
+            insertedText.setScaleY(preferences.getFloat(PREFERENCES_TEXT_SCALE, 1));
+            insertedText.setX((int)preferences.getFloat(PREFERENCES_TEXT_X, 500));
+            insertedText.setY((int)preferences.getFloat(PREFERENCES_TEXT_Y, 500));
+            insertedText.setRotation(preferences.getFloat(PREFERENCES_TEXT_ROTATION, 0));
+
+            String fontName = (preferences.getString(PREFERENCES_TEXT_FONT, "arial")).replaceAll("\\s+","_").toLowerCase();
+            Typeface fontStyle = ResourcesCompat.getFont(this, getResources().getIdentifier(fontName, "font", getPackageName()));
+            insertedText.setTypeface(fontStyle);
+            insertedText.setTextColor(preferences.getInt(PREFERENCES_TEXT_COLOR, 0));
+            actual_font = fontName;
+
+            insertedText.setText(preferences.getString(PREFERENCES_TEXT_VALUE, ""));
+
+            preferences.edit().remove(PREFERENCES_TEXT_X).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_Y).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_SCALE).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_ROTATION).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_FONT).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_COLOR).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_VALUE).commit();
+        }
+        else
+        {
+            insertedText.setClickable(false);
+            insertedText.setEnabled(false);
+            insertedText.setVisibility(View.INVISIBLE);
+        }
+
+
+
+
+        if(preferences.contains(PREFERENCES_VERTICAL_ORIENTATION)) {
+            VERTICAL_ORIENTATION = preferences.getBoolean(PREFERENCES_VERTICAL_ORIENTATION, true);
+            if (!VERTICAL_ORIENTATION) {
+                RelativeLayout photoAll = findViewById(R.id.frame_template);
+                ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
+                int layout_height = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 270, Resources.getSystem().getDisplayMetrics()));
+                fullPhoto.height = layout_height;
+                fullPhoto.width = 0;
+                fullPhoto.dimensionRatio = "V, 2:3";
+                photoAll.setLayoutParams(fullPhoto);
+
+                photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+            } else {
+                RelativeLayout photoAll = findViewById(R.id.frame_template);
+                ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
+                fullPhoto.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
+                fullPhoto.height = 0;
+                fullPhoto.dimensionRatio = "H, 3:2";
+                photoAll.setLayoutParams(fullPhoto);
+                photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            }
+            preferences.edit().remove(PREFERENCES_VERTICAL_ORIENTATION).commit();
+        }
+
+
+        // setFragment(this, stickerFragment);
+        Log.d("ITEM_CONFIG", String.valueOf(item.getX()) + " " + String.valueOf(item.getY()) + " " + String.valueOf(item.getScaleX()) + " " + String.valueOf(item.getRotation()));
+        Log.d("TEXT_CONFIG", String.valueOf(insertedText.getX()) + " " + String.valueOf(insertedText.getY()) + " " + String.valueOf(insertedText.getScaleX()) + " " + String.valueOf(insertedText.getRotation()));
         Intent intent = getIntent();
 
         if (intent == null && intent.getData() == null) {
@@ -133,49 +285,27 @@ public class TemplateSinglePhoto extends AppCompatActivity {
         photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                saveData();
                 onSelectAlbum();
             }
         });
 
-        seekBar_rotate.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        borderSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                item.setRotation(progress-180);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
+            public void onClick(View v) {
+                photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, borderSettingFragment);
             }
         });
 
-        seekBar_scale.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        add_text_button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                item.setScaleX((float)(progress)/100.f);
-                item.setScaleY((float)(progress)/100.f);
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
+            public void onClick(View v) {
+                templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, insertTextFragment);
             }
         });
 
-
-        item.setOnTouchListener(new View.OnTouchListener() {
-
+        insertedText.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
@@ -183,14 +313,20 @@ public class TemplateSinglePhoto extends AppCompatActivity {
                     case MotionEvent.ACTION_DOWN:
                         mTouchMode = TOUCH_MODE_DRAG;
 
-                        xCoOrdinate = v.getX() - event.getRawX();
-                        yCoOrdinate = v.getY() - event.getRawY();
+                        templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, editTextFragment);
+                        //editTextFragment.setValues((int)(insertedText.getScaleX()*50), (int)insertedText.getRotation(), (int)insertedText.getCurrentTextColor());
+
+                        xCorText = v.getX() - event.getRawX();
+                        yCorText = v.getY() - event.getRawY();
 
                     case MotionEvent.ACTION_MOVE:
                         if (mTouchMode == TOUCH_MODE_DRAG) {
-                            move_x = event.getRawX() + xCoOrdinate;
-                            move_y =  event.getRawY() + yCoOrdinate;
-                            v.animate().x(move_x).y(move_y).setDuration(0).start();
+                            move_x_text = event.getRawX() + xCorText;
+                            move_y_text =  event.getRawY() + yCorText;
+                            //v.animate().x(move_x_text).y(move_y_text).setDuration(0).start();
+                            Log.d("CorText", String.valueOf(move_x_text) + " " + String.valueOf(move_y_text));
+                            insertedText.setX(move_x_text);
+                            insertedText.setY(move_y_text);
                         }
                         break;
                     case MotionEvent.ACTION_UP:
@@ -203,135 +339,188 @@ public class TemplateSinglePhoto extends AppCompatActivity {
                         mTouchMode = TOUCH_MODE_NONE;
                         break;
                 }
-
-
                 return true;
-            }
-
-            private float getDistance(MotionEvent event) {
-                return GeometryMathUtils.getDistance(event.getX(0), event.getY(0),
-                        event.getX(1), event.getY(1));
-            }
-
-            private void getCenter(PointF point, MotionEvent event) {
-                float x = mLastX + event.getX(1);
-                float y = mLastY + event.getY(1);
-                point.set(x / 2, y / 2);
-            }
-
-            private float getDegrees(MotionEvent event) {
-                return GeometryMathUtils.getDegrees(event.getX(0), event.getY(0),
-                        event.getX(1), event.getY(1));
             }
         });
 
+        item.setOnTouchListener(new View.OnTouchListener() {
 
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                    case MotionEvent.ACTION_DOWN:
+                        mTouchMode = TOUCH_MODE_DRAG;
+                        //seekBarsFragment.setValues((int)(item.getScaleX()*100), (int)item.getRotation());
+                        templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, seekBarsFragment);
+
+
+                        xCorItem = v.getX() - event.getRawX();
+                        yCorItem = v.getY() - event.getRawY();
+
+                    case MotionEvent.ACTION_MOVE:
+                        if (mTouchMode == TOUCH_MODE_DRAG) {
+                            move_x_item = event.getRawX() + xCorItem;
+                            move_y_item =  event.getRawY() + yCorItem;
+                            //v.animate().x(move_x_item).y(move_y_item).setDuration(0).start();
+                            Log.d("CorItem", String.valueOf(move_x_item) + " " + String.valueOf(move_y_item));
+                            item.setX(move_x_item);
+                            item.setY(move_y_item);
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        photo.setEnabled(true);
+                        photo.setClickable(true);
+                        background.setEnabled(true);
+                        background.setClickable(true);
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_POINTER_UP:
+                        mTouchMode = TOUCH_MODE_NONE;
+                        break;
+                }
+                return true;
+            }
+        });
 
         add_item_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                item.setVisibility(View.VISIBLE);
-                item.setClickable(true);
-                item.setEnabled(true);
-                item.setImageResource(R.drawable.smile_item);
-
+                templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, stickerFragment);
             }
         });
 
         merge_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bitmap pho = ((BitmapDrawable)photo.getDrawable()).getBitmap();
-                Bitmap back = Bitmap.createBitmap(background.getWidth(), background.getHeight(), Bitmap.Config.ARGB_8888);
 
+                Bitmap bitmapPostcard = Bitmap.createBitmap(background.getWidth(), background.getHeight(), Bitmap.Config.ARGB_8888);
+                bitmapPostcard.eraseColor(((ColorDrawable)background.getBackground()).getColor());
 
+                Canvas canvasPostcard = new Canvas(bitmapPostcard);
 
-                Bitmap item_1 = ((BitmapDrawable)item.getDrawable()).getBitmap();
-
-
-                Bitmap b = Bitmap.createScaledBitmap(item_1, (int)(item_1.getWidth()*item.getScaleX()), (int)(item_1.getHeight()*item.getScaleX()), false);
-                Matrix mat = new Matrix();
-                mat.postRotate(item.getRotation(), b.getWidth()/2, b.getHeight()/2);
-                mat.postTranslate(item.getX() + item.getWidth()/2-b.getWidth()/2, item.getY() + item.getHeight()/2-b.getHeight()/2);
-                item.setImageMatrix(mat);
-                //Bitmap r = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), mat, true);
-
-
-                back.eraseColor(getResources().getColor(R.color.colorPrimary));
-
-                Log.d("Backgroud_size", String.valueOf(back.getWidth()) + " " + String.valueOf(back.getHeight()));
-                Log.d("Photo_size", String.valueOf(pho.getWidth()) + " " + String.valueOf(pho.getHeight()));
-
-                int width = back.getWidth();
-                int height = back.getHeight();
-
-                cs = Bitmap.createBitmap(width, height, back.getConfig());
-
-                comboImage = new Canvas(cs);
-
-                comboImage.drawBitmap(back, 0f, 0f, null);
-                comboImage.drawBitmap(pho, (width-pho.getWidth())/2, (height-pho.getHeight())/2, null);
+                // Drawing photo
+                templateSinglePhotoPresenter.mergePhoto(photo, canvasPostcard, background);
 
                 if(item.getVisibility() == View.VISIBLE)
                 {
-                    comboImage.drawBitmap(b, mat , null);
-                    Log.d("Item_1", String.valueOf(item.getX() + item.getWidth()/2) + " " + String.valueOf(item.getY() + item.getHeight()/2));
+                    templateSinglePhotoPresenter.mergeItem(item, canvasPostcard);
                 }
 
-                Toast.makeText(getApplicationContext(), "Zmergowano", Toast.LENGTH_SHORT).show();
+                if(insertedText.getVisibility() == View.VISIBLE)
+                {
+                    templateSinglePhotoPresenter.mergeText(insertedText, canvasPostcard);
+                }
 
-                //mergePhoto.setImageBitmap(cs);
+                templateSinglePhotoPresenter.savePostcard(TemplateSinglePhoto.this, bitmapPostcard);
+            }
+        });
 
-                save_merged();
+        clear_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                int border_color = preferences.getInt(PREFERENCES_BORDER_COLOR, Color.rgb(13,71,161));
+                background.setBackgroundColor(border_color);
+
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+                int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
+                params.setMargins(first_margin, first_margin, first_margin, first_margin);
+                photo.setLayoutParams(params);
+                photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                photo.setImageResource(R.drawable.camera);
+
+                if(item.isEnabled())
+                {
+                    seekBarsFragment.clearItem();
+
+                }
+
+                if(insertedText.isEnabled())
+                {
+                    editTextFragment.clearText();
+                }
+
+                FrameLayout frameLayout = findViewById(R.id.frameLayout2);
+                frameLayout.removeAllViews();
+
             }
         });
     }
 
-    public void setFragment(Context context, Fragment fragment) {
-        FragmentTransaction fragmentTransaction = ((FragmentActivity)context).getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.frameLayout2, fragment);
-        fragmentTransaction.commit();
+
+    private void saveData() {
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+        SharedPreferences.Editor preferencesEditor = preferences.edit();
+        preferencesEditor.putInt(PREFERENCES_BORDER_MARGIN, params.bottomMargin);
+        preferencesEditor.putInt(PREFERENCES_BORDER_COLOR, ((ColorDrawable)background.getBackground()).getColor());
+
+        if(item.getVisibility() == View.VISIBLE)
+        {
+            preferencesEditor.putFloat(PREFERENCES_ITEM_X, item.getX());
+            preferencesEditor.putFloat(PREFERENCES_ITEM_Y, item.getY());
+            preferencesEditor.putFloat(PREFERENCES_ITEM_SCALE, item.getScaleX());
+            preferencesEditor.putFloat(PREFERENCES_ITEM_ROTATION, item.getRotation());
+            preferencesEditor.putInt(PREFERENCES_ITEM_IMAGE, actual_sticker);
+        }
+
+        if(insertedText.getVisibility() == View.VISIBLE)
+        {
+            preferencesEditor.putFloat(PREFERENCES_TEXT_X, insertedText.getX());
+            preferencesEditor.putFloat(PREFERENCES_TEXT_Y, insertedText.getY());
+            preferencesEditor.putFloat(PREFERENCES_TEXT_SCALE, insertedText.getScaleX());
+            preferencesEditor.putFloat(PREFERENCES_TEXT_ROTATION, insertedText.getRotation());
+            preferencesEditor.putString(PREFERENCES_TEXT_FONT, actual_font);
+            preferencesEditor.putInt(PREFERENCES_TEXT_COLOR, insertedText.getCurrentTextColor());
+            preferencesEditor.putString(PREFERENCES_TEXT_VALUE, String.valueOf(insertedText.getText()));
+        }
+
+        preferencesEditor.putBoolean(PREFERENCES_VERTICAL_ORIENTATION, VERTICAL_ORIENTATION);
+
+        preferencesEditor.commit();
     }
 
-    private void save_merged() {
-        // Here, thisActivity is the current activity
-        if (ContextCompat.checkSelfPermission(TemplateSinglePhoto.this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.topbar_menu, menu);
+        return true;
+    }
 
-            //MediaStore.Images.Media.insertImage(getContentResolver(), cs, "merged.jpg", "merged photo");
-            //Toast.makeText(getApplicationContext(), "Zapisano", Toast.LENGTH_SHORT).show();
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
 
-            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File file = new File(path, "merged.jpg");
-            try {
-                OutputStream out = null;
-                out = new FileOutputStream(file);
+        switch(item.getItemId()) {
+            case R.id.nav_rotate_template:
+                if(VERTICAL_ORIENTATION) {
+                    RelativeLayout photoAll = findViewById(R.id.frame_template);
+                    ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
+                    int layout_height = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 270, Resources.getSystem().getDisplayMetrics()));
+                    fullPhoto.height = layout_height;
+                    fullPhoto.width = 0;
+                    fullPhoto.dimensionRatio = "V, 2:3";
+                    photoAll.setLayoutParams(fullPhoto);
 
-                cs.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                out.flush();
-                out.close();
+                    photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    VERTICAL_ORIENTATION = false;
+                }
+                else
+                {
+                    RelativeLayout photoAll = findViewById(R.id.frame_template);
+                    ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
+                    fullPhoto.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
+                    fullPhoto.height = 0;
+                    fullPhoto.dimensionRatio = "H, 3:2";
+                    photoAll.setLayoutParams(fullPhoto);
+                    photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                    VERTICAL_ORIENTATION = true;
 
-                Toast.makeText(getApplicationContext(), "Zapisano", Toast.LENGTH_SHORT).show();
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+                }
         }
-        else
-        {
-            ActivityCompat.requestPermissions(TemplateSinglePhoto.this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-        }
+
+        return true;
     }
 
     public void onSelectAlbum() {
-
 
         if (Build.VERSION.SDK_INT <= 19) {
             Intent intent = new Intent();
@@ -344,17 +533,14 @@ public class TemplateSinglePhoto extends AppCompatActivity {
             intent.setType("image/*");
             startActivityForResult(intent, REQUEST_CODE_ALBUM);
         }
+    }
 
-//		if (Build.VERSION.SDK_INT < 19) {
-//			Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-//			intent.setType("image/*");
-//			startActivityForResult(intent, REQUEST_CODE_ALBUM);
-//		} else {
-//			Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-//			intent.addCategory(Intent.CATEGORY_OPENABLE);
-//			intent.setType("image/*");
-//			startActivityForResult(intent, REQUEST_CODE_ALBUM);
-//		}
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
+        goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(goToMainActivity);
     }
 
     @Override
@@ -367,17 +553,23 @@ public class TemplateSinglePhoto extends AppCompatActivity {
         if(ContextCompat.checkSelfPermission(TemplateSinglePhoto.this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
+
+            RelativeLayout.LayoutParams backgroundParams = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+
             switch (requestCode) {
                 case REQUEST_CODE_CAMERA:
-                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_CAMERA, data, photo.getWidth()-20, photo.getHeight()-20);
+                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_CAMERA, data, background.getWidth()-backgroundParams.leftMargin*2, background.getHeight()-backgroundParams.topMargin*2);
+                    Log.d("First_size", String.valueOf(background.getWidth()-backgroundParams.leftMargin*2) + " " + String.valueOf(background.getHeight()-backgroundParams.topMargin*2));
                     break;
                 case REQUEST_CODE_ALBUM:
-                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_ALBUM, data, photo.getWidth()-20, photo.getHeight()-20);
-
+                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_ALBUM, data, background.getWidth()-backgroundParams.leftMargin*2, background.getHeight()-backgroundParams.topMargin*2);
+                    Log.d("First_size", String.valueOf(background.getWidth()-backgroundParams.leftMargin*2) + " " + String.valueOf(background.getHeight()-backgroundParams.topMargin*2));
                     break;
                 default:
                     break;
             }
+            photo.setBackgroundColor(Color.TRANSPARENT);
+            photo.setBackground(null);
         }
         else
         {
@@ -385,5 +577,61 @@ public class TemplateSinglePhoto extends AppCompatActivity {
                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
         }
+
+    }
+
+    @Override
+    public void onFragmentInteraction(int s) {
+        this.sticker = s;
+
+        item.setVisibility(View.VISIBLE);
+        item.setClickable(true);
+        item.setEnabled(true);
+        item.setImageResource(sticker);
+        actual_sticker = sticker;
+
+        templateSinglePhotoPresenter.setFragment(this, seekBarsFragment);
+
+        item.setRotation(0);
+        item.setScaleX(1);
+        item.setScaleY(1);
+        item.setX(background.getX() + background.getWidth()/2 - item.getWidth()/2);
+        item.setY(background.getY() + background.getHeight()/2 - item.getHeight()/2);
+
+        Log.d("Sticker_click", String.valueOf(sticker));
+
+
+    }
+
+    @Override
+    public void changeBorderSize(int size) {
+        if(size >= 0)
+        {
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+            int real_size = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, size, Resources.getSystem().getDisplayMetrics()));
+            params.setMargins(real_size, real_size, real_size, real_size);
+//            photo.setScaleY(params.height/(params.height-real_size*2));
+//            photo.setScaleX(1.f);
+//            Log.d("Y_SCALE", String.valueOf((photo.getHeight()/(float)(photo.getHeight()-real_size*2))));
+            photo.setLayoutParams(params);
+        }
+
+    }
+
+    @Override
+    public void sendTextView() {
+        templateSinglePhotoPresenter.setFragment(this, editTextFragment);
+    }
+
+    @Override
+    public void changeFragmentOnItemReset() {
+        templateSinglePhotoPresenter.setFragment(this, stickerFragment);
+    }
+
+    @Override
+    public void changeFragmentOnTextReset() {
+        insertTextFragment.clearText();
+        templateSinglePhotoPresenter.setFragment(this, insertTextFragment);
+        insertTextFragment.clearText();
     }
 }

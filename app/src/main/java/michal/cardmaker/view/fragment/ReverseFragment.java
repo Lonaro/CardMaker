@@ -1,4 +1,4 @@
-package michal.cardmaker.view;
+package michal.cardmaker.view.fragment;
 
 
 import android.os.Bundle;

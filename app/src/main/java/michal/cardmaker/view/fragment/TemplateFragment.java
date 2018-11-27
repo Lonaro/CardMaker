@@ -1,4 +1,4 @@
-package michal.cardmaker.view;
+package michal.cardmaker.view.fragment;
 
 
 import android.os.Bundle;
@@ -34,10 +34,8 @@ public class TemplateFragment extends Fragment {
             recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_template);
 
             // TYMACZASOWE DANE
-            int[] templates_data = {R.drawable.template1, R.drawable.template1, R.drawable.template1,
-                    R.drawable.template1, R.drawable.template1, R.drawable.template1,
-                    R.drawable.template1, R.drawable.template1, R.drawable.template1,
-                    R.drawable.template1};
+            int[] templates_data = {R.drawable.template1, R.drawable.template2, R.drawable.template3,
+                    R.drawable.template4, R.drawable.template5, R.drawable.template6};
 
             templateAdapter = new TemplateAdapter(templates_data, getContext());
 
