@@ -18,7 +18,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,6 +42,7 @@ public class HistoryFragment extends Fragment {
     private RecyclerView historyPostcardRecyclerView;
     private HistoryPostcardAdapter historyPostcardAdapter;
     protected RecyclerView.LayoutManager mLayoutManager;
+    private TextView emptyListTextView;
 
     public HistoryFragment() {
         // Required empty public constructor
@@ -53,6 +57,8 @@ public class HistoryFragment extends Fragment {
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             historyPostcardRecyclerView = view.findViewById(R.id.recyclerview_history_postcard);
 
+            emptyListTextView = view.findViewById(R.id.history_empty_list);
+
 
             File direct = new File(Environment.getExternalStorageDirectory() + "/Pictures/CardMaker");
             if (!direct.exists()) {
@@ -65,19 +71,24 @@ public class HistoryFragment extends Fragment {
                     ArrayList<String> f = new ArrayList<String>();// list of file paths
                     listFile = direct.listFiles();
 
-
-                    for (int i = 0; i < listFile.length; i++)
+                    if(listFile.length == 0)
                     {
-                        f.add(listFile[i].getAbsolutePath());
+                        emptyListTextView.setVisibility(View.VISIBLE);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < listFile.length; i++)
+                        {
+                            f.add(listFile[i].getAbsolutePath());
+                        }
+                        emptyListTextView.setVisibility(View.INVISIBLE);
+                        emptyListTextView.refreshDrawableState();
                     }
 
-                    Log.d("Postcard_size", String.valueOf(f.size()));
-                    Log.d("Postcard_size", String.valueOf(f.get(0)));
-
-                    mLayoutManager = new GridLayoutManager(getActivity(),2 );
+                    mLayoutManager = new GridLayoutManager(getActivity(),2);
                     historyPostcardRecyclerView.setLayoutManager(mLayoutManager);
                     historyPostcardRecyclerView.addItemDecoration(new GridSpacingItemDecoration(20, true));
-                    historyPostcardAdapter = new HistoryPostcardAdapter(f, getContext());
+                    historyPostcardAdapter = new HistoryPostcardAdapter(f, getContext(), view);
                     historyPostcardRecyclerView.setAdapter(historyPostcardAdapter);
                 }
 
@@ -93,5 +104,7 @@ public class HistoryFragment extends Fragment {
 
         return view;
     }
+
+
 
 }

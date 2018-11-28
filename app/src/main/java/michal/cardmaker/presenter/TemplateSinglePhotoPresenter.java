@@ -27,6 +27,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import michal.cardmaker.R;
 import michal.cardmaker.view.CropActivity;
@@ -116,7 +120,10 @@ public class TemplateSinglePhotoPresenter {
                 wallpaperDirectory.mkdirs();
             }
 
-            File file = new File(new File("/sdcard/Pictures/CardMaker/"), "merged.jpg");
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+            Date currentTime = Calendar.getInstance().getTime();
+
+            File file = new File(new File("/sdcard/Pictures/CardMaker/"), dateFormat.format(currentTime).toString() + ".jpg");
             try {
                 OutputStream out = null;
                 out = new FileOutputStream(file);

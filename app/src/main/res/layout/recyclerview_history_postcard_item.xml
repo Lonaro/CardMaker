@@ -17,4 +17,13 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@drawable/template1"/>
 
+    <ImageButton
+        android:id="@+id/template_history_postcard_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:src="@drawable/clear"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </android.support.constraint.ConstraintLayout>
