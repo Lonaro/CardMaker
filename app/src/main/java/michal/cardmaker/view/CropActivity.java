@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -16,6 +15,8 @@ public class CropActivity extends AppCompatActivity {
 
     private CropLayout mCropLayout;
     private Button mDoneButton;
+    private Button mResetButton;
+    private Button mMaxButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +35,13 @@ public class CropActivity extends AppCompatActivity {
                 .getIntExtra("outputY", CropUtils.dip2px(this, 200));
         String outputFormat = intent.getStringExtra("outputFormat");
 
-        mDoneButton = (Button) this.findViewById(R.id.done);
+        mDoneButton = this.findViewById(R.id.crop_done);
+        mResetButton = this.findViewById(R.id.crop_reset);
+        mMaxButton = this.findViewById(R.id.crop_maximize);
+
         mDoneButton.setOnClickListener(mOnClickListener);
+        mResetButton.setOnClickListener(mOnClickListener);
+        mMaxButton.setOnClickListener(mOnClickListener);
 
         // bellow
         mCropLayout = (CropLayout) this.findViewById(R.id.crop);
@@ -49,8 +55,16 @@ public class CropActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.done: {
+                case R.id.crop_done: {
                     mCropLayout.requestCropResult();
+                    break;
+                }
+                case R.id.crop_reset: {
+                    mCropLayout.resetImagePosition();
+                    break;
+                }
+                case R.id.crop_maximize: {
+                    mCropLayout.maximizeImage();
                     break;
                 }
                 default:

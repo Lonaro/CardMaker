@@ -403,6 +403,16 @@ public class CropLayout extends FrameLayout {
         return (int) Math.max(outMetrics.heightPixels, outMetrics.widthPixels);
     }
 
+    public void resetImagePosition() {
+        mCropView.resetImagePosition();
+    }
+
+    public void maximizeImage() {
+        mCropView.maximizeImage(mCropRect.width(), mCropRect.height(), mCropView.getWidth(), mCropView.getHeight());
+
+        Log.d("mCropView_cord", String.valueOf(mCropView.mEventCenter.x) + " " + String.valueOf(mCropView.mEventCenter.y));
+    }
+
     public interface OnCropListener {
         void onCropResult(Uri data);
 
