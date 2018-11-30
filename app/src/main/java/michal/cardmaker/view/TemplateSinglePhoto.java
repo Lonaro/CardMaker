@@ -3,6 +3,8 @@ package michal.cardmaker.view;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -34,6 +36,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
@@ -61,6 +64,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     private Button borderSettingsButton;
     private Button add_text_button;
     private Button clear_button;
+    private Button size_button;
     private TextView insertedText;
 
     private StickerFragment stickerFragment;
@@ -131,6 +135,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         add_text_button = findViewById(R.id.add_text_button);
         insertedText = findViewById(R.id.text);
         clear_button = findViewById(R.id.clear_button);
+        size_button = findViewById(R.id.size_button);
 
         preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
 
@@ -389,9 +394,36 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
             }
         });
 
+        size_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // setup the alert builder
+                AlertDialog.Builder builder = new AlertDialog.Builder(TemplateSinglePhoto.this);
+                builder.setTitle("Choose a format:");
+
+                // add a list
+                String[] animals = {"A6 (1200x1800)", "A5 (1800x2700)", "A4 (2700x4050)", "A3 (3500x5250)"};
+                builder.setItems(animals, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0: size_button.setText("Size (A6)"); break;
+                            case 1: size_button.setText("Size (A5)"); break;
+                            case 2: size_button.setText("Size (A4)"); break;
+                            case 3: size_button.setText("Size (A3)"); break;
+                        }
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
+
         merge_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
 
                 Bitmap bitmapPostcard = Bitmap.createBitmap(background.getWidth(), background.getHeight(), Bitmap.Config.ARGB_8888);
                 bitmapPostcard.eraseColor(((ColorDrawable)background.getBackground()).getColor());
@@ -537,10 +569,32 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
-        goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(goToMainActivity);
+
+        preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
+
+        if(item.isEnabled() || insertedText.isEnabled() || photo.getDrawable() != getResources().getDrawable(R.drawable.camera)) {
+            AlertDialog.Builder alertBox = new AlertDialog.Builder(TemplateSinglePhoto.this);
+            alertBox.setMessage("Are you sure to exit?");
+            alertBox.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
+                    goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(goToMainActivity);
+
+                }
+            });
+            alertBox.setNegativeButton("No", null);
+            alertBox.create().show();
+        }
+        else
+        {
+            Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
+            goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(goToMainActivity);
+        }
+
+        //super.onBackPressed();
     }
 
     @Override

@@ -89,8 +89,9 @@
             android:id="@+id/template_left_buttons"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginRight="@dimen/template_button_margin_inner"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/merge_button"
+            app:layout_constraintEnd_toStartOf="@+id/template_center_buttons"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -126,29 +127,80 @@
 
         </android.support.constraint.ConstraintLayout>
 
-        <Button
-            android:id="@+id/merge_button"
-            style="@style/template_button"
-            android:layout_width="110dp"
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/template_center_buttons"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginLeft="@dimen/template_button_margin_inner"
-            android:layout_marginTop="@dimen/template_button_margin_inner"
-            android:layout_marginRight="@dimen/template_button_margin_inner"
-            android:text="Merge"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@id/template_right_buttons"
+            app:layout_constraintEnd_toStartOf="@id/template_right_buttons"
             app:layout_constraintStart_toEndOf="@id/template_left_buttons"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="MissingConstraints" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <Button
+                android:id="@+id/size_button"
+                style="@style/template_button"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/template_button_margin_inner"
+                android:layout_marginEnd="@dimen/template_button_margin_inner"
+                android:layout_marginBottom="@dimen/template_button_margin_inner"
+                android:layout_marginLeft="@dimen/template_button_margin_inner"
+                android:text="Size (A6)"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/share_save_buttons"/>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/share_save_buttons"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginLeft="@dimen/template_button_margin_inner"
+                android:layout_marginTop="@dimen/template_button_margin_inner"
+                android:layout_marginEnd="@dimen/template_button_margin_inner"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/size_button">
+
+                <Button
+                    android:id="@+id/share_button"
+                    style="@style/template_button"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:text="Save"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:visibility="invisible"/>
+
+                <Button
+                    android:id="@+id/merge_button"
+                    style="@style/template_button"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:text="Save"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
+            </android.support.constraint.ConstraintLayout>
+
+
+
+
+
+        </android.support.constraint.ConstraintLayout>
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/template_right_buttons"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginLeft="@dimen/template_button_margin_inner"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/merge_button"
+            app:layout_constraintStart_toEndOf="@id/template_center_buttons"
             app:layout_constraintTop_toTopOf="parent">
 
             <Button
