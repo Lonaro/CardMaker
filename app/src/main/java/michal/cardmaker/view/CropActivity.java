@@ -1,5 +1,7 @@
 package michal.cardmaker.view;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 
 import michal.cardmaker.R;
+import michal.cardmaker.TemplateTwoVerticalPhotos;
 import michal.cardmaker.presenter.cropViewLibrary.CropLayout;
 import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
 
@@ -17,6 +20,8 @@ public class CropActivity extends AppCompatActivity {
     private Button mDoneButton;
     private Button mResetButton;
     private Button mMaxButton;
+    private int template_number;
+    private int photo_number;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,13 +32,15 @@ public class CropActivity extends AppCompatActivity {
         if (intent == null) {
             return;
         }
-
+        template_number = intent.getIntExtra("TEMPLATE_NUMBER", 0);
+        photo_number = intent.getIntExtra("PHOTO_NUMBER", 0);
         Uri sourceUri = intent.getData();
         int outputX = intent
                 .getIntExtra("outputX", CropUtils.dip2px(this, 200));
         int outputY = intent
                 .getIntExtra("outputY", CropUtils.dip2px(this, 200));
         String outputFormat = intent.getStringExtra("outputFormat");
+
 
         mDoneButton = this.findViewById(R.id.crop_done);
         mResetButton = this.findViewById(R.id.crop_reset);
@@ -77,7 +84,19 @@ public class CropActivity extends AppCompatActivity {
 
         @Override
         public void onCropResult(Uri data) {
-            Intent intent = new Intent(CropActivity.this, TemplateSinglePhoto.class);
+            Intent intent;
+
+            switch(template_number){
+                case 0:
+                    intent = new Intent(CropActivity.this, TemplateSinglePhoto.class);
+                    break;
+                case 1:
+                    intent = new Intent(CropActivity.this, TemplateTwoVerticalPhotos.class);
+                    break;
+                default:
+                    intent = new Intent(CropActivity.this, TemplateSinglePhoto.class);
+            }
+            intent.putExtra("PHOTO_NUMBER", photo_number);
             intent.setData(data);
             startActivity(intent);
         }

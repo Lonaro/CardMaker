@@ -1,4 +1,4 @@
-package michal.cardmaker.view;
+package michal.cardmaker;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -14,9 +14,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
@@ -38,10 +41,13 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
-import michal.cardmaker.R;
 import michal.cardmaker.presenter.BorderSettingsFragmentListener;
 import michal.cardmaker.presenter.InsertTextFragmentListener;
 import michal.cardmaker.presenter.ResetItemFragmentListener;
@@ -49,18 +55,20 @@ import michal.cardmaker.presenter.ResetTextFragmentListener;
 import michal.cardmaker.presenter.StickerFragmentListener;
 import michal.cardmaker.presenter.TemplatePresenter;
 import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
+import michal.cardmaker.view.MainActivity;
 import michal.cardmaker.view.fragment.BorderSettingFragment;
 import michal.cardmaker.view.fragment.EditTextFragment;
 import michal.cardmaker.view.fragment.InsertTextFragment;
 import michal.cardmaker.view.fragment.SeekBarsFragment;
 import michal.cardmaker.view.fragment.StickerFragment;
 
-public class TemplateSinglePhoto extends AppCompatActivity implements StickerFragmentListener, BorderSettingsFragmentListener, InsertTextFragmentListener, ResetItemFragmentListener, ResetTextFragmentListener {
+public class TemplateTwoVerticalPhotos extends AppCompatActivity implements StickerFragmentListener, BorderSettingsFragmentListener, InsertTextFragmentListener, ResetItemFragmentListener, ResetTextFragmentListener {
 
-    private static final int TEMPLATE_NUMBER = 0;
+    private static final int TEMPLATE_NUMBER = 1;
 
     private ImageView background;
-    private ImageView photo;
+    private ImageView photo_first;
+    private ImageView photo_second;
     private ImageView item;
     private ImageButton merge_button;
     private ImageButton add_item_button;
@@ -83,7 +91,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     private static final String PREFERENCES_NAME = "myPreferences";
     private static final String PREFERENCES_BORDER_MARGIN = "BORDER_MARGIN";
     private static final String PREFERENCES_BORDER_COLOR = "BORDER_COLOR";
-    private static final String PREFERENCES_ITEM_X= "ITEM_X";
+    private static final String PREFERENCES_ITEM_X = "ITEM_X";
     private static final String PREFERENCES_ITEM_Y = "ITEM_Y";
     private static final String PREFERENCES_ITEM_SCALE = "ITEM_SCALE";
     private static final String PREFERENCES_ITEM_ROTATION = "ITEM_ROTATION";
@@ -96,6 +104,9 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     private static final String PREFERENCES_TEXT_COLOR = "TEXT_COLOR";
     private static final String PREFERENCES_TEXT_VALUE = "TEXT_VALUE";
     private static final String PREFERENCES_VERTICAL_ORIENTATION = "VERTICAL_ORIENTATION";
+
+    private static final String PREFERENCES_PHOTO_1 = "PHOTO_1";
+    private static final String PREFERENCES_PHOTO_2 = "PHOTO_2";
 
     private SharedPreferences preferences;
 
@@ -113,6 +124,8 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     float move_x_text;
     float move_y_text;
 
+    int global_photo_number;
+
     private static final int TOUCH_MODE_NONE = 0;
     private static final int TOUCH_MODE_DRAG = 1;
     int mTouchMode = TOUCH_MODE_NONE;
@@ -125,11 +138,12 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_template_single_photo);
+        setContentView(R.layout.activity_template_two_vertical_photos);
 
-        templatePresenter = new TemplatePresenter(TemplateSinglePhoto.this);
+        templatePresenter = new TemplatePresenter(TemplateTwoVerticalPhotos.this);
 
-        photo = findViewById(R.id.temp_single_photo);
+        photo_first = findViewById(R.id.temp_2v_first);
+        photo_second = findViewById(R.id.temp_2v_second);
         merge_button = findViewById(R.id.merge_button);
         background = findViewById(R.id.background);
         item = findViewById(R.id.item);
@@ -149,20 +163,32 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         insertTextFragment = new InsertTextFragment(this);
         editTextFragment = new EditTextFragment(this);
 
-
         Intent intent = getIntent();
+        global_photo_number = intent.getIntExtra("PHOTO_NUMBER", 0);
 
         if (intent == null && intent.getData() == null) {
-            photo.setImageResource(R.drawable.camera);
-            photo.setBackgroundColor(R.color.colorAccent);
+            photo_first.setImageResource(R.drawable.camera);
+            photo_first.setBackgroundColor(R.color.colorAccent);
+
+            photo_second.setImageResource(R.drawable.camera);
+            photo_second.setBackgroundColor(R.color.colorAccent);
         }
         else
         {
             InputStream input = null;
+            int photo_number = intent.getIntExtra("PHOTO_NUMBER",0);
             try {
                 if (intent != null && intent.getData() != null) {
                     input = getContentResolver().openInputStream(intent.getData());
-                    photo.setImageBitmap(BitmapFactory.decodeStream(input));
+                    switch(photo_number) {
+                        case 0:
+                            photo_first.setImageBitmap(BitmapFactory.decodeStream(input));
+                            break;
+                        case 1:
+                            photo_second.setImageBitmap(BitmapFactory.decodeStream(input));
+                            break;
+                    }
+
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -171,26 +197,37 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
             }
         }
 
-        photo.setOnClickListener(new View.OnClickListener() {
+        photo_first.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 saveData();
                 onSelectAlbum();
+                global_photo_number = 0;
+            }
+        });
+
+        photo_second.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveData();
+                onSelectAlbum();
+                global_photo_number = 1;
             }
         });
 
         borderSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                templatePresenter.setFragment(TemplateSinglePhoto.this, borderSettingFragment);
+                photo_first.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                photo_second.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                templatePresenter.setFragment(TemplateTwoVerticalPhotos.this, borderSettingFragment);
             }
         });
 
         add_text_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                templatePresenter.setFragment(TemplateSinglePhoto.this, insertTextFragment);
+                templatePresenter.setFragment(TemplateTwoVerticalPhotos.this, insertTextFragment);
             }
         });
 
@@ -202,7 +239,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                     case MotionEvent.ACTION_DOWN:
                         mTouchMode = TOUCH_MODE_DRAG;
 
-                        templatePresenter.setFragment(TemplateSinglePhoto.this, editTextFragment);
+                        templatePresenter.setFragment(TemplateTwoVerticalPhotos.this, editTextFragment);
                         //editTextFragment.setValues((int)(insertedText.getScaleX()*50), (int)insertedText.getRotation(), (int)insertedText.getCurrentTextColor());
 
                         xCorText = v.getX() - event.getRawX();
@@ -219,8 +256,8 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                         }
                         break;
                     case MotionEvent.ACTION_UP:
-                        photo.setEnabled(true);
-                        photo.setClickable(true);
+                        photo_first.setEnabled(true);
+                        photo_first.setClickable(true);
                         background.setEnabled(true);
                         background.setClickable(true);
                     case MotionEvent.ACTION_CANCEL:
@@ -241,7 +278,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                     case MotionEvent.ACTION_DOWN:
                         mTouchMode = TOUCH_MODE_DRAG;
                         //seekBarsFragment.setValues((int)(item.getScaleX()*100), (int)item.getRotation());
-                        templatePresenter.setFragment(TemplateSinglePhoto.this, seekBarsFragment);
+                        templatePresenter.setFragment(TemplateTwoVerticalPhotos.this, seekBarsFragment);
 
 
                         xCorItem = v.getX() - event.getRawX();
@@ -258,8 +295,8 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                         }
                         break;
                     case MotionEvent.ACTION_UP:
-                        photo.setEnabled(true);
-                        photo.setClickable(true);
+                        photo_first.setEnabled(true);
+                        photo_first.setClickable(true);
                         background.setEnabled(true);
                         background.setClickable(true);
                     case MotionEvent.ACTION_CANCEL:
@@ -274,7 +311,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         add_item_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                templatePresenter.setFragment(TemplateSinglePhoto.this, stickerFragment);
+                templatePresenter.setFragment(TemplateTwoVerticalPhotos.this, stickerFragment);
             }
         });
 
@@ -282,7 +319,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
             @Override
             public void onClick(View view) {
                 // setup the alert builder
-                AlertDialog.Builder builder = new AlertDialog.Builder(TemplateSinglePhoto.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(TemplateTwoVerticalPhotos.this);
                 builder.setTitle("Choose a format:");
 
                 // add a list
@@ -310,7 +347,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
                 Bitmap bitmapPostcard = merge();
 
-                templatePresenter.savePostcard(TemplateSinglePhoto.this, bitmapPostcard);
+                templatePresenter.savePostcard(TemplateTwoVerticalPhotos.this, bitmapPostcard);
             }
         });
 
@@ -321,12 +358,18 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                 int border_color = preferences.getInt(PREFERENCES_BORDER_COLOR, Color.rgb(13,71,161));
                 background.setBackgroundColor(border_color);
 
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
                 int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
-                params.setMargins(first_margin, first_margin, first_margin, first_margin);
-                photo.setLayoutParams(params);
-                photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                photo.setImageResource(R.drawable.camera);
+                params.setMargins(first_margin, first_margin, first_margin/2, first_margin);
+                photo_first.setLayoutParams(params);
+                photo_first.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                photo_first.setImageResource(R.drawable.camera);
+
+                LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
+                params2.setMargins(first_margin/2, first_margin, first_margin, first_margin);
+                photo_second.setLayoutParams(params2);
+                photo_second.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                photo_second.setImageResource(R.drawable.camera);
 
                 if(item.isEnabled())
                 {
@@ -363,24 +406,45 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     private void loadData() {
 
         preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
-
         border_margin_text = preferences.getInt(PREFERENCES_BORDER_MARGIN, 30);
+
+        if(preferences.contains(PREFERENCES_PHOTO_1))
+        {
+            photo_first.setImageBitmap(loadTmpPhoto(preferences.getString(PREFERENCES_PHOTO_1, "")));
+            preferences.edit().remove(PREFERENCES_PHOTO_1).commit();
+        }
+
+        if(preferences.contains(PREFERENCES_PHOTO_2))
+        {
+            photo_second.setImageBitmap(loadTmpPhoto(preferences.getString(PREFERENCES_PHOTO_2, "")));
+            preferences.edit().remove(PREFERENCES_PHOTO_2).commit();
+        }
 
         if(preferences.contains(PREFERENCES_BORDER_MARGIN))
         {
             int border_margin = preferences.getInt(PREFERENCES_BORDER_MARGIN, 30);
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
-            params.setMargins(border_margin, border_margin, border_margin, border_margin);
-            photo.setLayoutParams(params);
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
+            params.setMargins(border_margin, border_margin, border_margin/2, border_margin);
+            photo_first.setLayoutParams(params);
+
+            LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
+            params2.setMargins(border_margin/2, border_margin, border_margin, border_margin);
+            photo_second.setLayoutParams(params2);
+
             preferences.edit().remove(PREFERENCES_BORDER_MARGIN).commit();
 
         }
         else {
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
             int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
-            params.setMargins(first_margin, first_margin, first_margin, first_margin);
-            photo.setLayoutParams(params);
-            photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            params.setMargins(first_margin, first_margin, first_margin/2, first_margin);
+            photo_first.setLayoutParams(params);
+            photo_first.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+            LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
+            params2.setMargins(first_margin/2, first_margin, first_margin, first_margin);
+            photo_second.setLayoutParams(params2);
+            photo_second.setScaleType(ImageView.ScaleType.FIT_CENTER);
         }
 
         if(preferences.contains(PREFERENCES_BORDER_COLOR))
@@ -453,8 +517,6 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         }
 
 
-
-
         if(preferences.contains(PREFERENCES_VERTICAL_ORIENTATION)) {
             VERTICAL_ORIENTATION = preferences.getBoolean(PREFERENCES_VERTICAL_ORIENTATION, true);
             if (!VERTICAL_ORIENTATION) {
@@ -466,7 +528,41 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                 fullPhoto.dimensionRatio = "V, 2:3";
                 photoAll.setLayoutParams(fullPhoto);
 
-                photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                LinearLayout linearLayout = findViewById(R.id.linear_box_2v);
+                linearLayout.setOrientation(LinearLayout.VERTICAL);
+
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
+                int width_tmp = params.width;
+                params.width = params.height;
+                params.height = width_tmp;
+                photo_first.setLayoutParams(params);
+                int margin = border_margin_text;
+                if(params.rightMargin < params.bottomMargin)
+                {
+                    params.setMargins(margin, margin, margin, margin/2);
+                }
+                else
+                {
+                    params.setMargins(margin, margin, margin/2, margin);
+                }
+
+                LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
+                int width_tmp2 = params2.width;
+                params2.width = params2.height;
+                params2.height = width_tmp2;
+                photo_second.setLayoutParams(params2);
+
+                if(params2.leftMargin < params2.topMargin)
+                {
+                    params2.setMargins(margin, margin/2, margin, margin);
+                }
+                else
+                {
+                    params2.setMargins(margin/2, margin, margin, margin);
+                }
+
+                photo_first.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                photo_second.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
             } else {
                 RelativeLayout photoAll = findViewById(R.id.frame_template);
@@ -475,10 +571,16 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                 fullPhoto.height = 0;
                 fullPhoto.dimensionRatio = "H, 3:2";
                 photoAll.setLayoutParams(fullPhoto);
-                photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+//                LinearLayout linearLayout = findViewById(R.id.linear_box_2v);
+//                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+
+                photo_first.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                photo_second.setScaleType(ImageView.ScaleType.FIT_CENTER);
             }
             preferences.edit().remove(PREFERENCES_VERTICAL_ORIENTATION).commit();
         }
+
 
     }
 
@@ -487,10 +589,22 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         bitmapPostcard.eraseColor(((ColorDrawable)background.getBackground()).getColor());
 
         Canvas canvasPostcard = new Canvas(bitmapPostcard);
-        RelativeLayout.LayoutParams background_params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
 
-        // Drawing photo
-        templatePresenter.mergePhotoSingle(photo, canvasPostcard, background, background_params.leftMargin, background_params.topMargin);
+
+        LinearLayout.LayoutParams photo_one_params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
+        LinearLayout.LayoutParams photo_two_params = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
+
+        if(VERTICAL_ORIENTATION)
+        {
+
+            templatePresenter.mergePhoto(photo_first, canvasPostcard, background, photo_one_params.leftMargin, photo_one_params.topMargin);
+            templatePresenter.mergePhoto(photo_second, canvasPostcard, background, photo_one_params.leftMargin + photo_first.getWidth() + photo_one_params.rightMargin + photo_two_params.leftMargin, photo_two_params.topMargin);
+        }
+        else
+        {
+            templatePresenter.mergePhotoDoubleVertical(photo_first, canvasPostcard, background, photo_one_params.leftMargin, photo_one_params.topMargin);
+            templatePresenter.mergePhotoDoubleVertical(photo_second, canvasPostcard, background, photo_two_params.leftMargin, photo_one_params.topMargin + photo_first.getHeight() + photo_one_params.bottomMargin + photo_two_params.topMargin);
+        }
 
         if(item.getVisibility() == View.VISIBLE)
         {
@@ -508,10 +622,21 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
 
     private void saveData() {
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
         SharedPreferences.Editor preferencesEditor = preferences.edit();
-        preferencesEditor.putInt(PREFERENCES_BORDER_MARGIN, params.bottomMargin);
+        preferencesEditor.putInt(PREFERENCES_BORDER_MARGIN, (params.bottomMargin>params.topMargin?params.bottomMargin:params.topMargin));
         preferencesEditor.putInt(PREFERENCES_BORDER_COLOR, ((ColorDrawable)background.getBackground()).getColor());
+
+
+        if(photo_first.getDrawable().getConstantState() != getResources().getDrawable( R.drawable.camera).getConstantState())
+        {
+            preferencesEditor.putString(PREFERENCES_PHOTO_1, saveTmpPhoto(this, photo_first.getDrawable(), PREFERENCES_PHOTO_1));
+        }
+
+        if(photo_second.getDrawable().getConstantState() != getResources().getDrawable( R.drawable.camera).getConstantState())
+        {
+            preferencesEditor.putString(PREFERENCES_PHOTO_2, saveTmpPhoto(this, photo_first.getDrawable(), PREFERENCES_PHOTO_2));
+        }
 
         if(item.getVisibility() == View.VISIBLE)
         {
@@ -559,8 +684,30 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                     fullPhoto.width = 0;
                     fullPhoto.dimensionRatio = "V, 2:3";
                     photoAll.setLayoutParams(fullPhoto);
-                    photo.setImageResource(R.drawable.camera);
-                    photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+                    LinearLayout linear = findViewById(R.id.linear_box_2v);
+                    linear.setOrientation(LinearLayout.VERTICAL);
+
+                    LinearLayout.LayoutParams params1 = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
+                    int width_tmp = params1.width;
+                    params1.width = params1.height;
+                    params1.height = width_tmp;
+                    int margin = params1.topMargin;
+                    params1.setMargins(margin, margin, margin, margin/2);
+                    photo_first.setLayoutParams(params1);
+
+                    LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
+                    int width_tmp2 = params2.width;
+                    params2.width = params2.height;
+                    params2.height = width_tmp2;
+                    params2.setMargins(margin, margin/2, margin, margin);
+                    photo_second.setLayoutParams(params2);
+
+                    photo_first.setImageResource(R.drawable.camera);
+                    photo_first.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+                    photo_second.setImageResource(R.drawable.camera);
+                    photo_second.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     VERTICAL_ORIENTATION = false;
                 }
                 else
@@ -571,8 +718,19 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                     fullPhoto.height = 0;
                     fullPhoto.dimensionRatio = "H, 3:2";
                     photoAll.setLayoutParams(fullPhoto);
-                    photo.setImageResource(R.drawable.camera);
-                    photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+                    LinearLayout linear = findViewById(R.id.linear_box_2v);
+                    linear.setOrientation(LinearLayout.HORIZONTAL);
+
+                    rotatePhoto1();
+                    rotatePhoto2();
+
+                    photo_first.setImageResource(R.drawable.camera);
+                    photo_first.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+                    photo_second.setImageResource(R.drawable.camera);
+                    photo_second.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
                     VERTICAL_ORIENTATION = true;
 
                 }
@@ -581,17 +739,55 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         return true;
     }
 
+    void rotatePhoto1()
+    {
+        LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
+        int width_tmp2 = params2.width;
+        params2.width = params2.height;
+        params2.height = width_tmp2;
+        int margin = params2.topMargin;
+        if(params2.rightMargin < params2.bottomMargin)
+        {
+            params2.setMargins(margin, margin, margin, margin/2);
+        }
+        else
+        {
+            params2.setMargins(margin, margin, margin/2, margin);
+        }
+
+        photo_first.setLayoutParams(params2);
+    }
+
+    void rotatePhoto2()
+    {
+        LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
+        int width_tmp2 = params2.width;
+        params2.width = params2.height;
+        params2.height = width_tmp2;
+        int margin = params2.bottomMargin;
+        if(params2.leftMargin < params2.topMargin)
+        {
+            params2.setMargins(margin, margin/2, margin, margin);
+        }
+        else
+        {
+            params2.setMargins(margin/2, margin, margin, margin);
+        }
+        photo_second.setLayoutParams(params2);
+    }
+
     public void onSelectAlbum() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
+        intent.putExtra("PHOTO_NUMBER", global_photo_number);
         startActivityForResult(intent, REQUEST_CODE_ALBUM);
     }
 
     @Override
     public void onBackPressed() {
 
-        if(item.isEnabled() || insertedText.isEnabled() || photo.getDrawable().getConstantState() != getResources().getDrawable( R.drawable.camera).getConstantState()) {
-            AlertDialog.Builder alertBox = new AlertDialog.Builder(TemplateSinglePhoto.this);
+        if(item.isEnabled() || insertedText.isEnabled() || photo_first.getDrawable().getConstantState() != getResources().getDrawable( R.drawable.camera).getConstantState()) {
+            AlertDialog.Builder alertBox = new AlertDialog.Builder(TemplateTwoVerticalPhotos.this);
             alertBox.setMessage("Are you sure to exit?");
             alertBox.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
@@ -617,37 +813,38 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        //int photo_number = data.getIntExtra("PHOTO_NUMBER", 0);
         if (resultCode != RESULT_OK) {
             return;
         }
 
-        int photo_number = data.getIntExtra("PHOTO_NUMBER", 0);
-        if(ContextCompat.checkSelfPermission(TemplateSinglePhoto.this,
+        if(ContextCompat.checkSelfPermission(TemplateTwoVerticalPhotos.this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
 
-            RelativeLayout.LayoutParams backgroundParams = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+            LinearLayout.LayoutParams backgroundParams = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
 
             switch (requestCode) {
                 case REQUEST_CODE_CAMERA:
-                    templatePresenter.startCropper(REQUEST_CODE_CAMERA, data, background.getWidth()-backgroundParams.leftMargin*2, background.getHeight()-backgroundParams.topMargin*2, TEMPLATE_NUMBER, photo_number);
+                    templatePresenter.startCropper(REQUEST_CODE_CAMERA, data, background.getWidth()-backgroundParams.leftMargin*2, background.getHeight()-backgroundParams.topMargin*2, TEMPLATE_NUMBER, global_photo_number);
                     Log.d("First_size", String.valueOf(background.getWidth()-backgroundParams.leftMargin*2) + " " + String.valueOf(background.getHeight()-backgroundParams.topMargin*2));
                     break;
                 case REQUEST_CODE_ALBUM:
-                    templatePresenter.startCropper(REQUEST_CODE_ALBUM, data, background.getWidth()-backgroundParams.leftMargin*2, background.getHeight()-backgroundParams.topMargin*2, TEMPLATE_NUMBER, photo_number);
+                    templatePresenter.startCropper(REQUEST_CODE_ALBUM, data, photo_first.getWidth(), photo_first.getHeight(), TEMPLATE_NUMBER, global_photo_number);
                     Log.d("First_size", String.valueOf(background.getWidth()-backgroundParams.leftMargin*2) + " " + String.valueOf(background.getHeight()-backgroundParams.topMargin*2));
                     break;
                 default:
                     break;
             }
-            photo.setBackgroundColor(Color.TRANSPARENT);
-            photo.setBackground(null);
+            photo_first.setBackgroundColor(Color.TRANSPARENT);
+            photo_first.setBackground(null);
         }
         else
         {
-            ActivityCompat.requestPermissions(TemplateSinglePhoto.this,
-                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+            ActivityCompat.requestPermissions(TemplateTwoVerticalPhotos.this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
         }
 
     }
@@ -679,13 +876,31 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     public void changeBorderSize(int size) {
         if(size >= 0)
         {
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
             int real_size = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, size, Resources.getSystem().getDisplayMetrics()));
-            params.setMargins(real_size, real_size, real_size, real_size);
-//            photo.setScaleY(params.height/(params.height-real_size*2));
-//            photo.setScaleX(1.f);
-//            Log.d("Y_SCALE", String.valueOf((photo.getHeight()/(float)(photo.getHeight()-real_size*2))));
-            photo.setLayoutParams(params);
+
+            if(VERTICAL_ORIENTATION)
+            {
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
+                params.setMargins(real_size, real_size, real_size/2, real_size);
+                photo_first.setLayoutParams(params);
+
+                LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
+                params2.setMargins(real_size/2, real_size, real_size, real_size);
+                photo_second.setLayoutParams(params2);
+            }
+            else
+            {
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
+                params.setMargins(real_size, real_size, real_size, real_size/2);
+                photo_first.setLayoutParams(params);
+
+                LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
+                params2.setMargins(real_size, real_size/2, real_size, real_size);
+                photo_second.setLayoutParams(params2);
+            }
+
+            border_margin_text = real_size;
+
         }
 
     }
@@ -710,5 +925,41 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     @Override
     public void setActualFont(String font) {
         actual_font = font;
+    }
+
+    public String saveTmpPhoto(Activity activity, Drawable tmpPhoto, String name)
+    {
+        if (ContextCompat.checkSelfPermission(activity.getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
+
+            File direct = new File(Environment.getExternalStorageDirectory() + "/Pictures/CardMaker");
+            if (!direct.exists()) {
+                File wallpaperDirectory = new File("/sdcard/Pictures/CardMaker/");
+                wallpaperDirectory.mkdirs();
+            }
+
+            File file = new File(new File("/sdcard/Pictures/CardMaker/"), name + ".jpg");
+            try {
+                OutputStream out = new FileOutputStream(file);
+                Bitmap photoBitmap = ((BitmapDrawable)tmpPhoto).getBitmap();
+                photoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                out.flush();
+                out.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        String result = "/sdcard/Pictures/CardMaker/" + name + ".jpg";
+        return result;
+    }
+
+    public Bitmap loadTmpPhoto(String path)
+    {
+        Bitmap tmpPhoto = BitmapFactory.decodeFile(path);
+        File direct = new File(path);
+        direct.delete();
+        return tmpPhoto;
     }
 }

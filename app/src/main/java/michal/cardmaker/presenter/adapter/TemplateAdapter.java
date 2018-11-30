@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import michal.cardmaker.R;
+import michal.cardmaker.TemplateTwoVerticalPhotos;
 import michal.cardmaker.presenter.viewholder.TemplateViewHolder;
 import michal.cardmaker.view.TemplateSinglePhoto;
 
@@ -44,6 +45,10 @@ public class TemplateAdapter extends RecyclerView.Adapter<TemplateViewHolder> {
                 switch(i) {
                     case 0:
                         intent = new Intent(context, TemplateSinglePhoto.class);
+                        context.startActivity(intent);
+                        break;
+                    case 1:
+                        intent = new Intent(context, TemplateTwoVerticalPhotos.class);
                         context.startActivity(intent);
                         break;
                     default: Toast.makeText(context, "Zły wybór (" + i + ")", Toast.LENGTH_SHORT).show();

@@ -4,14 +4,17 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +34,8 @@ public class HistoryPostcardAdapter extends RecyclerView.Adapter<HistoryPostcard
     ArrayList<String> history_postcards;
     private Context context;
     private View view;
+
+    private boolean delete = false;
 
     public HistoryPostcardAdapter(ArrayList<String> history_postcards, Context context, View view) {
         this.history_postcards = history_postcards;
@@ -52,7 +57,27 @@ public class HistoryPostcardAdapter extends RecyclerView.Adapter<HistoryPostcard
 
         historyPostcardViewHolder.imageView.setImageBitmap(postcard);
 
-        historyPostcardViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+        if(delete)
+        {
+            historyPostcardViewHolder.constraintLayout.setVisibility(View.VISIBLE);
+            historyPostcardViewHolder.constraintLayout.setClickable(true);
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) historyPostcardViewHolder.imageView.getLayoutParams();
+            params.rightMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 12, Resources.getSystem().getDisplayMetrics());
+            params.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics());
+            historyPostcardViewHolder.imageView.setLayoutParams(params);
+        }
+        else
+        {
+            historyPostcardViewHolder.constraintLayout.setVisibility(View.INVISIBLE);
+            historyPostcardViewHolder.constraintLayout.setClickable(false);
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) historyPostcardViewHolder.imageView.getLayoutParams();
+            params.rightMargin = 0;
+            params.topMargin = 0;
+            historyPostcardViewHolder.imageView.setLayoutParams(params);
+        }
+
+
+        historyPostcardViewHolder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -64,7 +89,7 @@ public class HistoryPostcardAdapter extends RecyclerView.Adapter<HistoryPostcard
             }
         });
 
-        historyPostcardViewHolder.imageButton.setOnClickListener(new View.OnClickListener() {
+        historyPostcardViewHolder.constraintLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder alertBox = new AlertDialog.Builder(context);
@@ -77,6 +102,7 @@ public class HistoryPostcardAdapter extends RecyclerView.Adapter<HistoryPostcard
                         direct.delete();
                         history_postcards.remove(i);
                         notifyItemRemoved(i);
+                        notifyItemRangeChanged(i, history_postcards.size());
 
                         if(history_postcards.size() == 0)
                         {
@@ -90,6 +116,12 @@ public class HistoryPostcardAdapter extends RecyclerView.Adapter<HistoryPostcard
 
             }
         });
+    }
+
+    public void showDelete()
+    {
+        delete = !delete;
+        notifyDataSetChanged();
     }
 
     @Override

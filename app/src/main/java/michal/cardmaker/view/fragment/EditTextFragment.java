@@ -94,7 +94,8 @@ public class EditTextFragment extends Fragment {
                 insertedText.setTypeface(fonts[position]);
                 insertedText.setPivotX(insertedText.getMeasuredWidth()/2);
                 insertedText.setPivotY(insertedText.getMeasuredHeight()/2);
-                ((TemplateSinglePhoto)getActivity()).actual_font = font_list[position];
+
+                resetTextFragmentListener.setActualFont(font_list[position]);
             }
 
             @Override

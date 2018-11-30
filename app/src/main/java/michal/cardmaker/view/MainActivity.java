@@ -18,7 +18,6 @@ import michal.cardmaker.R;
 import michal.cardmaker.presenter.MainActivityPresenter;
 import michal.cardmaker.view.fragment.HistoryFragment;
 import michal.cardmaker.view.fragment.ReverseFragment;
-import michal.cardmaker.view.fragment.SettingsFragment;
 import michal.cardmaker.view.fragment.TemplateFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
     private TemplateFragment templateFragment;
     private ReverseFragment reverseFragment;
     private HistoryFragment historyFragment;
-    private SettingsFragment settingsFragment;
 
 
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
@@ -51,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
         templateFragment = new TemplateFragment();
         reverseFragment = new ReverseFragment();
         historyFragment = new HistoryFragment();
-        settingsFragment = new SettingsFragment();
 
         mainActivityPresenter = new MainActivityPresenter();
         mainActivityPresenter.setFragment(MainActivity.this, templateFragment);
@@ -104,11 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
                     case R.id.nav_history: {
                         mainActivityPresenter.setFragment(MainActivity.this, historyFragment);
-                        return true;
-                    }
 
-                    case R.id.nav_settings: {
-                        mainActivityPresenter.setFragment(MainActivity.this, settingsFragment);
                         return true;
                     }
 
@@ -117,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
     @Override
     public void onBackPressed() {

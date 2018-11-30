@@ -18,6 +18,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,21 +36,27 @@ import java.util.Date;
 import michal.cardmaker.R;
 import michal.cardmaker.view.CropActivity;
 
-public class TemplateSinglePhotoPresenter {
+public class TemplatePresenter {
 
     private Activity activity;
     public static final int REQUEST_CODE_CAMERA = 1;
     public static final int REQUEST_CODE_ALBUM = 2;
 
+    private int template_number;
+    private int photo_number;
+
 
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 100;
     private Uri mCameraImageUri;
 
-    public TemplateSinglePhotoPresenter(Activity activity) {
+    public TemplatePresenter(Activity activity) {
         this.activity = activity;
     }
 
-    public void startCropper(int requestCode, Intent data, int width, int height) {
+    public void startCropper(int requestCode, Intent data, int width, int height, int temp_number, int phot_number) {
+        this.template_number = temp_number;
+        this.photo_number = phot_number;
+
         Uri uri = null;
         if (requestCode == REQUEST_CODE_CAMERA) {
             uri = mCameraImageUri;
@@ -59,6 +66,8 @@ public class TemplateSinglePhotoPresenter {
             return;
         }
         Intent intent = new Intent(activity, CropActivity.class);
+        intent.putExtra("TEMPLATE_NUMBER", this.template_number);
+        intent.putExtra("PHOTO_NUMBER", this.photo_number);
         intent.setData(uri);
 
         Log.d("Size_push", String.valueOf(width) + " " + String.valueOf(height));
@@ -102,10 +111,29 @@ public class TemplateSinglePhotoPresenter {
         return postcard;
     }
 
-    public Canvas mergePhoto(ImageView photo, Canvas postcard, ImageView background) {
+    public Canvas mergePhotoDoubleVertical(ImageView photo, Canvas postcard, ImageView background, int x_start, int y_start) {
+        LinearLayout.LayoutParams background_params = (LinearLayout.LayoutParams) photo.getLayoutParams();
+        Bitmap bitmapPhoto = Bitmap.createScaledBitmap(((BitmapDrawable)photo.getDrawable()).getBitmap(), background.getWidth() - background_params.leftMargin - background_params.rightMargin, background.getHeight()/2-background_params.topMargin-background_params.bottomMargin, false);
+        //postcard.drawBitmap(bitmapPhoto, (background.getWidth()-bitmapPhoto.getWidth())/2, (background.getHeight()-bitmapPhoto.getHeight())/2, null);
+        postcard.drawBitmap(bitmapPhoto, x_start, y_start, null);
+
+        return postcard;
+    }
+
+    public Canvas mergePhoto(ImageView photo, Canvas postcard, ImageView background, int x_start, int y_start) {
+        LinearLayout.LayoutParams background_params = (LinearLayout.LayoutParams) photo.getLayoutParams();
+        Bitmap bitmapPhoto = Bitmap.createScaledBitmap(((BitmapDrawable)photo.getDrawable()).getBitmap(), background.getWidth()/2 - background_params.leftMargin - background_params.rightMargin, background.getHeight()-background_params.topMargin-background_params.bottomMargin, false);
+        //postcard.drawBitmap(bitmapPhoto, (background.getWidth()-bitmapPhoto.getWidth())/2, (background.getHeight()-bitmapPhoto.getHeight())/2, null);
+        postcard.drawBitmap(bitmapPhoto, x_start, y_start, null);
+
+        return postcard;
+    }
+
+    public Canvas mergePhotoSingle(ImageView photo, Canvas postcard, ImageView background, int x_start, int y_start) {
         RelativeLayout.LayoutParams background_params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
-        Bitmap bitmapPhoto = Bitmap.createScaledBitmap(((BitmapDrawable)photo.getDrawable()).getBitmap(), background.getWidth()-background_params.leftMargin*2, background.getHeight()-background_params.topMargin*2, false);
-        postcard.drawBitmap(bitmapPhoto, (background.getWidth()-bitmapPhoto.getWidth())/2, (background.getHeight()-bitmapPhoto.getHeight())/2, null);
+        Bitmap bitmapPhoto = Bitmap.createScaledBitmap(((BitmapDrawable)photo.getDrawable()).getBitmap(), background.getWidth() - background_params.leftMargin - background_params.rightMargin, background.getHeight()-background_params.topMargin-background_params.bottomMargin, false);
+        //postcard.drawBitmap(bitmapPhoto, (background.getWidth()-bitmapPhoto.getWidth())/2, (background.getHeight()-bitmapPhoto.getHeight())/2, null);
+        postcard.drawBitmap(bitmapPhoto, x_start, y_start, null);
 
         return postcard;
     }
