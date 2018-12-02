@@ -3,12 +3,8 @@ package michal.cardmaker.view.fragment;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -24,16 +20,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
 import java.util.ArrayList;
-import java.util.SortedSet;
-import java.util.StringTokenizer;
-import java.util.TreeSet;
 
 import michal.cardmaker.R;
-import michal.cardmaker.presenter.GridSpacingItemDecoration;
+import michal.cardmaker.presenter.decoration.GridSpacingItemDecoration;
 import michal.cardmaker.presenter.adapter.HistoryPostcardAdapter;
 
 
@@ -75,16 +66,21 @@ public class HistoryFragment extends Fragment {
                     ArrayList<String> f = new ArrayList<String>();// list of file paths
                     listFile = direct.listFiles();
 
-                    if(listFile.length == 0)
+
+                    for (int i = 0; i < listFile.length; i++)
+                    {
+                        String fileExt = (listFile[i].getAbsolutePath().substring(listFile[i].getAbsolutePath().length()-4));
+                        if(fileExt.equals(".jpg"))
+                        {
+                            f.add(listFile[i].getAbsolutePath());
+                        }
+                    }
+                    if(f.size() == 0)
                     {
                         emptyListTextView.setVisibility(View.VISIBLE);
                     }
                     else
                     {
-                        for (int i = 0; i < listFile.length; i++)
-                        {
-                            f.add(listFile[i].getAbsolutePath());
-                        }
                         emptyListTextView.setVisibility(View.INVISIBLE);
                         emptyListTextView.refreshDrawableState();
                     }

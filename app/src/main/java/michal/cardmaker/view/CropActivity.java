@@ -1,7 +1,5 @@
 package michal.cardmaker.view;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
@@ -10,7 +8,6 @@ import android.view.View;
 import android.widget.Button;
 
 import michal.cardmaker.R;
-import michal.cardmaker.TemplateTwoVerticalPhotos;
 import michal.cardmaker.presenter.cropViewLibrary.CropLayout;
 import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
 
@@ -92,6 +89,12 @@ public class CropActivity extends AppCompatActivity {
                     break;
                 case 1:
                     intent = new Intent(CropActivity.this, TemplateTwoVerticalPhotos.class);
+                    break;
+                case 2:
+                    intent = new Intent(CropActivity.this, TemplateTwoHorizontalPhotos.class);
+                    break;
+                case 5:
+                    intent = new Intent(CropActivity.this, TemplateFourPhotos.class);
                     break;
                 default:
                     intent = new Intent(CropActivity.this, TemplateSinglePhoto.class);

@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import michal.cardmaker.R;
-import michal.cardmaker.presenter.GridSpacingItemDecoration;
+import michal.cardmaker.presenter.decoration.GridSpacingItemDecoration;
 import michal.cardmaker.presenter.adapter.TemplateAdapter;
 
 

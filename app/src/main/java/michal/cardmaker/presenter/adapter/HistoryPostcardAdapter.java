@@ -89,7 +89,7 @@ public class HistoryPostcardAdapter extends RecyclerView.Adapter<HistoryPostcard
             }
         });
 
-        historyPostcardViewHolder.constraintLayout.setOnClickListener(new View.OnClickListener() {
+        historyPostcardViewHolder.imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder alertBox = new AlertDialog.Builder(context);

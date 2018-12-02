@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import michal.cardmaker.R;
-import michal.cardmaker.presenter.StickerFragmentListener;
+import michal.cardmaker.presenter.listener.StickerFragmentListener;
 import michal.cardmaker.presenter.viewholder.ItemViewHolder;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemViewHolder>{

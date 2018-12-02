@@ -1,4 +1,4 @@
-package michal.cardmaker;
+package michal.cardmaker.view;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -48,14 +48,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import michal.cardmaker.presenter.BorderSettingsFragmentListener;
-import michal.cardmaker.presenter.InsertTextFragmentListener;
-import michal.cardmaker.presenter.ResetItemFragmentListener;
-import michal.cardmaker.presenter.ResetTextFragmentListener;
-import michal.cardmaker.presenter.StickerFragmentListener;
-import michal.cardmaker.presenter.TemplatePresenter;
+import michal.cardmaker.R;
+import michal.cardmaker.presenter.TemplateTwoVerticalPhotosPresenter;
+import michal.cardmaker.presenter.listener.BorderSettingsFragmentListener;
+import michal.cardmaker.presenter.listener.InsertTextFragmentListener;
+import michal.cardmaker.presenter.listener.ResetItemFragmentListener;
+import michal.cardmaker.presenter.listener.ResetTextFragmentListener;
+import michal.cardmaker.presenter.listener.StickerFragmentListener;
 import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
-import michal.cardmaker.view.MainActivity;
 import michal.cardmaker.view.fragment.BorderSettingFragment;
 import michal.cardmaker.view.fragment.EditTextFragment;
 import michal.cardmaker.view.fragment.InsertTextFragment;
@@ -85,7 +85,7 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
     private InsertTextFragment insertTextFragment;
     private EditTextFragment editTextFragment;
 
-    private TemplatePresenter templatePresenter;
+    private TemplateTwoVerticalPhotosPresenter templatePresenter;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
 
     private static final String PREFERENCES_NAME = "myPreferences";
@@ -140,7 +140,7 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_template_two_vertical_photos);
 
-        templatePresenter = new TemplatePresenter(TemplateTwoVerticalPhotos.this);
+        templatePresenter = new TemplateTwoVerticalPhotosPresenter(TemplateTwoVerticalPhotos.this);
 
         photo_first = findViewById(R.id.temp_2v_first);
         photo_second = findViewById(R.id.temp_2v_second);
@@ -602,8 +602,8 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
         }
         else
         {
-            templatePresenter.mergePhotoDoubleVertical(photo_first, canvasPostcard, background, photo_one_params.leftMargin, photo_one_params.topMargin);
-            templatePresenter.mergePhotoDoubleVertical(photo_second, canvasPostcard, background, photo_two_params.leftMargin, photo_one_params.topMargin + photo_first.getHeight() + photo_one_params.bottomMargin + photo_two_params.topMargin);
+            templatePresenter.mergePhotoVertical(photo_first, canvasPostcard, background, photo_one_params.leftMargin, photo_one_params.topMargin);
+            templatePresenter.mergePhotoVertical(photo_second, canvasPostcard, background, photo_two_params.leftMargin, photo_one_params.topMargin + photo_first.getHeight() + photo_one_params.bottomMargin + photo_two_params.topMargin);
         }
 
         if(item.getVisibility() == View.VISIBLE)
@@ -635,7 +635,7 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
 
         if(photo_second.getDrawable().getConstantState() != getResources().getDrawable( R.drawable.camera).getConstantState())
         {
-            preferencesEditor.putString(PREFERENCES_PHOTO_2, saveTmpPhoto(this, photo_first.getDrawable(), PREFERENCES_PHOTO_2));
+            preferencesEditor.putString(PREFERENCES_PHOTO_2, saveTmpPhoto(this, photo_second.getDrawable(), PREFERENCES_PHOTO_2));
         }
 
         if(item.getVisibility() == View.VISIBLE)
@@ -704,10 +704,10 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
                     photo_second.setLayoutParams(params2);
 
                     photo_first.setImageResource(R.drawable.camera);
-                    photo_first.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    photo_first.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
                     photo_second.setImageResource(R.drawable.camera);
-                    photo_second.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    photo_second.setScaleType(ImageView.ScaleType.FIT_CENTER);
                     VERTICAL_ORIENTATION = false;
                 }
                 else

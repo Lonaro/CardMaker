@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 
 import michal.cardmaker.R;
-import michal.cardmaker.presenter.ResetItemFragmentListener;
+import michal.cardmaker.presenter.listener.ResetItemFragmentListener;
 
 
 public class SeekBarsFragment extends Fragment {

@@ -2,11 +2,8 @@ package michal.cardmaker.view.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +13,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import michal.cardmaker.R;
-import michal.cardmaker.presenter.BorderSettingsFragmentListener;
+import michal.cardmaker.presenter.listener.BorderSettingsFragmentListener;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 

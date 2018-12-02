@@ -1,6 +1,7 @@
 package michal.cardmaker.view;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -43,15 +44,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         mainFrame = findViewById(R.id.frame_navigation);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         templateFragment = new TemplateFragment();
-        reverseFragment = new ReverseFragment();
+        reverseFragment = new ReverseFragment(MainActivity.this);
         historyFragment = new HistoryFragment();
 
         mainActivityPresenter = new MainActivityPresenter();
         mainActivityPresenter.setFragment(MainActivity.this, templateFragment);
+
+        Intent intent = getIntent();
+
+        if(intent.getExtras() != null)
+        {
+            if(intent.getStringExtra("FRAGMENT") == "REVERSE");
+            {
+                mainActivityPresenter.setFragment(MainActivity.this, reverseFragment);
+                bottomNavigationView.setSelectedItemId(R.id.nav_reverse);
+            }
+        }
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)

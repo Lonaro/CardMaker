@@ -1,4 +1,4 @@
-package michal.cardmaker.presenter;
+package michal.cardmaker.presenter.decoration;
 
 import android.content.Context;
 import android.graphics.Rect;

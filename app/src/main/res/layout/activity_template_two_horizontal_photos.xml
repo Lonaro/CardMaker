@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.TemplateTwoVerticalPhotos">
+    tools:context=".view.TemplateTwoHorizontalPhotos">
 
     <RelativeLayout
         android:id="@+id/frame_template"
@@ -39,19 +39,19 @@
             android:layout_alignParentTop="true">
 
             <LinearLayout
-                android:id="@+id/linear_box_2v"
+                android:id="@+id/linear_box_2h"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true">
 
                 <ImageView
-                    android:id="@+id/temp_2v_first"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:id="@+id/temp_2h_first"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
                     android:background="@color/colorAccent"
                     android:contentDescription="Photo"
                     android:src="@drawable/camera"
@@ -59,9 +59,9 @@
 
 
                 <ImageView
-                    android:id="@+id/temp_2v_second"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:id="@+id/temp_2h_second"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
                     android:background="@color/colorAccent"
                     android:layout_weight="1"
                     android:contentDescription="Photo"
@@ -81,7 +81,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:scaleType="fitCenter"/>
-            <!--tools:srcCompat="@drawable/palm_tree"-->
+        <!--tools:srcCompat="@drawable/palm_tree"-->
 
         <TextView
             android:id="@+id/text"
@@ -270,6 +270,6 @@
 
         </android.support.constraint.ConstraintLayout>
 
-    </android.support.constraint.ConstraintLayout>
+</android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>

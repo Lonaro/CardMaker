@@ -20,8 +20,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import michal.cardmaker.R;
-import michal.cardmaker.presenter.ResetTextFragmentListener;
-import michal.cardmaker.view.TemplateSinglePhoto;
+import michal.cardmaker.presenter.listener.ResetTextFragmentListener;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class EditTextFragment extends Fragment {

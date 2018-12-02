@@ -32,7 +32,23 @@
         <activity
             android:name=".view.MaximizePostcard"
             android:screenOrientation="portrait" />
-        <activity android:name=".TemplateTwoVerticalPhotos"></activity>
+        <activity
+            android:name=".view.TemplateTwoVerticalPhotos"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".view.TemplateTwoHorizontalPhotos"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".view.TemplateFourPhotos"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".view.ReverseCreator"
+            android:noHistory="true"
+            android:screenOrientation="portrait" />
+        <activity android:name=".view.MaximizeReverse"></activity>
     </application>
 
 </manifest>
