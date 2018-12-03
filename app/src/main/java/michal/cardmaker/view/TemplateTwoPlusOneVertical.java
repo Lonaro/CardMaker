@@ -954,15 +954,15 @@ public class TemplateTwoPlusOneVertical extends AppCompatActivity implements Sti
             int real_size = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, size, Resources.getSystem().getDisplayMetrics()));
 
             LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
-            params.setMargins(real_size, real_size, real_size, real_size/2);
+            params.setMargins(real_size/2, real_size, real_size, real_size);
             photo_first.setLayoutParams(params);
 
             LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
-            params2.setMargins(real_size, real_size/2, real_size/2, real_size);
+            params2.setMargins(real_size, real_size, real_size/2, real_size/2);
             photo_second.setLayoutParams(params2);
 
             LinearLayout.LayoutParams params3 = (LinearLayout.LayoutParams) photo_third.getLayoutParams();
-            params3.setMargins(real_size/2, real_size/2, real_size, real_size);
+            params3.setMargins(real_size, real_size/2, real_size/2, real_size);
             photo_third.setLayoutParams(params3);
 
             border_margin_text = real_size;

@@ -54,7 +54,8 @@
         <activity android:name=".view.TemplateTwoPlusOneVertical"
             android:screenOrientation="portrait"/>
         <activity android:name=".view.ReverseToMergeSelection"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:noHistory="true"/>
         <activity android:name=".view.ReverseMergePostcard"
             android:screenOrientation="portrait"/>
     </application>

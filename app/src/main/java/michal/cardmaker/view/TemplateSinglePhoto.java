@@ -339,7 +339,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                     }
                     case "A4": {
                         if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
-                        {
+                        { // 210x297
                             width = 2700;
                             height = 1800;
                         } else {
