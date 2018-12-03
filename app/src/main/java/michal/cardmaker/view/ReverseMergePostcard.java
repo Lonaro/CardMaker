@@ -1,5 +1,6 @@
 package michal.cardmaker.view;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -67,13 +68,7 @@ public class ReverseMergePostcard extends Activity {
 
         setPageSize();
 
-        exportPDF.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                savePdf();
-            }
-        });
+        exportPDF.setOnClickListener(view -> savePdf());
     }
 
     //String[] animals = {"A6 (800x1200)", "A5 (1200x1800)", "A4 (1800x2700)", "A3 (2700x4050)"};
@@ -124,14 +119,10 @@ public class ReverseMergePostcard extends Activity {
 
     }
 
+    @SuppressLint({"SdCardPath", "SimpleDateFormat"})
     void savePdf() {
-        WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-        Display display = wm.getDefaultDisplay();
         DisplayMetrics displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-
-        float hight = displaymetrics.heightPixels ;
-        float width = displaymetrics.widthPixels ;
 
         PdfDocument document = new PdfDocument();
 

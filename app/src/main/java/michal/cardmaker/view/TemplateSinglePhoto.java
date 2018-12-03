@@ -277,147 +277,135 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
             }
         });
 
-        size_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // setup the alert builder
-                AlertDialog.Builder builder = new AlertDialog.Builder(TemplateSinglePhoto.this);
-                builder.setTitle("Choose a format:");
+        size_button.setOnClickListener(view -> {
+            // setup the alert builder
+            AlertDialog.Builder builder = new AlertDialog.Builder(TemplateSinglePhoto.this);
+            builder.setTitle("Choose a format:");
 
-                // add a list
-                String[] animals = {"A6 (800x1200)", "A5 (1200x1800)", "A4 (1800x2700)", "A3 (2700x4050)"};
-                builder.setItems(animals, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0: size_button.setText("A6"); break;
-                            case 1: size_button.setText("A5"); break;
-                            case 2: size_button.setText("A4"); break;
-                            case 3: size_button.setText("A3"); break;
-                        }
-                    }
-                });
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-        });
-
-        merge_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Bitmap bitmapPostcard = merge();
-
-                String postcardSize = String.valueOf(size_button.getText());
-                int width;
-                int height;
-
-
-                switch(postcardSize) {
-                    case "A6": {
-                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
-                        {
-                            width = 1200;
-                            height = 800;
-                        } else {
-                            width = 800;
-                            height = 1200;
-                        }
-                        break;
-                    }
-                    case "A5": {
-                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
-                        {
-                            width = 1800;
-                            height = 1200;
-                        } else {
-                            width = 1200;
-                            height = 1800;
-                        }
-                        break;
-                    }
-                    case "A4": {
-                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
-                        { // 210x297
-                            width = 2700;
-                            height = 1800;
-                        } else {
-                            width = 1800;
-                            height = 2700;
-                        }
-                        break;
-                    }
-                    case "A3": {
-                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
-                        {
-                            width = 4050;
-                            height = 2700;
-                        } else {
-                            width = 2700;
-                            height = 4050;
-                        }
-                        break;
-                    }
-                    default:{
-                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
-                        {
-                            width = 1800;
-                            height = 1200;
-                        } else {
-                            width = 1200;
-                            height = 1800;
-                        }
+            // add a list
+            String[] animals = {"A6 (800x1200)", "A5 (1200x1800)", "A4 (1800x2700)", "A3 (2700x4050)"};
+            builder.setItems(animals, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    switch (which) {
+                        case 0: size_button.setText("A6"); break;
+                        case 1: size_button.setText("A5"); break;
+                        case 2: size_button.setText("A4"); break;
+                        case 3: size_button.setText("A3"); break;
                     }
                 }
+            });
 
-                templateSinglePhotoPresenter.savePostcard(TemplateSinglePhoto.this, bitmapPostcard, width, height);
-            }
+            AlertDialog dialog = builder.create();
+            dialog.show();
         });
 
-        clear_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        merge_button.setOnClickListener(v -> {
 
-                int border_color = preferences.getInt(PREFERENCES_BORDER_COLOR, Color.rgb(13,71,161));
-                background.setBackgroundColor(border_color);
+            Bitmap bitmapPostcard = merge();
 
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
-                int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
-                params.setMargins(first_margin, first_margin, first_margin, first_margin);
-                photo.setLayoutParams(params);
-                photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                photo.setImageResource(R.drawable.camera);
+            String postcardSize = String.valueOf(size_button.getText());
+            int width;
+            int height;
 
-                if(item.isEnabled())
-                {
-                    seekBarsFragment.clearItem();
+
+            switch(postcardSize) {
+                case "A6": {
+                    if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                    {
+                        width = 1200;
+                        height = 800;
+                    } else {
+                        width = 800;
+                        height = 1200;
+                    }
+                    break;
                 }
-
-                if(insertedText.isEnabled())
-                {
-                    editTextFragment.clearText();
+                case "A5": {
+                    if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                    {
+                        width = 1800;
+                        height = 1200;
+                    } else {
+                        width = 1200;
+                        height = 1800;
+                    }
+                    break;
                 }
-
-                FrameLayout frameLayout = findViewById(R.id.frameLayout2);
-                frameLayout.removeAllViews();
-
+                case "A4": {
+                    if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                    { // 210x297
+                        width = 2700;
+                        height = 1800;
+                    } else {
+                        width = 1800;
+                        height = 2700;
+                    }
+                    break;
+                }
+                case "A3": {
+                    if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                    {
+                        width = 4050;
+                        height = 2700;
+                    } else {
+                        width = 2700;
+                        height = 4050;
+                    }
+                    break;
+                }
+                default:{
+                    if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                    {
+                        width = 1800;
+                        height = 1200;
+                    } else {
+                        width = 1200;
+                        height = 1800;
+                    }
+                }
             }
+
+            templateSinglePhotoPresenter.savePostcard(TemplateSinglePhoto.this, bitmapPostcard, width, height);
         });
 
-        share_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bitmap bitmapPostcard = merge();
+        clear_button.setOnClickListener(v -> {
 
-                String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmapPostcard, "Postcard from CardMaker", null);
-                Uri uri = Uri.parse(path);
+            int border_color = preferences.getInt(PREFERENCES_BORDER_COLOR, Color.rgb(13,71,161));
+            background.setBackgroundColor(border_color);
 
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("image/jpeg");
-                intent.putExtra(Intent.EXTRA_STREAM, uri);
-                startActivity(Intent.createChooser(intent, "Share postcard"));
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+            int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
+            params.setMargins(first_margin, first_margin, first_margin, first_margin);
+            photo.setLayoutParams(params);
+            photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            photo.setImageResource(R.drawable.camera);
+
+            if(item.isEnabled())
+            {
+                seekBarsFragment.clearItem();
             }
+
+            if(insertedText.isEnabled())
+            {
+                editTextFragment.clearText();
+            }
+
+            FrameLayout frameLayout = findViewById(R.id.frameLayout2);
+            frameLayout.removeAllViews();
+
+        });
+
+        share_button.setOnClickListener(v -> {
+            Bitmap bitmapPostcard = merge();
+
+            String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmapPostcard, "Postcard from CardMaker", null);
+            Uri uri = Uri.parse(path);
+
+            Intent intent1 = new Intent(Intent.ACTION_SEND);
+            intent1.setType("image/jpeg");
+            intent1.putExtra(Intent.EXTRA_STREAM, uri);
+            startActivity(Intent.createChooser(intent1, "Share postcard"));
         });
     }
 
@@ -664,13 +652,10 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         if(item.isEnabled() || insertedText.isEnabled() || photo.getDrawable().getConstantState() != getResources().getDrawable( R.drawable.camera).getConstantState()) {
             AlertDialog.Builder alertBox = new AlertDialog.Builder(TemplateSinglePhoto.this);
             alertBox.setMessage("Are you sure to exit?");
-            alertBox.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
-                    goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(goToMainActivity);
-                }
+            alertBox.setPositiveButton("Yes", (dialog, which) -> {
+                Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
+                goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(goToMainActivity);
             });
             alertBox.setNegativeButton("No", null);
             alertBox.create().show();
