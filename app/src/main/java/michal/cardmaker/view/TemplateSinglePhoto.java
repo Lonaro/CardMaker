@@ -120,7 +120,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
     private int sticker;
 
-    @SuppressLint("ResourceAsColor")
+    @SuppressLint({"ResourceAsColor", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -285,7 +285,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                 builder.setTitle("Choose a format:");
 
                 // add a list
-                String[] animals = {"A6 (1200x1800)", "A5 (1800x2700)", "A4 (2700x4050)", "A3 (3500x5250)"};
+                String[] animals = {"A6 (800x1200)", "A5 (1200x1800)", "A4 (1800x2700)", "A3 (2700x4050)"};
                 builder.setItems(animals, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -309,7 +309,69 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
                 Bitmap bitmapPostcard = merge();
 
-                templateSinglePhotoPresenter.savePostcard(TemplateSinglePhoto.this, bitmapPostcard);
+                String postcardSize = String.valueOf(size_button.getText());
+                int width;
+                int height;
+
+
+                switch(postcardSize) {
+                    case "A6": {
+                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                        {
+                            width = 1200;
+                            height = 800;
+                        } else {
+                            width = 800;
+                            height = 1200;
+                        }
+                        break;
+                    }
+                    case "A5": {
+                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                        {
+                            width = 1800;
+                            height = 1200;
+                        } else {
+                            width = 1200;
+                            height = 1800;
+                        }
+                        break;
+                    }
+                    case "A4": {
+                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                        {
+                            width = 2700;
+                            height = 1800;
+                        } else {
+                            width = 1800;
+                            height = 2700;
+                        }
+                        break;
+                    }
+                    case "A3": {
+                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                        {
+                            width = 4050;
+                            height = 2700;
+                        } else {
+                            width = 2700;
+                            height = 4050;
+                        }
+                        break;
+                    }
+                    default:{
+                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                        {
+                            width = 1800;
+                            height = 1200;
+                        } else {
+                            width = 1200;
+                            height = 1800;
+                        }
+                    }
+                }
+
+                templateSinglePhotoPresenter.savePostcard(TemplateSinglePhoto.this, bitmapPostcard, width, height);
             }
         });
 
@@ -482,6 +544,8 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     }
 
     private Bitmap merge() {
+
+        //Bitmap bitmapPostcard = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Bitmap bitmapPostcard = Bitmap.createBitmap(background.getWidth(), background.getHeight(), Bitmap.Config.ARGB_8888);
         bitmapPostcard.eraseColor(((ColorDrawable)background.getBackground()).getColor());
 
@@ -489,7 +553,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         RelativeLayout.LayoutParams background_params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
 
         // Drawing photo
-        templateSinglePhotoPresenter.mergePhotoSingle(photo, canvasPostcard, background, background_params.leftMargin, background_params.topMargin);
+        templateSinglePhotoPresenter.mergePhotoSingle(photo, canvasPostcard, bitmapPostcard, background_params.leftMargin, background_params.topMargin);
 
         if(item.getVisibility() == View.VISIBLE)
         {
@@ -546,11 +610,11 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
     @SuppressLint("ResourceAsColor")
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
 
-        switch(item.getItemId()) {
-            case R.id.nav_rotate_template:
-                if(VERTICAL_ORIENTATION) {
+        switch(menuItem.getItemId()) {
+            case R.id.nav_rotate_template: {
+                if (VERTICAL_ORIENTATION) {
                     RelativeLayout photoAll = findViewById(R.id.frame_template);
                     ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
                     int layout_height = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 270, Resources.getSystem().getDisplayMetrics()));
@@ -561,9 +625,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                     photo.setImageResource(R.drawable.camera);
                     photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     VERTICAL_ORIENTATION = false;
-                }
-                else
-                {
+                } else {
                     RelativeLayout photoAll = findViewById(R.id.frame_template);
                     ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
                     fullPhoto.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
@@ -575,6 +637,16 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                     VERTICAL_ORIENTATION = true;
 
                 }
+                if(item.getVisibility() == View.VISIBLE)
+                {
+                    seekBarsFragment.clearItem();
+                }
+
+                if(insertedText.getVisibility() == View.VISIBLE)
+                {
+                    editTextFragment.clearText();
+                }
+            }
         }
 
         return true;

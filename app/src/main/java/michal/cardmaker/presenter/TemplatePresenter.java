@@ -90,7 +90,7 @@ public class TemplatePresenter {
         Bitmap b = Bitmap.createScaledBitmap(item_1, (int) (item_1.getWidth() * item.getScaleX()), (int) (item_1.getHeight() * item.getScaleX()), false);
         Matrix mat = new Matrix();
         mat.postRotate(item.getRotation(), b.getWidth() / 2, b.getHeight() / 2);
-        mat.postTranslate(item.getX() + item.getWidth() / 2 - b.getWidth() / 2, item.getY() + item.getHeight() / 2 - b.getHeight() / 2);
+        mat.postTranslate((item.getX() + item.getWidth() / 2 - b.getWidth() / 2), (item.getY() + item.getHeight() / 2 - b.getHeight() / 2));
         item.setImageMatrix(mat);
         postcard.drawBitmap(b, mat , null);
 
@@ -109,15 +109,19 @@ public class TemplatePresenter {
         return postcard;
     }
 
-    public void savePostcard(Activity activity, Bitmap postcard) {
+    public void savePostcard(Activity activity, Bitmap postcard, int end_width, int end_height) {
         if (ContextCompat.checkSelfPermission(activity.getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
+
+            Bitmap end_postcard = Bitmap.createScaledBitmap(postcard, end_width, end_height, false);
 
             File direct = new File(Environment.getExternalStorageDirectory() + "/Pictures/CardMaker");
             if (!direct.exists()) {
                 File wallpaperDirectory = new File("/sdcard/Pictures/CardMaker/");
                 wallpaperDirectory.mkdirs();
             }
+
+            // Bitmap scalePostcard = Bitmap.createBitmap(postcard, )
 
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
             Date currentTime = Calendar.getInstance().getTime();
@@ -127,7 +131,7 @@ public class TemplatePresenter {
                 OutputStream out = null;
                 out = new FileOutputStream(file);
 
-                postcard.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                end_postcard.compress(Bitmap.CompressFormat.JPEG, 100, out);
                 out.flush();
                 out.close();
 

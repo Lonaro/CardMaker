@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import michal.cardmaker.R;
 
-public class ReverseViewHolder extends RecyclerView.ViewHolder {
+public class ReverseSelectViewHolder extends RecyclerView.ViewHolder {
 
     private TextView name;
     private TextView address;
@@ -19,7 +19,7 @@ public class ReverseViewHolder extends RecyclerView.ViewHolder {
 
     public ImageView delete_button;
 
-    public ReverseViewHolder(@NonNull View view) {
+    public ReverseSelectViewHolder(@NonNull View view) {
         super(view);
         this.name = view.findViewById(R.id.reverse_rw_item_name);
         this.address = view.findViewById(R.id.reverse_rw_item_address);

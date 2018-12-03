@@ -2,9 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item android:id="@+id/nav_merge_postcard_with_reverse"
+        android:icon="@drawable/reverse_icon"
+        android:title="Share postcards"
+        app:showAsAction="always"/>
+
     <item android:id="@+id/nav_share_postcard"
         android:icon="@drawable/share"
         android:title="Share postcards"
         app:showAsAction="always"/>
+
 
 </menu>

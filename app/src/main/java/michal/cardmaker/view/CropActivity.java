@@ -93,6 +93,12 @@ public class CropActivity extends AppCompatActivity {
                 case 2:
                     intent = new Intent(CropActivity.this, TemplateTwoHorizontalPhotos.class);
                     break;
+                case 3:
+                    intent = new Intent(CropActivity.this, TemplateTwoPlusOneHorizontal.class);
+                    break;
+                case 4:
+                    intent = new Intent(CropActivity.this, TemplateTwoPlusOneVertical.class);
+                    break;
                 case 5:
                     intent = new Intent(CropActivity.this, TemplateFourPhotos.class);
                     break;

@@ -324,7 +324,7 @@ public class TemplateTwoHorizontalPhotos extends AppCompatActivity implements St
                 builder.setTitle("Choose a format:");
 
                 // add a list
-                String[] animals = {"A6 (1200x1800)", "A5 (1800x2700)", "A4 (2700x4050)", "A3 (3500x5250)"};
+                String[] animals = {"A6 (800x1200)", "A5 (1200x1800)", "A4 (1800x2700)", "A3 (2700x4050)"};
                 builder.setItems(animals, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -348,7 +348,69 @@ public class TemplateTwoHorizontalPhotos extends AppCompatActivity implements St
 
                 Bitmap bitmapPostcard = merge();
 
-                templatePresenter.savePostcard(TemplateTwoHorizontalPhotos.this, bitmapPostcard);
+                String postcardSize = String.valueOf(size_button.getText());
+                int width;
+                int height;
+
+
+                switch(postcardSize) {
+                    case "A6": {
+                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                        {
+                            width = 1200;
+                            height = 800;
+                        } else {
+                            width = 800;
+                            height = 1200;
+                        }
+                        break;
+                    }
+                    case "A5": {
+                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                        {
+                            width = 1800;
+                            height = 1200;
+                        } else {
+                            width = 1200;
+                            height = 1800;
+                        }
+                        break;
+                    }
+                    case "A4": {
+                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                        {
+                            width = 2700;
+                            height = 1800;
+                        } else {
+                            width = 1800;
+                            height = 2700;
+                        }
+                        break;
+                    }
+                    case "A3": {
+                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                        {
+                            width = 4050;
+                            height = 2700;
+                        } else {
+                            width = 2700;
+                            height = 4050;
+                        }
+                        break;
+                    }
+                    default:{
+                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                        {
+                            width = 1800;
+                            height = 1200;
+                        } else {
+                            width = 1200;
+                            height = 1800;
+                        }
+                    }
+                }
+
+                templatePresenter.savePostcard(TemplateTwoHorizontalPhotos.this, bitmapPostcard, width, height);
             }
         });
 
@@ -674,11 +736,11 @@ public class TemplateTwoHorizontalPhotos extends AppCompatActivity implements St
 
     @SuppressLint("ResourceAsColor")
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
 
-        switch(item.getItemId()) {
-            case R.id.nav_rotate_template:
-                if(VERTICAL_ORIENTATION) {
+        switch(menuItem.getItemId()) {
+            case R.id.nav_rotate_template: {
+                if (VERTICAL_ORIENTATION) {
                     RelativeLayout photoAll = findViewById(R.id.frame_template);
                     ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
                     int layout_height = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 270, Resources.getSystem().getDisplayMetrics()));
@@ -695,14 +757,14 @@ public class TemplateTwoHorizontalPhotos extends AppCompatActivity implements St
                     params1.width = params1.height;
                     params1.height = width_tmp;
                     int margin = params1.topMargin;
-                    params1.setMargins(margin, margin, margin/2, margin);
+                    params1.setMargins(margin, margin, margin / 2, margin);
                     photo_first.setLayoutParams(params1);
 
                     LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
                     int width_tmp2 = params2.width;
                     params2.width = params2.height;
                     params2.height = width_tmp2;
-                    params2.setMargins(margin/2, margin, margin, margin);
+                    params2.setMargins(margin / 2, margin, margin, margin);
                     photo_second.setLayoutParams(params2);
 
                     photo_first.setImageResource(R.drawable.camera);
@@ -711,9 +773,7 @@ public class TemplateTwoHorizontalPhotos extends AppCompatActivity implements St
                     photo_second.setImageResource(R.drawable.camera);
                     photo_second.setScaleType(ImageView.ScaleType.FIT_CENTER);
                     VERTICAL_ORIENTATION = false;
-                }
-                else
-                {
+                } else {
                     RelativeLayout photoAll = findViewById(R.id.frame_template);
                     ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
                     fullPhoto.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
@@ -729,14 +789,14 @@ public class TemplateTwoHorizontalPhotos extends AppCompatActivity implements St
                     params1.width = params1.height;
                     params1.height = width_tmp;
                     int margin = params1.topMargin;
-                    params1.setMargins(margin, margin, margin, margin/2);
+                    params1.setMargins(margin, margin, margin, margin / 2);
                     photo_first.setLayoutParams(params1);
 
                     LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
                     int width_tmp2 = params2.width;
                     params2.width = params2.height;
                     params2.height = width_tmp2;
-                    params2.setMargins(margin, margin/2, margin, margin);
+                    params2.setMargins(margin, margin / 2, margin, margin);
                     photo_second.setLayoutParams(params2);
 
                     photo_first.setImageResource(R.drawable.camera);
@@ -748,6 +808,16 @@ public class TemplateTwoHorizontalPhotos extends AppCompatActivity implements St
                     VERTICAL_ORIENTATION = true;
 
                 }
+                if(item.getVisibility() == View.VISIBLE)
+                {
+                    seekBarsFragment.clearItem();
+                }
+
+                if(insertedText.getVisibility() == View.VISIBLE)
+                {
+                    editTextFragment.clearText();
+                }
+            }
         }
 
         return true;

@@ -138,7 +138,7 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
 
     private int sticker;
 
-    @SuppressLint("ResourceAsColor")
+    @SuppressLint({"ResourceAsColor", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -256,6 +256,8 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
             public void onClick(View v) {
                 photo_first.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 photo_second.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                photo_third.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                photo_fourth.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 templatePresenter.setFragment(TemplateFourPhotos.this, borderSettingFragment);
             }
         });
@@ -359,7 +361,7 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
                 builder.setTitle("Choose a format:");
 
                 // add a list
-                String[] animals = {"A6 (1200x1800)", "A5 (1800x2700)", "A4 (2700x4050)", "A3 (3500x5250)"};
+                String[] animals = {"A6 (800x1200)", "A5 (1200x1800)", "A4 (1800x2700)", "A3 (2700x4050)"};
                 builder.setItems(animals, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -383,7 +385,69 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
 
                 Bitmap bitmapPostcard = merge();
 
-                templatePresenter.savePostcard(TemplateFourPhotos.this, bitmapPostcard);
+                String postcardSize = String.valueOf(size_button.getText());
+                int width;
+                int height;
+
+
+                switch(postcardSize) {
+                    case "A6": {
+                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                        {
+                            width = 1200;
+                            height = 800;
+                        } else {
+                            width = 800;
+                            height = 1200;
+                        }
+                        break;
+                    }
+                    case "A5": {
+                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                        {
+                            width = 1800;
+                            height = 1200;
+                        } else {
+                            width = 1200;
+                            height = 1800;
+                        }
+                        break;
+                    }
+                    case "A4": {
+                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                        {
+                            width = 2700;
+                            height = 1800;
+                        } else {
+                            width = 1800;
+                            height = 2700;
+                        }
+                        break;
+                    }
+                    case "A3": {
+                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                        {
+                            width = 4050;
+                            height = 2700;
+                        } else {
+                            width = 2700;
+                            height = 4050;
+                        }
+                        break;
+                    }
+                    default:{
+                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                        {
+                            width = 1800;
+                            height = 1200;
+                        } else {
+                            width = 1200;
+                            height = 1800;
+                        }
+                    }
+                }
+
+                templatePresenter.savePostcard(TemplateFourPhotos.this, bitmapPostcard, width, height);
             }
         });
 
@@ -768,11 +832,11 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
 
     @SuppressLint("ResourceAsColor")
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
 
-        switch(item.getItemId()) {
-            case R.id.nav_rotate_template:
-                if(VERTICAL_ORIENTATION) {
+        switch(menuItem.getItemId()) {
+            case R.id.nav_rotate_template: {
+                if (VERTICAL_ORIENTATION) {
                     RelativeLayout photoAll = findViewById(R.id.frame_template);
                     ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
                     int layout_height = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 270, Resources.getSystem().getDisplayMetrics()));
@@ -794,9 +858,7 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
                     photo_fourth.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
                     VERTICAL_ORIENTATION = false;
-                }
-                else
-                {
+                } else {
                     RelativeLayout photoAll = findViewById(R.id.frame_template);
                     ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
                     fullPhoto.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
@@ -817,8 +879,17 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
                     photo_fourth.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
                     VERTICAL_ORIENTATION = true;
-
                 }
+                if(item.getVisibility() == View.VISIBLE)
+                {
+                    seekBarsFragment.clearItem();
+                }
+
+                if(insertedText.getVisibility() == View.VISIBLE)
+                {
+                    editTextFragment.clearText();
+                }
+            }
         }
 
         return true;

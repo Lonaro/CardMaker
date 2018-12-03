@@ -14,7 +14,7 @@ public class TemplateSinglePhotoPresenter extends TemplatePresenter{
     }
 
 
-    public Canvas mergePhotoSingle(ImageView photo, Canvas postcard, ImageView background, int x_start, int y_start) {
+    public Canvas mergePhotoSingle(ImageView photo, Canvas postcard, Bitmap background, int x_start, int y_start) {
         RelativeLayout.LayoutParams background_params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
         Bitmap bitmapPhoto = Bitmap.createScaledBitmap(((BitmapDrawable)photo.getDrawable()).getBitmap(), background.getWidth() - background_params.leftMargin - background_params.rightMargin, background.getHeight()-background_params.topMargin-background_params.bottomMargin, false);
         //postcard.drawBitmap(bitmapPhoto, (background.getWidth()-bitmapPhoto.getWidth())/2, (background.getHeight()-bitmapPhoto.getHeight())/2, null);

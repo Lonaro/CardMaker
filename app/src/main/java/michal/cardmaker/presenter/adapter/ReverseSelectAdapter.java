@@ -2,9 +2,7 @@ package michal.cardmaker.presenter.adapter;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,26 +15,29 @@ import michal.cardmaker.R;
 import michal.cardmaker.model.ReverseModel;
 import michal.cardmaker.presenter.viewholder.ReverseViewHolder;
 import michal.cardmaker.view.MaximizeReverse;
+import michal.cardmaker.view.ReverseMergePostcard;
+import michal.cardmaker.view.ReverseToMergeSelection;
 
-public class ReverseAdapter extends RecyclerView.Adapter<ReverseViewHolder>{
+public class ReverseSelectAdapter extends RecyclerView.Adapter<ReverseViewHolder>{
 
     private Context context;
     private ArrayList<ReverseModel> reverses;
+    private String postcard_path;
     private View view;
 
     private boolean delete = false;
 
-    public ReverseAdapter(Context context, ArrayList<ReverseModel> reverses, View v) {
+    public ReverseSelectAdapter(Context context, ArrayList<ReverseModel> reverses, String postcard_path) {
         this.context = context;
         this.reverses = reverses;
-        this.view = v;
+        this.postcard_path = postcard_path;
     }
 
 
     @Override
     public ReverseViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(context).inflate(R.layout.recyclerview_reverse_item, viewGroup, false);
-
+        this.view = viewGroup;
         return new ReverseViewHolder(view);
     }
 
@@ -56,36 +57,12 @@ public class ReverseAdapter extends RecyclerView.Adapter<ReverseViewHolder>{
             reverseViewHolder.reverse_delete_layout.setClickable(false);
         }
 
-        reverseViewHolder.delete_button.setOnClickListener(v -> {
-            AlertDialog.Builder alertBox = new AlertDialog.Builder(context);
-            alertBox.setMessage("Are you sure?");
-            alertBox.setPositiveButton("Yes", (dialog, which) -> {
-                File direct = new File(reverses.get(i).getPath());
-                direct.delete();
-
-                direct = new File(reverses.get(i).getPath().substring(0,reverses.get(i).getPath().length()-4)+".txt");
-                direct.delete();
-
-                reverses.remove(i);
-                notifyItemRemoved(i);
-                notifyItemRangeChanged(i, reverses.size());
-
-                if(reverses.size() == 0)
-                {
-                    view.findViewById(R.id.reverse_empty_list).setVisibility(View.VISIBLE);
-                }
-
-            });
-            alertBox.setNegativeButton("No", null);
-            alertBox.create().show();
-
-        });
-
 
         reverseViewHolder.reverse_layout.setOnClickListener(v -> {
-            Intent intent = new Intent(context, MaximizeReverse.class);
+            Intent intent = new Intent(context, ReverseMergePostcard.class);
 
-            intent.putExtra("REVERSE", reverses.get(i).getPath());
+            intent.putExtra("PATH_POSTCARD", postcard_path);
+            intent.putExtra("PATH_REVERSE", reverses.get(i).getPath());
             context.startActivity(intent);
         });
     }

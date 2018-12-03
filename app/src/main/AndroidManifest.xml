@@ -48,7 +48,15 @@
             android:name=".view.ReverseCreator"
             android:noHistory="true"
             android:screenOrientation="portrait" />
-        <activity android:name=".view.MaximizeReverse"></activity>
+        <activity android:name=".view.MaximizeReverse" />
+        <activity android:name=".view.TemplateTwoPlusOneHorizontal"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".view.TemplateTwoPlusOneVertical"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".view.ReverseToMergeSelection"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".view.ReverseMergePostcard"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

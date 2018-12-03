@@ -24,6 +24,7 @@ import michal.cardmaker.R;
 public class MaximizePostcard extends AppCompatActivity {
 
     ImageView postcard;
+    String photoPath;
 
     // These matrices will be used to move and zoom image
     Matrix matrix = new Matrix();
@@ -49,58 +50,10 @@ public class MaximizePostcard extends AppCompatActivity {
         setContentView(R.layout.activity_maximize_postcard);
 
         Intent intent = getIntent();
-        String photoPath = intent.getStringExtra("PHOTO");
+        photoPath = intent.getStringExtra("PHOTO");
         Bitmap postcatdBitmap = BitmapFactory.decodeFile(photoPath);
         postcard = findViewById(R.id.maximizePostcard);
         postcard.setImageBitmap(postcatdBitmap);
-
-        postcard.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                switch (event.getAction() & MotionEvent.ACTION_MASK) {
-                    case MotionEvent.ACTION_DOWN:
-                        savedMatrix.set(matrix);
-                        start.set(event.getX(), event.getY());
-                        //Log.d(TAG, "mode=DRAG");
-                        mode = DRAG;
-                        break;
-                    case MotionEvent.ACTION_POINTER_DOWN:
-                        oldDist = spacing(event);
-                        //Log.d(TAG, "oldDist=" + oldDist);
-                        if (oldDist > 10f) {
-                            savedMatrix.set(matrix);
-                            midPoint(mid, event);
-                            mode = ZOOM;
-                            //Log.d(TAG, "mode=ZOOM");
-                        }
-                        break;
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_POINTER_UP:
-                        mode = NONE;
-                        //Log.d(TAG, "mode=NONE");
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        if (mode == DRAG) {
-                            // ...
-                            matrix.set(savedMatrix);
-                            matrix.postTranslate(event.getX() - start.x, event.getY()
-                                    - start.y);
-                        } else if (mode == ZOOM) {
-                            float newDist = spacing(event);
-                            //Log.d(TAG, "newDist=" + newDist);
-                            if (newDist > 10f) {
-                                matrix.set(savedMatrix);
-                                float scale = newDist / oldDist;
-                                matrix.postScale(scale, scale, mid.x, mid.y);
-                            }
-                        }
-                        break;
-                }
-
-                return false;
-            }
-        });
-
 
     }
 
@@ -138,6 +91,12 @@ public class MaximizePostcard extends AppCompatActivity {
                 intent.setType("image/jpeg");
                 intent.putExtra(Intent.EXTRA_STREAM, uri);
                 startActivity(Intent.createChooser(intent, "Share postcard"));
+            }
+            case R.id.nav_merge_postcard_with_reverse:
+            {
+                Intent intent = new Intent(getBaseContext(), ReverseToMergeSelection.class);
+                intent.putExtra("PATH", photoPath);
+                startActivity(intent);
             }
         }
 

@@ -49,26 +49,28 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import michal.cardmaker.R;
-import michal.cardmaker.presenter.TemplateTwoVerticalPhotosPresenter;
+import michal.cardmaker.presenter.TemplateTwoPlusOneVerticalPresenter;
+import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
 import michal.cardmaker.presenter.listener.BorderSettingsFragmentListener;
 import michal.cardmaker.presenter.listener.InsertTextFragmentListener;
 import michal.cardmaker.presenter.listener.ResetItemFragmentListener;
 import michal.cardmaker.presenter.listener.ResetTextFragmentListener;
 import michal.cardmaker.presenter.listener.StickerFragmentListener;
-import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
 import michal.cardmaker.view.fragment.BorderSettingFragment;
 import michal.cardmaker.view.fragment.EditTextFragment;
 import michal.cardmaker.view.fragment.InsertTextFragment;
 import michal.cardmaker.view.fragment.SeekBarsFragment;
 import michal.cardmaker.view.fragment.StickerFragment;
 
-public class TemplateTwoVerticalPhotos extends AppCompatActivity implements StickerFragmentListener, BorderSettingsFragmentListener, InsertTextFragmentListener, ResetItemFragmentListener, ResetTextFragmentListener {
+public class TemplateTwoPlusOneVertical extends AppCompatActivity implements StickerFragmentListener, BorderSettingsFragmentListener, InsertTextFragmentListener, ResetItemFragmentListener, ResetTextFragmentListener {
 
-    private static final int TEMPLATE_NUMBER = 1;
+    private static final int TEMPLATE_NUMBER = 4;
 
     private ImageView background;
     private ImageView photo_first;
     private ImageView photo_second;
+    private ImageView photo_third;
+
     private ImageView item;
     private ImageButton merge_button;
     private ImageButton add_item_button;
@@ -85,7 +87,7 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
     private InsertTextFragment insertTextFragment;
     private EditTextFragment editTextFragment;
 
-    private TemplateTwoVerticalPhotosPresenter templatePresenter;
+    private TemplateTwoPlusOneVerticalPresenter templatePresenter;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
 
     private static final String PREFERENCES_NAME = "myPreferences";
@@ -107,6 +109,7 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
 
     private static final String PREFERENCES_PHOTO_1 = "PHOTO_1";
     private static final String PREFERENCES_PHOTO_2 = "PHOTO_2";
+    private static final String PREFERENCES_PHOTO_3 = "PHOTO_3";
 
     private SharedPreferences preferences;
 
@@ -134,16 +137,18 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
 
     private int sticker;
 
-    @SuppressLint("ResourceAsColor")
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_template_two_vertical_photos);
+        setContentView(R.layout.activity_template_two_plus_one_vertical);
 
-        templatePresenter = new TemplateTwoVerticalPhotosPresenter(TemplateTwoVerticalPhotos.this);
+        templatePresenter = new TemplateTwoPlusOneVerticalPresenter(TemplateTwoPlusOneVertical.this);
 
-        photo_first = findViewById(R.id.temp_2v_first);
-        photo_second = findViewById(R.id.temp_2v_second);
+        photo_first = findViewById(R.id.temp_2p1v_first);
+        photo_second = findViewById(R.id.temp_2p1v_second);
+        photo_third = findViewById(R.id.temp_2p1v_third);
+
         merge_button = findViewById(R.id.merge_button);
         background = findViewById(R.id.background);
         item = findViewById(R.id.item);
@@ -168,10 +173,14 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
 
         if (intent == null && intent.getData() == null) {
             photo_first.setImageResource(R.drawable.camera);
-            photo_first.setBackgroundColor(R.color.colorAccent);
+            photo_first.setBackgroundColor(getResources().getColor(R.color.colorAccent));
 
             photo_second.setImageResource(R.drawable.camera);
-            photo_second.setBackgroundColor(R.color.colorAccent);
+            photo_second.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+
+            photo_third.setImageResource(R.drawable.camera);
+            photo_third.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+
         }
         else
         {
@@ -186,6 +195,9 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
                             break;
                         case 1:
                             photo_second.setImageBitmap(BitmapFactory.decodeStream(input));
+                            break;
+                        case 2:
+                            photo_third.setImageBitmap(BitmapFactory.decodeStream(input));
                             break;
                     }
 
@@ -215,19 +227,29 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
             }
         });
 
+        photo_third.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveData();
+                onSelectAlbum();
+                global_photo_number = 2;
+            }
+        });
+
         borderSettingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 photo_first.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 photo_second.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                templatePresenter.setFragment(TemplateTwoVerticalPhotos.this, borderSettingFragment);
+                photo_third.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                templatePresenter.setFragment(TemplateTwoPlusOneVertical.this, borderSettingFragment);
             }
         });
 
         add_text_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                templatePresenter.setFragment(TemplateTwoVerticalPhotos.this, insertTextFragment);
+                templatePresenter.setFragment(TemplateTwoPlusOneVertical.this, insertTextFragment);
             }
         });
 
@@ -239,7 +261,7 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
                     case MotionEvent.ACTION_DOWN:
                         mTouchMode = TOUCH_MODE_DRAG;
 
-                        templatePresenter.setFragment(TemplateTwoVerticalPhotos.this, editTextFragment);
+                        templatePresenter.setFragment(TemplateTwoPlusOneVertical.this, editTextFragment);
                         //editTextFragment.setValues((int)(insertedText.getScaleX()*50), (int)insertedText.getRotation(), (int)insertedText.getCurrentTextColor());
 
                         xCorText = v.getX() - event.getRawX();
@@ -278,7 +300,7 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
                     case MotionEvent.ACTION_DOWN:
                         mTouchMode = TOUCH_MODE_DRAG;
                         //seekBarsFragment.setValues((int)(item.getScaleX()*100), (int)item.getRotation());
-                        templatePresenter.setFragment(TemplateTwoVerticalPhotos.this, seekBarsFragment);
+                        templatePresenter.setFragment(TemplateTwoPlusOneVertical.this, seekBarsFragment);
 
 
                         xCorItem = v.getX() - event.getRawX();
@@ -311,7 +333,7 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
         add_item_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                templatePresenter.setFragment(TemplateTwoVerticalPhotos.this, stickerFragment);
+                templatePresenter.setFragment(TemplateTwoPlusOneVertical.this, stickerFragment);
             }
         });
 
@@ -319,7 +341,7 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
             @Override
             public void onClick(View view) {
                 // setup the alert builder
-                AlertDialog.Builder builder = new AlertDialog.Builder(TemplateTwoVerticalPhotos.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(TemplateTwoPlusOneVertical.this);
                 builder.setTitle("Choose a format:");
 
                 // add a list
@@ -409,7 +431,7 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
                     }
                 }
 
-                templatePresenter.savePostcard(TemplateTwoVerticalPhotos.this, bitmapPostcard, width, height);
+                templatePresenter.savePostcard(TemplateTwoPlusOneVertical.this, bitmapPostcard, width, height);
             }
         });
 
@@ -420,25 +442,34 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
                 int border_color = preferences.getInt(PREFERENCES_BORDER_COLOR, Color.rgb(13,71,161));
                 background.setBackgroundColor(border_color);
 
-                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
+                Log.d("CLEAR_TEST", "weszło");
+
                 int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
-                params.setMargins(first_margin, first_margin, first_margin/2, first_margin);
+
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
+                params.setMargins(first_margin/2, first_margin, first_margin, first_margin);
                 photo_first.setLayoutParams(params);
                 photo_first.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 photo_first.setImageResource(R.drawable.camera);
 
                 LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
-                params2.setMargins(first_margin/2, first_margin, first_margin, first_margin);
+                params2.setMargins(first_margin, first_margin, first_margin/2, first_margin/2);
                 photo_second.setLayoutParams(params2);
                 photo_second.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 photo_second.setImageResource(R.drawable.camera);
 
-                if(item.isEnabled())
+                LinearLayout.LayoutParams params3 = (LinearLayout.LayoutParams) photo_third.getLayoutParams();
+                params3.setMargins(first_margin, first_margin/2, first_margin/2, first_margin);
+                photo_third.setLayoutParams(params3);
+                photo_third.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                photo_third.setImageResource(R.drawable.camera);
+
+                if(item.getVisibility() == View.VISIBLE)
                 {
                     seekBarsFragment.clearItem();
                 }
 
-                if(insertedText.isEnabled())
+                if(insertedText.getVisibility() == View.VISIBLE)
                 {
                     editTextFragment.clearText();
                 }
@@ -482,31 +513,48 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
             preferences.edit().remove(PREFERENCES_PHOTO_2).commit();
         }
 
+        if(preferences.contains(PREFERENCES_PHOTO_3))
+        {
+            photo_third.setImageBitmap(loadTmpPhoto(preferences.getString(PREFERENCES_PHOTO_3, "")));
+            preferences.edit().remove(PREFERENCES_PHOTO_3).commit();
+        }
+
         if(preferences.contains(PREFERENCES_BORDER_MARGIN))
         {
             int border_margin = preferences.getInt(PREFERENCES_BORDER_MARGIN, 30);
             LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
-            params.setMargins(border_margin, border_margin, border_margin/2, border_margin);
+            params.setMargins(border_margin/2, border_margin, border_margin, border_margin);
             photo_first.setLayoutParams(params);
 
             LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
-            params2.setMargins(border_margin/2, border_margin, border_margin, border_margin);
+            params2.setMargins(border_margin, border_margin, border_margin/2, border_margin/2);
             photo_second.setLayoutParams(params2);
+
+            LinearLayout.LayoutParams params3 = (LinearLayout.LayoutParams) photo_third.getLayoutParams();
+            params3.setMargins(border_margin, border_margin/2, border_margin/2, border_margin);
+            photo_third.setLayoutParams(params3);
+
 
             preferences.edit().remove(PREFERENCES_BORDER_MARGIN).commit();
 
         }
         else {
-            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
             int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
-            params.setMargins(first_margin, first_margin, first_margin/2, first_margin);
+
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
+            params.setMargins(first_margin/2, first_margin, first_margin, first_margin);
             photo_first.setLayoutParams(params);
             photo_first.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
             LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
-            params2.setMargins(first_margin/2, first_margin, first_margin, first_margin);
+            params2.setMargins(first_margin, first_margin, first_margin/2, first_margin/2);
             photo_second.setLayoutParams(params2);
             photo_second.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+            LinearLayout.LayoutParams params3 = (LinearLayout.LayoutParams) photo_third.getLayoutParams();
+            params3.setMargins(first_margin, first_margin/2, first_margin/2, first_margin);
+            photo_third.setLayoutParams(params3);
+            photo_third.setScaleType(ImageView.ScaleType.FIT_CENTER);
         }
 
         if(preferences.contains(PREFERENCES_BORDER_COLOR))
@@ -590,23 +638,11 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
                 fullPhoto.dimensionRatio = "V, 2:3";
                 photoAll.setLayoutParams(fullPhoto);
 
-                LinearLayout linearLayout = findViewById(R.id.linear_box_2v);
-                linearLayout.setOrientation(LinearLayout.VERTICAL);
-
                 LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
                 int width_tmp = params.width;
                 params.width = params.height;
                 params.height = width_tmp;
                 photo_first.setLayoutParams(params);
-                int margin = border_margin_text;
-                if(params.rightMargin < params.bottomMargin)
-                {
-                    params.setMargins(margin, margin, margin, margin/2);
-                }
-                else
-                {
-                    params.setMargins(margin, margin, margin/2, margin);
-                }
 
                 LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
                 int width_tmp2 = params2.width;
@@ -614,17 +650,15 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
                 params2.height = width_tmp2;
                 photo_second.setLayoutParams(params2);
 
-                if(params2.leftMargin < params2.topMargin)
-                {
-                    params2.setMargins(margin, margin/2, margin, margin);
-                }
-                else
-                {
-                    params2.setMargins(margin/2, margin, margin, margin);
-                }
+                LinearLayout.LayoutParams params3 = (LinearLayout.LayoutParams) photo_third.getLayoutParams();
+                int width_tmp3 = params2.width;
+                params3.width = params2.height;
+                params3.height = width_tmp3;
+                photo_third.setLayoutParams(params3);
 
                 photo_first.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 photo_second.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                photo_third.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
             } else {
                 RelativeLayout photoAll = findViewById(R.id.frame_template);
@@ -639,6 +673,7 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
 
                 photo_first.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 photo_second.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                photo_third.setScaleType(ImageView.ScaleType.FIT_CENTER);
             }
             preferences.edit().remove(PREFERENCES_VERTICAL_ORIENTATION).commit();
         }
@@ -655,17 +690,21 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
 
         LinearLayout.LayoutParams photo_one_params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
         LinearLayout.LayoutParams photo_two_params = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
+        LinearLayout.LayoutParams photo_three_params = (LinearLayout.LayoutParams) photo_third.getLayoutParams();
 
         if(VERTICAL_ORIENTATION)
         {
-
-            templatePresenter.mergePhoto(photo_first, canvasPostcard, background, photo_one_params.leftMargin, photo_one_params.topMargin);
-            templatePresenter.mergePhoto(photo_second, canvasPostcard, background, photo_one_params.leftMargin + photo_first.getWidth() + photo_one_params.rightMargin + photo_two_params.leftMargin, photo_two_params.topMargin);
+            templatePresenter.mergePhotoBig(photo_first, canvasPostcard, background, photo_two_params.leftMargin + photo_second.getWidth() + photo_two_params.rightMargin + photo_one_params.leftMargin, photo_one_params.topMargin);
+            templatePresenter.mergePhotoSmall(photo_second, canvasPostcard, background, photo_two_params.leftMargin, photo_two_params.topMargin);
+            templatePresenter.mergePhotoSmall(photo_third, canvasPostcard, background, photo_three_params.leftMargin,
+                    photo_two_params.topMargin + photo_second.getHeight() + photo_two_params.bottomMargin + photo_three_params.topMargin);
         }
         else
         {
-            templatePresenter.mergePhotoVertical(photo_first, canvasPostcard, background, photo_one_params.leftMargin, photo_one_params.topMargin);
-            templatePresenter.mergePhotoVertical(photo_second, canvasPostcard, background, photo_two_params.leftMargin, photo_one_params.topMargin + photo_first.getHeight() + photo_one_params.bottomMargin + photo_two_params.topMargin);
+            templatePresenter.mergePhotoBig(photo_first, canvasPostcard, background, photo_two_params.leftMargin + photo_second.getWidth() + photo_two_params.rightMargin + photo_one_params.leftMargin, photo_one_params.topMargin);
+            templatePresenter.mergePhotoSmall(photo_second, canvasPostcard, background, photo_two_params.leftMargin, photo_two_params.topMargin);
+            templatePresenter.mergePhotoSmall(photo_third, canvasPostcard, background, photo_three_params.leftMargin,
+                    photo_two_params.topMargin + photo_second.getHeight() + photo_two_params.bottomMargin + photo_three_params.topMargin);
         }
 
         if(item.getVisibility() == View.VISIBLE)
@@ -699,6 +738,12 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
         {
             preferencesEditor.putString(PREFERENCES_PHOTO_2, saveTmpPhoto(this, photo_second.getDrawable(), PREFERENCES_PHOTO_2));
         }
+
+        if(photo_third.getDrawable().getConstantState() != getResources().getDrawable( R.drawable.camera).getConstantState())
+        {
+            preferencesEditor.putString(PREFERENCES_PHOTO_3, saveTmpPhoto(this, photo_third.getDrawable(), PREFERENCES_PHOTO_3));
+        }
+
 
         if(item.getVisibility() == View.VISIBLE)
         {
@@ -747,29 +792,15 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
                     fullPhoto.dimensionRatio = "V, 2:3";
                     photoAll.setLayoutParams(fullPhoto);
 
-                    LinearLayout linear = findViewById(R.id.linear_box_2v);
-                    linear.setOrientation(LinearLayout.VERTICAL);
-
-                    LinearLayout.LayoutParams params1 = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
-                    int width_tmp = params1.width;
-                    params1.width = params1.height;
-                    params1.height = width_tmp;
-                    int margin = params1.topMargin;
-                    params1.setMargins(margin, margin, margin, margin / 2);
-                    photo_first.setLayoutParams(params1);
-
-                    LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
-                    int width_tmp2 = params2.width;
-                    params2.width = params2.height;
-                    params2.height = width_tmp2;
-                    params2.setMargins(margin, margin / 2, margin, margin);
-                    photo_second.setLayoutParams(params2);
-
                     photo_first.setImageResource(R.drawable.camera);
                     photo_first.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
                     photo_second.setImageResource(R.drawable.camera);
                     photo_second.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+                    photo_third.setImageResource(R.drawable.camera);
+                    photo_third.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
                     VERTICAL_ORIENTATION = false;
                 } else {
                     RelativeLayout photoAll = findViewById(R.id.frame_template);
@@ -779,21 +810,19 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
                     fullPhoto.dimensionRatio = "H, 3:2";
                     photoAll.setLayoutParams(fullPhoto);
 
-                    LinearLayout linear = findViewById(R.id.linear_box_2v);
-                    linear.setOrientation(LinearLayout.HORIZONTAL);
-
-                    rotatePhoto1();
-                    rotatePhoto2();
-
                     photo_first.setImageResource(R.drawable.camera);
                     photo_first.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
                     photo_second.setImageResource(R.drawable.camera);
                     photo_second.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
+                    photo_third.setImageResource(R.drawable.camera);
+                    photo_third.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
                     VERTICAL_ORIENTATION = true;
 
                 }
+
                 if(item.getVisibility() == View.VISIBLE)
                 {
                     seekBarsFragment.clearItem();
@@ -809,42 +838,6 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
         return true;
     }
 
-    void rotatePhoto1()
-    {
-        LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
-        int width_tmp2 = params2.width;
-        params2.width = params2.height;
-        params2.height = width_tmp2;
-        int margin = params2.topMargin;
-        if(params2.rightMargin < params2.bottomMargin)
-        {
-            params2.setMargins(margin, margin, margin, margin/2);
-        }
-        else
-        {
-            params2.setMargins(margin, margin, margin/2, margin);
-        }
-
-        photo_first.setLayoutParams(params2);
-    }
-
-    void rotatePhoto2()
-    {
-        LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
-        int width_tmp2 = params2.width;
-        params2.width = params2.height;
-        params2.height = width_tmp2;
-        int margin = params2.bottomMargin;
-        if(params2.leftMargin < params2.topMargin)
-        {
-            params2.setMargins(margin, margin/2, margin, margin);
-        }
-        else
-        {
-            params2.setMargins(margin/2, margin, margin, margin);
-        }
-        photo_second.setLayoutParams(params2);
-    }
 
     public void onSelectAlbum() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -857,7 +850,7 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
     public void onBackPressed() {
 
         if(item.isEnabled() || insertedText.isEnabled() || photo_first.getDrawable().getConstantState() != getResources().getDrawable( R.drawable.camera).getConstantState()) {
-            AlertDialog.Builder alertBox = new AlertDialog.Builder(TemplateTwoVerticalPhotos.this);
+            AlertDialog.Builder alertBox = new AlertDialog.Builder(TemplateTwoPlusOneVertical.this);
             alertBox.setMessage("Are you sure to exit?");
             alertBox.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
@@ -889,7 +882,21 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
             return;
         }
 
-        if(ContextCompat.checkSelfPermission(TemplateTwoVerticalPhotos.this,
+        int width;
+        int height;
+
+        if(global_photo_number == 0)
+        {
+            width = photo_first.getWidth();
+            height = photo_first.getHeight();
+        }
+        else {
+            width = photo_second.getWidth();
+            height = photo_second.getHeight();
+        }
+
+
+        if(ContextCompat.checkSelfPermission(TemplateTwoPlusOneVertical.this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
 
@@ -898,11 +905,9 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
             switch (requestCode) {
                 case REQUEST_CODE_CAMERA:
                     templatePresenter.startCropper(REQUEST_CODE_CAMERA, data, background.getWidth()-backgroundParams.leftMargin*2, background.getHeight()-backgroundParams.topMargin*2, TEMPLATE_NUMBER, global_photo_number);
-                    Log.d("First_size", String.valueOf(background.getWidth()-backgroundParams.leftMargin*2) + " " + String.valueOf(background.getHeight()-backgroundParams.topMargin*2));
                     break;
                 case REQUEST_CODE_ALBUM:
-                    templatePresenter.startCropper(REQUEST_CODE_ALBUM, data, photo_first.getWidth(), photo_first.getHeight(), TEMPLATE_NUMBER, global_photo_number);
-                    Log.d("First_size", String.valueOf(background.getWidth()-backgroundParams.leftMargin*2) + " " + String.valueOf(background.getHeight()-backgroundParams.topMargin*2));
+                    templatePresenter.startCropper(REQUEST_CODE_ALBUM, data, width, height, TEMPLATE_NUMBER, global_photo_number);
                     break;
                 default:
                     break;
@@ -912,7 +917,7 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
         }
         else
         {
-            ActivityCompat.requestPermissions(TemplateTwoVerticalPhotos.this,
+            ActivityCompat.requestPermissions(TemplateTwoPlusOneVertical.this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
         }
@@ -948,26 +953,17 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
         {
             int real_size = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, size, Resources.getSystem().getDisplayMetrics()));
 
-            if(VERTICAL_ORIENTATION)
-            {
-                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
-                params.setMargins(real_size, real_size, real_size/2, real_size);
-                photo_first.setLayoutParams(params);
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
+            params.setMargins(real_size, real_size, real_size, real_size/2);
+            photo_first.setLayoutParams(params);
 
-                LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
-                params2.setMargins(real_size/2, real_size, real_size, real_size);
-                photo_second.setLayoutParams(params2);
-            }
-            else
-            {
-                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
-                params.setMargins(real_size, real_size, real_size, real_size/2);
-                photo_first.setLayoutParams(params);
+            LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
+            params2.setMargins(real_size, real_size/2, real_size/2, real_size);
+            photo_second.setLayoutParams(params2);
 
-                LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
-                params2.setMargins(real_size, real_size/2, real_size, real_size);
-                photo_second.setLayoutParams(params2);
-            }
+            LinearLayout.LayoutParams params3 = (LinearLayout.LayoutParams) photo_third.getLayoutParams();
+            params3.setMargins(real_size/2, real_size/2, real_size, real_size);
+            photo_third.setLayoutParams(params3);
 
             border_margin_text = real_size;
 

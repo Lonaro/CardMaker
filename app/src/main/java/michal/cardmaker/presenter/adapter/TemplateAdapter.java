@@ -10,8 +10,11 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import michal.cardmaker.R;
+import michal.cardmaker.view.CropActivity;
 import michal.cardmaker.view.TemplateFourPhotos;
 import michal.cardmaker.view.TemplateTwoHorizontalPhotos;
+import michal.cardmaker.view.TemplateTwoPlusOneHorizontal;
+import michal.cardmaker.view.TemplateTwoPlusOneVertical;
 import michal.cardmaker.view.TemplateTwoVerticalPhotos;
 import michal.cardmaker.presenter.viewholder.TemplateViewHolder;
 import michal.cardmaker.view.TemplateSinglePhoto;
@@ -55,6 +58,14 @@ public class TemplateAdapter extends RecyclerView.Adapter<TemplateViewHolder> {
                         break;
                     case 2:
                         intent = new Intent(context, TemplateTwoHorizontalPhotos.class);
+                        context.startActivity(intent);
+                        break;
+                    case 3:
+                        intent = new Intent(context, TemplateTwoPlusOneHorizontal.class);
+                        context.startActivity(intent);
+                        break;
+                    case 4:
+                        intent = new Intent(context, TemplateTwoPlusOneVertical.class);
                         context.startActivity(intent);
                         break;
                     case 5:
