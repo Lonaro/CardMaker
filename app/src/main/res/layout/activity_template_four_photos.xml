@@ -172,52 +172,44 @@
 
             <ImageButton
                 android:id="@+id/border_button"
-                style="@style/template_button"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:padding="10dp"
-                android:layout_marginTop="@dimen/template_button_margin_inner"
-                android:layout_marginBottom="@dimen/template_button_margin_inner"
-                android:layout_marginRight="@dimen/template_button_margin_inner"
                 android:src="@drawable/set_border"
                 android:scaleType="fitCenter"
+                android:backgroundTint="@color/colorAccent"
+                android:elevation="@dimen/button_elevation"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/add_item_button"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <ImageButton
                 android:id="@+id/add_item_button"
-                style="@style/template_button"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:padding="10dp"
                 android:src="@drawable/plam_tree_icon"
                 android:scaleType="fitCenter"
+                android:backgroundTint="@color/colorAccent"
+                android:elevation="@dimen/button_elevation"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/add_text_button"
                 app:layout_constraintStart_toEndOf="@id/border_button"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginTop="@dimen/template_button_margin_inner"
-                android:layout_marginBottom="@dimen/template_button_margin_inner"
-                android:layout_marginRight="@dimen/template_button_margin_inner"
-                android:layout_marginLeft="@dimen/template_button_margin_inner"/>
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <ImageButton
                 android:id="@+id/add_text_button"
-                style="@style/template_button"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:padding="10dp"
                 android:src="@drawable/set_text"
                 android:scaleType="fitCenter"
+                android:backgroundTint="@color/colorAccent"
+                android:elevation="@dimen/button_elevation"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/add_item_button"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginTop="@dimen/template_button_margin_inner"
-                android:layout_marginBottom="@dimen/template_button_margin_inner"
-                android:layout_marginLeft="@dimen/template_button_margin_inner"/>
+                app:layout_constraintTop_toTopOf="parent"/>
 
 
 
@@ -233,45 +225,40 @@
 
             <ImageButton
                 android:id="@+id/clear_button"
-                style="@style/template_button"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:src="@drawable/clear"
                 android:scaleType="fitCenter"
+                android:backgroundTint="@color/colorAccent"
+                android:elevation="@dimen/button_elevation"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/size_button"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginTop="@dimen/template_button_margin_inner"
-                android:layout_marginBottom="@dimen/template_button_margin_inner"
-                android:layout_marginRight="@dimen/template_button_margin_inner"/>
+                app:layout_constraintTop_toTopOf="parent"/>
 
 
 
             <Button
                 android:id="@+id/size_button"
-                style="@style/template_button"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:textColor="@color/colorWhite"
-                android:textSize="20dp"
-                android:text="A6"
+                android:textSize="@dimen/template_button_size_textsize"
+                android:text="@string/template_button_size_text"
                 android:drawableTop="@drawable/set_size"
                 android:drawablePadding="-8dp"
+                android:backgroundTint="@color/colorAccent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/clear_button"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/merge_button"
-                android:layout_marginTop="@dimen/template_button_margin_inner"
-                android:layout_marginBottom="@dimen/template_button_margin_inner"
-                android:layout_marginRight="@dimen/template_button_margin_inner"
-                android:layout_marginLeft="@dimen/template_button_margin_inner"/>
+                android:stateListAnimator="@null"
+                android:elevation="@dimen/button_elevation"/>
 
 
 
             <ImageButton
                 android:id="@+id/merge_button"
-                style="@style/template_button"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:text="Save"
@@ -282,14 +269,11 @@
                 app:layout_constraintTop_toTopOf="parent"
                 android:src="@drawable/download"
                 android:scaleType="fitCenter"
-                android:layout_marginTop="@dimen/template_button_margin_inner"
-                android:layout_marginBottom="@dimen/template_button_margin_inner"
-                android:layout_marginRight="@dimen/template_button_margin_inner"
-                android:layout_marginLeft="@dimen/template_button_margin_inner"/>
+                android:backgroundTint="@color/colorAccent"
+                android:elevation="@dimen/button_elevation"/>
 
             <ImageButton
                 android:id="@+id/share_button"
-                style="@style/template_button"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:text="Share"
@@ -300,13 +284,12 @@
                 app:layout_constraintTop_toTopOf="parent"
                 android:src="@drawable/share"
                 android:scaleType="fitCenter"
-                android:layout_marginTop="@dimen/template_button_margin_inner"
-                android:layout_marginBottom="@dimen/template_button_margin_inner"
-                android:layout_marginLeft="@dimen/template_button_margin_inner"/>
-
+                android:backgroundTint="@color/colorAccent"
+                android:elevation="@dimen/button_elevation"/>
 
 
         </android.support.constraint.ConstraintLayout>
+
 
     </android.support.constraint.ConstraintLayout>
 

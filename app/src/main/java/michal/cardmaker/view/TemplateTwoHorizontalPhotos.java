@@ -135,7 +135,7 @@ public class TemplateTwoHorizontalPhotos extends AppCompatActivity implements St
 
     private int sticker;
 
-    @SuppressLint("ResourceAsColor")
+    @SuppressLint({"ResourceAsColor", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -324,8 +324,9 @@ public class TemplateTwoHorizontalPhotos extends AppCompatActivity implements St
                 builder.setTitle("Choose a format:");
 
                 // add a list
-                String[] animals = {"A6 (800x1200)", "A5 (1200x1800)", "A4 (1800x2700)", "A3 (2700x4050)"};
-                builder.setItems(animals, new DialogInterface.OnClickListener() {
+
+                String[] tempSizes = templatePresenter.getTempSizes();
+                builder.setItems(tempSizes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {

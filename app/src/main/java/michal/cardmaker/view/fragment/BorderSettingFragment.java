@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -19,11 +20,12 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class BorderSettingFragment extends Fragment {
 
-    Button borderButtonColor;
+    ImageButton borderButtonColor;
     Button borderSizeUp;
     Button borderSizeDown;
     TextView borderSizeValue;
     ImageView borderImage;
+
     int sizeValue;
     Context context;
 

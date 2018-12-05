@@ -150,4 +150,9 @@ public class TemplatePresenter {
                     MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
         }
     }
+
+    public String [] getTempSizes(){
+        String [] tempSizes = {"A6 (800x1200)", "A5 (1200x1800)", "A4 (1800x2700)", "A3 (2700x4050)"};
+        return tempSizes;
+    }
 }

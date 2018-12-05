@@ -9,8 +9,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import michal.cardmaker.R;
 import michal.cardmaker.presenter.listener.ResetItemFragmentListener;
@@ -21,10 +25,12 @@ public class SeekBarsFragment extends Fragment {
     private SeekBar seekBar_rotate;
     private SeekBar seekBar_scale;
 
-    private Button button_reset_item;
-    private Button button_clear_item;
+    private ImageButton button_reset_item;
+    private ImageButton button_clear_item;
 
-    private Button button_reset;
+    private TextView stickerRotationValue;
+    private TextView stickerScaleValue;
+
     private ImageView item;
 
     ImageView sticker;
@@ -69,8 +75,13 @@ public class SeekBarsFragment extends Fragment {
         button_reset_item = view.findViewById(R.id.button_reset_item);
         button_clear_item = view.findViewById(R.id.button_clear_item);
 
+        stickerRotationValue = view.findViewById(R.id.sticker_rotation_value);
+        stickerScaleValue = view.findViewById(R.id.sticker_scale_value);
+
         item = getActivity().findViewById(R.id.item);
 
+        stickerRotationValue.setText("0°");
+        stickerScaleValue.setText("x1");
 
         seekBar_rotate.setMax(360);
         seekBar_rotate.setProgress(180);
@@ -82,6 +93,7 @@ public class SeekBarsFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 sticker.setRotation(progress - 180);
+                stickerRotationValue.setText(String.valueOf(progress - 180)+"°");
             }
 
             @Override
@@ -100,6 +112,7 @@ public class SeekBarsFragment extends Fragment {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 sticker.setScaleX((float) (progress) / 100.f);
                 sticker.setScaleY((float) (progress) / 100.f);
+                stickerScaleValue.setText("x"+String.valueOf(progress / 100.f));
 
             }
 
@@ -118,6 +131,8 @@ public class SeekBarsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 resetItem();
+
+
             }
         });
 
@@ -125,7 +140,7 @@ public class SeekBarsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 clearItem();
-
+                resetItemFragmentListener.changeFragmentOnItemReset();
             }
         });
 
@@ -142,6 +157,8 @@ public class SeekBarsFragment extends Fragment {
         sticker.setY(0);
         seekBar_rotate.setProgress(180);
         seekBar_scale.setProgress(100);
+        stickerRotationValue.setText("0°");
+        stickerScaleValue.setText("x1");
     }
 
     public void clearItem() {
@@ -155,6 +172,8 @@ public class SeekBarsFragment extends Fragment {
         sticker.setEnabled(false);
         sticker.setClickable(false);
         sticker.setVisibility(View.INVISIBLE);
+        stickerRotationValue.setText("0°");
+        stickerScaleValue.setText("x1");
     }
 
     public void setValues(int scale, int rotation) {

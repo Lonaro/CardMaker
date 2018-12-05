@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -14,10 +15,15 @@ import android.os.Environment;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -40,14 +46,13 @@ import java.util.Calendar;
 import java.util.Date;
 
 import michal.cardmaker.R;
+import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class ReverseCreator extends Activity {
 
     ConstraintLayout recipientLayout;
     ConstraintLayout messageLayout;
-    Button addMessage;
-    Button addRecipient;
-    Button saveReverse;
+    ImageButton saveReverse;
     TextView recipientSumUp;
     TextView messageSumUp;
 
@@ -56,15 +61,26 @@ public class ReverseCreator extends Activity {
     EditText recipientPostcode;
     EditText recipientCity;
     EditText recipientCountry;
-    Button recipientAddValidate;
+    ImageButton recipientAddValidate;
 
     EditText messageInput;
     Spinner fontFamily;
     Spinner fontSize;
-    Button changeColor;
-    Button messageAddValidate;
+    ImageButton changeColor;
+    ImageButton messageAddValidate;
+
+    ImageButton alignToTop;
+    ImageButton alignToBottom;
+    ImageButton alignToCenterV;
+    ImageButton alignToLeft;
+    ImageButton alignToRight;
+    ImageButton alignToCenterH;
+
+    int vertical = Gravity.TOP;
+    int horizontal = Gravity.LEFT;
 
     ImageView reverseLine;
+    int default_color;
 
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 100;
 
@@ -75,8 +91,6 @@ public class ReverseCreator extends Activity {
 
         recipientLayout = findViewById(R.id.reverse_recipient_all);
         messageLayout = findViewById(R.id.reverse_message_all);
-        addMessage = findViewById(R.id.reverse_add_message);
-        addRecipient = findViewById(R.id.reverse_add_recipient);
         saveReverse = findViewById(R.id.reverse_save);
         recipientSumUp = findViewById(R.id.recipient_values);
         messageSumUp = findViewById(R.id.reverse_message_value);
@@ -90,10 +104,90 @@ public class ReverseCreator extends Activity {
 
         messageInput = findViewById(R.id.reverse_message_input);
         fontFamily = findViewById(R.id.reverse_fontListSpinner);
+        fontSize = findViewById(R.id.reverse_font_size);
         changeColor = findViewById(R.id.reverse_message_change_color);
         messageAddValidate = findViewById(R.id.reverse_message_validate);
 
+        alignToBottom = findViewById(R.id.reverse_align_to_bottom);
+        alignToTop = findViewById(R.id.reverse_align_to_top);
+        alignToCenterV = findViewById(R.id.reverse_align_to_center_v);
+        alignToLeft = findViewById(R.id.reverse_align_to_left);
+        alignToRight = findViewById(R.id.reverse_align_to_right);
+        alignToCenterH = findViewById(R.id.reverse_align_to_center_h);
+
+        alignToCenterH.setOnClickListener(v -> {
+            messageSumUp.setGravity(Gravity.CENTER_HORIZONTAL | vertical);
+            horizontal = Gravity.CENTER_HORIZONTAL;
+        });
+
+        alignToLeft.setOnClickListener(v -> {
+            messageSumUp.setGravity(Gravity.LEFT | vertical);
+            horizontal = Gravity.LEFT;
+        });
+
+        alignToRight.setOnClickListener(v -> {
+            messageSumUp.setGravity(Gravity.RIGHT | vertical);
+            horizontal = Gravity.RIGHT;
+        });
+
+        alignToTop.setOnClickListener(v -> {
+            messageSumUp.setGravity(Gravity.TOP | horizontal);
+            vertical = Gravity.TOP;
+        });
+
+        alignToCenterV.setOnClickListener(v -> {
+            messageSumUp.setGravity(Gravity.CENTER_VERTICAL | horizontal);
+            vertical = Gravity.CENTER_VERTICAL;
+        });
+
+        alignToBottom.setOnClickListener(v -> {
+            messageSumUp.setGravity(Gravity.BOTTOM | horizontal);
+            vertical = Gravity.BOTTOM;
+        });
+
         reverseLine = findViewById(R.id.reverse_line);
+
+        default_color = R.color.colorBlack;
+
+        String [] font_list = {"Arial", "Comics Sans", "Segoe"};
+        Typeface[] fonts = {ResourcesCompat.getFont(this, R.font.arial),
+                ResourcesCompat.getFont(this, R.font.comics_sans),
+                ResourcesCompat.getFont(this, R.font.segoe)};
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, font_list);
+        fontFamily.setAdapter(dataAdapter);
+        fontFamily.setSelection(0);
+
+        fontFamily.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                messageSumUp.setTypeface(fonts[position]);
+
+                //resetTextFragmentListener.setActualFont(font_list[position]);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        String [] size_list = {"Small", "Medium", "Large"};
+        int [] size_list_values = {14, 22, 30};
+        ArrayAdapter<String> sizeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, size_list);
+        fontSize.setAdapter(sizeAdapter);
+
+
+        fontSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                messageSumUp.setTextSize(size_list_values[position]);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
 
 
@@ -101,21 +195,41 @@ public class ReverseCreator extends Activity {
             @Override
             public void onClick(View v) {
                 String recipient_values = recipientName.getText() + "\n" + recipientAddress.getText() + "\n" + recipientPostcode.getText() + "\n" + recipientCity.getText() + "\n" + recipientCountry.getText();
+                recipientSumUp.setBackground(null);
                 recipientSumUp.setText(recipient_values);
             }
         });
 
+        changeColor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openColorPicker();
+            }
+        });
 
-        addRecipient.setOnClickListener(new View.OnClickListener() {
+
+        recipientSumUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 recipientLayout.setVisibility(View.VISIBLE);
                 recipientLayout.setClickable(true);
                 recipientLayout.setEnabled(true);
 
+                recipientAddValidate.setVisibility(View.VISIBLE);
+                recipientAddValidate.setClickable(true);
+                recipientAddValidate.setEnabled(true);
+
                 messageLayout.setVisibility(View.INVISIBLE);
                 messageLayout.setClickable(false);
                 messageLayout.setEnabled(false);
+
+                changeColor.setVisibility(View.INVISIBLE);
+                changeColor.setClickable(false);
+                changeColor.setEnabled(false);
+
+                messageAddValidate.setVisibility(View.INVISIBLE);
+                messageAddValidate.setClickable(false);
+                messageAddValidate.setEnabled(false);
             }
         });
 
@@ -125,22 +239,34 @@ public class ReverseCreator extends Activity {
             public void onClick(View v) {
                 String message = String.valueOf(messageInput.getText());
 
-
+                messageSumUp.setBackground(null);
                 messageSumUp.setText(message);
 
             }
         });
 
-        addMessage.setOnClickListener(new View.OnClickListener() {
+        messageSumUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 recipientLayout.setVisibility(View.INVISIBLE);
                 recipientLayout.setClickable(false);
                 recipientLayout.setEnabled(false);
 
+                recipientAddValidate.setVisibility(View.INVISIBLE);
+                recipientAddValidate.setClickable(false);
+                recipientAddValidate.setEnabled(false);
+
                 messageLayout.setVisibility(View.VISIBLE);
                 messageLayout.setClickable(true);
                 messageLayout.setEnabled(true);
+
+                changeColor.setVisibility(View.VISIBLE);
+                changeColor.setClickable(true);
+                changeColor.setEnabled(true);
+
+                messageAddValidate.setVisibility(View.VISIBLE);
+                messageAddValidate.setClickable(true);
+                messageAddValidate.setEnabled(true);
             }
         });
 
@@ -238,7 +364,20 @@ public class ReverseCreator extends Activity {
         });
 
 
+    }
 
+    private void openColorPicker() {
+        AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(this, default_color, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            @Override
+            public void onCancel(AmbilWarnaDialog dialog) {
+            }
 
+            @Override
+            public void onOk(AmbilWarnaDialog dialog, int color) {
+                default_color = color;
+                messageSumUp.setTextColor(default_color);
+            }
+        });
+        colorPicker.show();
     }
 }

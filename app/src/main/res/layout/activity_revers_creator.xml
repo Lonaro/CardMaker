@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.ReverseCreator"
-    android:background="#cfd7f2">
+    tools:context=".view.ReverseCreator">
 
 
     <android.support.constraint.ConstraintLayout
@@ -48,7 +47,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toStartOf="@id/reverse_line"
-            android:background="#dddddd"/>
+            android:background="#89a0ff"/>
 
         <ImageView
             android:id="@+id/reverse_line"
@@ -71,107 +70,113 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/reverse_line"
             app:layout_constraintTop_toTopOf="parent"
-            android:background="#dddddd"
+            android:background="#89a0ff"
             android:minLines="5"/>
 
     </android.support.constraint.ConstraintLayout>
 
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/reverse_buttons"
-        android:layout_width="match_parent"
+    <ImageButton
+        android:id="@+id/reverse_message_change_color"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
         android:layout_marginBottom="15dp"
+        android:backgroundTint="@color/colorAccent"
+        android:elevation="@dimen/button_elevation"
+        android:src="@drawable/color_palette"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintEnd_toStartOf="@+id/reverse_message_validate"
+        android:visibility="invisible"/>
 
-        <Button
-            android:id="@+id/reverse_add_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add message"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <ImageButton
+        android:id="@+id/reverse_message_validate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:backgroundTint="@color/colorAccent"
+        android:elevation="@dimen/button_elevation"
+        android:src="@drawable/validate"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/reverse_save"
+        android:visibility="invisible"/>
 
-        <Button
-            android:id="@+id/reverse_add_recipient"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:text="Add recipient"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/reverse_save"
-            app:layout_constraintStart_toEndOf="@+id/reverse_add_message"
-            app:layout_constraintTop_toTopOf="parent" />
+    <ImageButton
+        android:id="@+id/reverse_recipient_validate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:backgroundTint="@color/colorAccent"
+        android:elevation="@dimen/button_elevation"
+        android:src="@drawable/validate"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/reverse_save" />
 
-        <Button
-            android:id="@+id/reverse_save"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Save"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
-    </android.support.constraint.ConstraintLayout>
+    <ImageButton
+        android:id="@+id/reverse_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:backgroundTint="@color/colorAccent"
+        android:elevation="@dimen/button_elevation"
+        android:src="@drawable/save"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/reverse_recipient_all"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="35dp"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/reverse_buttons"
+        android:layout_marginBottom="8dp"
+        android:clickable="false"
+        app:layout_constraintBottom_toTopOf="@+id/reverse_save"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/reverse_frame"
-        android:visibility="invisible"
-        android:clickable="false">
+
+        app:layout_constraintTop_toBottomOf="@+id/reverse_frame">
 
         <EditText
             android:id="@+id/reverse_recipient_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:background="#dedede"
+            android:fontFamily="@font/segoe"
+            android:hint="Name"
+            android:inputType="textCapWords"
+            android:textSize="15dp"
+
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:hint="Name"
-            android:textSize="15dp"
-            android:inputType="textCapWords"
-            android:fontFamily="@font/segoe"
-            android:background="@color/colorWhite"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/reverse_recipient_address"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="#dedede"
+            android:fontFamily="@font/segoe"
+            android:hint="Address"
+            android:inputType="textCapWords"
+            android:maxLines="2"
+            android:textSize="15dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/reverse_recipient_name"
-            android:hint="Address"
-            android:textSize="15dp"
-            android:maxLines="2"
-            android:inputType="textCapWords"
-            android:fontFamily="@font/segoe"
-            android:background="@color/colorWhite"/>
+            app:layout_constraintTop_toBottomOf="@id/reverse_recipient_name" />
 
         <EditText
             android:id="@+id/reverse_recipient_postcode"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="@color/colorWhite"
+            android:background="#dedede"
             android:fontFamily="@font/segoe"
             android:hint="Postcode"
+            android:inputType="textCapWords"
             android:textSize="15dp"
             app:layout_constraintEnd_toEndOf="parent"
-            android:inputType="textCapWords"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/reverse_recipient_address" />
 
@@ -180,38 +185,28 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="#dedede"
+            android:fontFamily="@font/segoe"
+            android:hint="City"
+            android:inputType="textCapWords"
+            android:textSize="15dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/reverse_recipient_postcode"
-            android:hint="City"
-            android:textSize="15dp"
-            android:inputType="textCapWords"
-            android:fontFamily="@font/segoe"
-            android:background="@color/colorWhite"/>
+            app:layout_constraintTop_toBottomOf="@id/reverse_recipient_postcode" />
 
         <EditText
             android:id="@+id/reverse_recipient_country"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="@color/colorWhite"
+            android:background="#dedede"
             android:fontFamily="@font/segoe"
             android:hint="Country"
-            android:textSize="15dp"
             android:inputType="textCapWords"
+            android:textSize="15dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/reverse_recipient_city" />
-
-        <Button
-            android:id="@+id/reverse_recipient_validate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Validate"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/reverse_recipient_country" />
 
 
     </android.support.constraint.ConstraintLayout>
@@ -219,76 +214,142 @@
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/reverse_message_all"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/reverse_buttons"
+        android:clickable="false"
+        app:layout_constraintBottom_toTopOf="@+id/reverse_save"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/reverse_frame"
         android:visibility="invisible"
-        android:clickable="false">
+        app:layout_constraintTop_toBottomOf="@+id/reverse_frame">
 
         <EditText
             android:id="@+id/reverse_message_input"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="10dp"
+            android:layout_height="130dp"
             android:layout_marginBottom="8dp"
-            android:inputType="textMultiLine|textCapSentences"
-            app:layout_constraintBottom_toTopOf="@+id/reverse_message_change_color"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:background="@color/colorWhite"
+            android:background="#dedede"
+            android:fontFamily="@font/segoe"
+            android:gravity="top"
             android:hint="Message"
-            android:gravity="top"/>
+            android:inputType="textMultiLine|textCapSentences"
+            android:textColor="@color/colorBlack"
+            app:layout_constraintBottom_toTopOf="@+id/reverse_fontListSpinner"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Spinner
             android:id="@+id/reverse_fontListSpinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="15dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/reverse_message_input" />
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/spinner_layout"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <Spinner
             android:id="@+id/reverse_font_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="15dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/reverse_message_change_color"
-            app:layout_constraintStart_toEndOf="@+id/reverse_fontListSpinner"
-            app:layout_constraintTop_toBottomOf="@+id/reverse_message_input" />
-
-
-        <Button
-            android:id="@+id/reverse_message_change_color"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:text="Color"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/reverse_message_validate" />
+            app:layout_constraintBottom_toTopOf="@+id/spinner_layout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/reverse_fontListSpinner" />
 
-        <Button
-            android:id="@+id/reverse_message_validate"
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/spinner_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:text="Validate"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <LinearLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/linearLayout2"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginLeft="20dp">
+
+                <ImageButton
+                    android:id="@+id/reverse_align_to_top"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/align_top"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageButton
+                    android:id="@+id/reverse_align_to_center_v"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/align_center_v"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/reverse_align_to_left" />
+
+                <ImageButton
+                    android:id="@+id/reverse_align_to_bottom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/align_bottom"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/reverse_align_to_center_h" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayout2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageButton
+                    android:id="@+id/reverse_align_to_left"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/align_left"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ImageButton
+                    android:id="@+id/reverse_align_to_center_h"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/align_center_h"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/reverse_align_to_left" />
+
+                <ImageButton
+                    android:id="@+id/reverse_align_to_right"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/align_right"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/reverse_align_to_center_h" />
+
+            </LinearLayout>
+
+        </android.support.constraint.ConstraintLayout>
+
+
 
 
     </android.support.constraint.ConstraintLayout>

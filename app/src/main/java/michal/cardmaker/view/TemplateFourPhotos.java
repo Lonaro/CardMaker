@@ -1,66 +1,66 @@
 package michal.cardmaker.view;
 
-        import android.Manifest;
-        import android.annotation.SuppressLint;
-        import android.app.Activity;
-        import android.app.AlertDialog;
-        import android.content.DialogInterface;
-        import android.content.Intent;
-        import android.content.SharedPreferences;
-        import android.content.pm.PackageManager;
-        import android.content.res.Resources;
-        import android.graphics.Bitmap;
-        import android.graphics.BitmapFactory;
-        import android.graphics.Canvas;
-        import android.graphics.Color;
-        import android.graphics.Typeface;
-        import android.graphics.drawable.BitmapDrawable;
-        import android.graphics.drawable.ColorDrawable;
-        import android.graphics.drawable.Drawable;
-        import android.net.Uri;
-        import android.os.Bundle;
-        import android.os.Environment;
-        import android.provider.MediaStore;
-        import android.support.constraint.ConstraintLayout;
-        import android.support.v4.app.ActivityCompat;
-        import android.support.v4.content.ContextCompat;
-        import android.support.v4.content.res.ResourcesCompat;
-        import android.support.v7.app.AppCompatActivity;
-        import android.util.Log;
-        import android.util.TypedValue;
-        import android.view.Menu;
-        import android.view.MenuInflater;
-        import android.view.MenuItem;
-        import android.view.MotionEvent;
-        import android.view.View;
-        import android.widget.Button;
-        import android.widget.FrameLayout;
-        import android.widget.ImageButton;
-        import android.widget.ImageView;
-        import android.widget.LinearLayout;
-        import android.widget.RelativeLayout;
-        import android.widget.TextView;
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
-        import java.io.File;
-        import java.io.FileNotFoundException;
-        import java.io.FileOutputStream;
-        import java.io.IOException;
-        import java.io.InputStream;
-        import java.io.OutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-        import michal.cardmaker.R;
-        import michal.cardmaker.presenter.TemplateFourPhotosPresenter;
-        import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
-        import michal.cardmaker.presenter.listener.BorderSettingsFragmentListener;
-        import michal.cardmaker.presenter.listener.InsertTextFragmentListener;
-        import michal.cardmaker.presenter.listener.ResetItemFragmentListener;
-        import michal.cardmaker.presenter.listener.ResetTextFragmentListener;
-        import michal.cardmaker.presenter.listener.StickerFragmentListener;
-        import michal.cardmaker.view.fragment.BorderSettingFragment;
-        import michal.cardmaker.view.fragment.EditTextFragment;
-        import michal.cardmaker.view.fragment.InsertTextFragment;
-        import michal.cardmaker.view.fragment.SeekBarsFragment;
-        import michal.cardmaker.view.fragment.StickerFragment;
+import michal.cardmaker.R;
+import michal.cardmaker.presenter.TemplateFourPhotosPresenter;
+import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
+import michal.cardmaker.presenter.listener.BorderSettingsFragmentListener;
+import michal.cardmaker.presenter.listener.InsertTextFragmentListener;
+import michal.cardmaker.presenter.listener.ResetItemFragmentListener;
+import michal.cardmaker.presenter.listener.ResetTextFragmentListener;
+import michal.cardmaker.presenter.listener.StickerFragmentListener;
+import michal.cardmaker.view.fragment.BorderSettingFragment;
+import michal.cardmaker.view.fragment.EditTextFragment;
+import michal.cardmaker.view.fragment.InsertTextFragment;
+import michal.cardmaker.view.fragment.SeekBarsFragment;
+import michal.cardmaker.view.fragment.StickerFragment;
 
 public class TemplateFourPhotos extends AppCompatActivity implements StickerFragmentListener, BorderSettingsFragmentListener, InsertTextFragmentListener, ResetItemFragmentListener, ResetTextFragmentListener {
 
@@ -138,7 +138,7 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
 
     private int sticker;
 
-    @SuppressLint({"ResourceAsColor", "ClickableViewAccessibility"})
+    @SuppressLint({"ResourceAsColor", "ClickableViewAccessibility", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -215,306 +215,255 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
             }
         }
 
-        photo_first.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveData();
-                onSelectAlbum();
-                global_photo_number = 0;
-            }
+        photo_first.setOnClickListener(v -> {
+            saveData();
+            onSelectAlbum();
+            global_photo_number = 0;
         });
 
-        photo_second.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveData();
-                onSelectAlbum();
-                global_photo_number = 1;
-            }
+        photo_second.setOnClickListener(v -> {
+            saveData();
+            onSelectAlbum();
+            global_photo_number = 1;
         });
 
-        photo_third.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveData();
-                onSelectAlbum();
-                global_photo_number = 2;
-            }
+        photo_third.setOnClickListener(v -> {
+            saveData();
+            onSelectAlbum();
+            global_photo_number = 2;
         });
 
-        photo_fourth.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveData();
-                onSelectAlbum();
-                global_photo_number = 3;
-            }
+        photo_fourth.setOnClickListener(v -> {
+            saveData();
+            onSelectAlbum();
+            global_photo_number = 3;
         });
 
-        borderSettingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                photo_first.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                photo_second.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                photo_third.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                photo_fourth.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                templatePresenter.setFragment(TemplateFourPhotos.this, borderSettingFragment);
-            }
+        borderSettingsButton.setOnClickListener(v -> {
+            photo_first.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            photo_second.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            photo_third.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            photo_fourth.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            templatePresenter.setFragment(TemplateFourPhotos.this, borderSettingFragment);
         });
 
-        add_text_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                templatePresenter.setFragment(TemplateFourPhotos.this, insertTextFragment);
+        add_text_button.setOnClickListener(v -> templatePresenter.setFragment(TemplateFourPhotos.this, insertTextFragment));
+
+        insertedText.setOnTouchListener((v, event) -> {
+
+            switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                case MotionEvent.ACTION_DOWN:
+                    mTouchMode = TOUCH_MODE_DRAG;
+
+                    templatePresenter.setFragment(TemplateFourPhotos.this, editTextFragment);
+
+                    xCorText = v.getX() - event.getRawX();
+                    yCorText = v.getY() - event.getRawY();
+
+                case MotionEvent.ACTION_MOVE:
+                    if (mTouchMode == TOUCH_MODE_DRAG) {
+                        move_x_text = event.getRawX() + xCorText;
+                        move_y_text =  event.getRawY() + yCorText;
+                        Log.d("CorText", String.valueOf(move_x_text) + " " + String.valueOf(move_y_text));
+                        insertedText.setX(move_x_text);
+                        insertedText.setY(move_y_text);
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                    photo_first.setEnabled(true);
+                    photo_first.setClickable(true);
+                    background.setEnabled(true);
+                    background.setClickable(true);
+                case MotionEvent.ACTION_CANCEL:
+                case MotionEvent.ACTION_POINTER_UP:
+                    mTouchMode = TOUCH_MODE_NONE;
+                    break;
             }
+            return true;
         });
 
-        insertedText.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
+        item.setOnTouchListener((v, event) -> {
 
-                switch (event.getAction() & MotionEvent.ACTION_MASK) {
-                    case MotionEvent.ACTION_DOWN:
-                        mTouchMode = TOUCH_MODE_DRAG;
+            switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                case MotionEvent.ACTION_DOWN:
+                    mTouchMode = TOUCH_MODE_DRAG;
+                    templatePresenter.setFragment(TemplateFourPhotos.this, seekBarsFragment);
 
-                        templatePresenter.setFragment(TemplateFourPhotos.this, editTextFragment);
-                        //editTextFragment.setValues((int)(insertedText.getScaleX()*50), (int)insertedText.getRotation(), (int)insertedText.getCurrentTextColor());
 
-                        xCorText = v.getX() - event.getRawX();
-                        yCorText = v.getY() - event.getRawY();
+                    xCorItem = v.getX() - event.getRawX();
+                    yCorItem = v.getY() - event.getRawY();
 
-                    case MotionEvent.ACTION_MOVE:
-                        if (mTouchMode == TOUCH_MODE_DRAG) {
-                            move_x_text = event.getRawX() + xCorText;
-                            move_y_text =  event.getRawY() + yCorText;
-                            //v.animate().x(move_x_text).y(move_y_text).setDuration(0).start();
-                            Log.d("CorText", String.valueOf(move_x_text) + " " + String.valueOf(move_y_text));
-                            insertedText.setX(move_x_text);
-                            insertedText.setY(move_y_text);
-                        }
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        photo_first.setEnabled(true);
-                        photo_first.setClickable(true);
-                        background.setEnabled(true);
-                        background.setClickable(true);
-                    case MotionEvent.ACTION_CANCEL:
-                    case MotionEvent.ACTION_POINTER_UP:
-                        mTouchMode = TOUCH_MODE_NONE;
-                        break;
+                case MotionEvent.ACTION_MOVE:
+                    if (mTouchMode == TOUCH_MODE_DRAG) {
+                        move_x_item = event.getRawX() + xCorItem;
+                        move_y_item =  event.getRawY() + yCorItem;
+                        Log.d("CorItem", String.valueOf(move_x_item) + " " + String.valueOf(move_y_item));
+                        item.setX(move_x_item);
+                        item.setY(move_y_item);
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                    photo_first.setEnabled(true);
+                    photo_first.setClickable(true);
+                    background.setEnabled(true);
+                    background.setClickable(true);
+                case MotionEvent.ACTION_CANCEL:
+                case MotionEvent.ACTION_POINTER_UP:
+                    mTouchMode = TOUCH_MODE_NONE;
+                    break;
+            }
+            return true;
+        });
+
+        add_item_button.setOnClickListener(v -> templatePresenter.setFragment(TemplateFourPhotos.this, stickerFragment));
+
+        size_button.setOnClickListener(view -> {
+            // setup the alert builder
+            AlertDialog.Builder builder = new AlertDialog.Builder(TemplateFourPhotos.this);
+            builder.setTitle("Choose a format:");
+
+            // add a list
+            String[] tempSizes = templatePresenter.getTempSizes();
+            builder.setItems(tempSizes, (dialog, which) -> {
+                switch (which) {
+                    case 0: size_button.setText("A6"); break;
+                    case 1: size_button.setText("A5"); break;
+                    case 2: size_button.setText("A4"); break;
+                    case 3: size_button.setText("A3"); break;
                 }
-                return true;
-            }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
         });
 
-        item.setOnTouchListener(new View.OnTouchListener() {
+        merge_button.setOnClickListener(v -> {
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            Bitmap bitmapPostcard = merge();
 
-                switch (event.getAction() & MotionEvent.ACTION_MASK) {
-                    case MotionEvent.ACTION_DOWN:
-                        mTouchMode = TOUCH_MODE_DRAG;
-                        //seekBarsFragment.setValues((int)(item.getScaleX()*100), (int)item.getRotation());
-                        templatePresenter.setFragment(TemplateFourPhotos.this, seekBarsFragment);
+            String postcardSize = String.valueOf(size_button.getText());
+            int width;
+            int height;
 
 
-                        xCorItem = v.getX() - event.getRawX();
-                        yCorItem = v.getY() - event.getRawY();
-
-                    case MotionEvent.ACTION_MOVE:
-                        if (mTouchMode == TOUCH_MODE_DRAG) {
-                            move_x_item = event.getRawX() + xCorItem;
-                            move_y_item =  event.getRawY() + yCorItem;
-                            //v.animate().x(move_x_item).y(move_y_item).setDuration(0).start();
-                            Log.d("CorItem", String.valueOf(move_x_item) + " " + String.valueOf(move_y_item));
-                            item.setX(move_x_item);
-                            item.setY(move_y_item);
-                        }
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        photo_first.setEnabled(true);
-                        photo_first.setClickable(true);
-                        background.setEnabled(true);
-                        background.setClickable(true);
-                    case MotionEvent.ACTION_CANCEL:
-                    case MotionEvent.ACTION_POINTER_UP:
-                        mTouchMode = TOUCH_MODE_NONE;
-                        break;
+            switch(postcardSize) {
+                case "A6": {
+                    if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                    {
+                        width = 1200;
+                        height = 800;
+                    } else {
+                        width = 800;
+                        height = 1200;
+                    }
+                    break;
                 }
-                return true;
-            }
-        });
-
-        add_item_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                templatePresenter.setFragment(TemplateFourPhotos.this, stickerFragment);
-            }
-        });
-
-        size_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // setup the alert builder
-                AlertDialog.Builder builder = new AlertDialog.Builder(TemplateFourPhotos.this);
-                builder.setTitle("Choose a format:");
-
-                // add a list
-                String[] animals = {"A6 (800x1200)", "A5 (1200x1800)", "A4 (1800x2700)", "A3 (2700x4050)"};
-                builder.setItems(animals, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0: size_button.setText("A6"); break;
-                            case 1: size_button.setText("A5"); break;
-                            case 2: size_button.setText("A4"); break;
-                            case 3: size_button.setText("A3"); break;
-                        }
+                case "A5": {
+                    if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                    {
+                        width = 1800;
+                        height = 1200;
+                    } else {
+                        width = 1200;
+                        height = 1800;
                     }
-                });
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-        });
-
-        merge_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Bitmap bitmapPostcard = merge();
-
-                String postcardSize = String.valueOf(size_button.getText());
-                int width;
-                int height;
-
-
-                switch(postcardSize) {
-                    case "A6": {
-                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
-                        {
-                            width = 1200;
-                            height = 800;
-                        } else {
-                            width = 800;
-                            height = 1200;
-                        }
-                        break;
+                    break;
+                }
+                case "A4": {
+                    if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                    {
+                        width = 2700;
+                        height = 1800;
+                    } else {
+                        width = 1800;
+                        height = 2700;
                     }
-                    case "A5": {
-                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
-                        {
-                            width = 1800;
-                            height = 1200;
-                        } else {
-                            width = 1200;
-                            height = 1800;
-                        }
-                        break;
+                    break;
+                }
+                case "A3": {
+                    if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                    {
+                        width = 4050;
+                        height = 2700;
+                    } else {
+                        width = 2700;
+                        height = 4050;
                     }
-                    case "A4": {
-                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
-                        {
-                            width = 2700;
-                            height = 1800;
-                        } else {
-                            width = 1800;
-                            height = 2700;
-                        }
-                        break;
-                    }
-                    case "A3": {
-                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
-                        {
-                            width = 4050;
-                            height = 2700;
-                        } else {
-                            width = 2700;
-                            height = 4050;
-                        }
-                        break;
-                    }
-                    default:{
-                        if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
-                        {
-                            width = 1800;
-                            height = 1200;
-                        } else {
-                            width = 1200;
-                            height = 1800;
-                        }
+                    break;
+                }
+                default:{
+                    if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                    {
+                        width = 1800;
+                        height = 1200;
+                    } else {
+                        width = 1200;
+                        height = 1800;
                     }
                 }
-
-                templatePresenter.savePostcard(TemplateFourPhotos.this, bitmapPostcard, width, height);
             }
+
+            templatePresenter.savePostcard(TemplateFourPhotos.this, bitmapPostcard, width, height);
         });
 
-        clear_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        clear_button.setOnClickListener(v -> {
 
-                int border_color = preferences.getInt(PREFERENCES_BORDER_COLOR, Color.rgb(13,71,161));
-                background.setBackgroundColor(border_color);
+            int border_color = preferences.getInt(PREFERENCES_BORDER_COLOR, Color.rgb(13,71,161));
+            background.setBackgroundColor(border_color);
 
-                Log.d("CLEAR_TEST", "weszło");
+            Log.d("CLEAR_TEST", "weszło");
 
-                int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
+            int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
 
-                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
-                params.setMargins(first_margin, first_margin, first_margin/2, first_margin/2);
-                photo_first.setLayoutParams(params);
-                photo_first.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                photo_first.setImageResource(R.drawable.camera);
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) photo_first.getLayoutParams();
+            params.setMargins(first_margin, first_margin, first_margin/2, first_margin/2);
+            photo_first.setLayoutParams(params);
+            photo_first.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            photo_first.setImageResource(R.drawable.camera);
 
-                LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
-                params2.setMargins(first_margin/2, first_margin, first_margin, first_margin/2);
-                photo_second.setLayoutParams(params2);
-                photo_second.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                photo_second.setImageResource(R.drawable.camera);
+            LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) photo_second.getLayoutParams();
+            params2.setMargins(first_margin/2, first_margin, first_margin, first_margin/2);
+            photo_second.setLayoutParams(params2);
+            photo_second.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            photo_second.setImageResource(R.drawable.camera);
 
-                LinearLayout.LayoutParams params3 = (LinearLayout.LayoutParams) photo_third.getLayoutParams();
-                params3.setMargins(first_margin, first_margin/2, first_margin/2, first_margin);
-                photo_third.setLayoutParams(params3);
-                photo_third.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                photo_third.setImageResource(R.drawable.camera);
+            LinearLayout.LayoutParams params3 = (LinearLayout.LayoutParams) photo_third.getLayoutParams();
+            params3.setMargins(first_margin, first_margin/2, first_margin/2, first_margin);
+            photo_third.setLayoutParams(params3);
+            photo_third.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            photo_third.setImageResource(R.drawable.camera);
 
-                LinearLayout.LayoutParams params4 = (LinearLayout.LayoutParams) photo_fourth.getLayoutParams();
-                params4.setMargins(first_margin/2, first_margin/2, first_margin, first_margin);
-                photo_fourth.setLayoutParams(params4);
-                photo_fourth.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                photo_fourth.setImageResource(R.drawable.camera);
+            LinearLayout.LayoutParams params4 = (LinearLayout.LayoutParams) photo_fourth.getLayoutParams();
+            params4.setMargins(first_margin/2, first_margin/2, first_margin, first_margin);
+            photo_fourth.setLayoutParams(params4);
+            photo_fourth.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            photo_fourth.setImageResource(R.drawable.camera);
 
-                if(item.isEnabled())
-                {
-                    seekBarsFragment.clearItem();
-                }
-
-                if(insertedText.isEnabled())
-                {
-                    editTextFragment.clearText();
-                }
-
-                FrameLayout frameLayout = findViewById(R.id.frameLayout2);
-                frameLayout.removeAllViews();
-
+            if(item.isEnabled())
+            {
+                seekBarsFragment.clearItem();
             }
+
+            if(insertedText.isEnabled())
+            {
+                editTextFragment.clearText();
+            }
+
+            FrameLayout frameLayout = findViewById(R.id.frameLayout2);
+            frameLayout.removeAllViews();
+
         });
 
-        share_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bitmap bitmapPostcard = merge();
+        share_button.setOnClickListener(v -> {
+            Bitmap bitmapPostcard = merge();
 
-                String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmapPostcard, "Postcard from CardMaker", null);
-                Uri uri = Uri.parse(path);
+            String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmapPostcard, "Postcard from CardMaker", null);
+            Uri uri = Uri.parse(path);
 
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("image/jpeg");
-                intent.putExtra(Intent.EXTRA_STREAM, uri);
-                startActivity(Intent.createChooser(intent, "Share postcard"));
-            }
+            Intent intent1 = new Intent(Intent.ACTION_SEND);
+            intent1.setType("image/jpeg");
+            intent1.putExtra(Intent.EXTRA_STREAM, uri);
+            startActivity(Intent.createChooser(intent1, "Share postcard"));
         });
     }
 
@@ -526,19 +475,19 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
         if(preferences.contains(PREFERENCES_PHOTO_1))
         {
             photo_first.setImageBitmap(loadTmpPhoto(preferences.getString(PREFERENCES_PHOTO_1, "")));
-            preferences.edit().remove(PREFERENCES_PHOTO_1).commit();
+            preferences.edit().remove(PREFERENCES_PHOTO_1).apply();
         }
 
         if(preferences.contains(PREFERENCES_PHOTO_2))
         {
             photo_second.setImageBitmap(loadTmpPhoto(preferences.getString(PREFERENCES_PHOTO_2, "")));
-            preferences.edit().remove(PREFERENCES_PHOTO_2).commit();
+            preferences.edit().remove(PREFERENCES_PHOTO_2).apply();
         }
 
         if(preferences.contains(PREFERENCES_PHOTO_3))
         {
             photo_third.setImageBitmap(loadTmpPhoto(preferences.getString(PREFERENCES_PHOTO_3, "")));
-            preferences.edit().remove(PREFERENCES_PHOTO_3).commit();
+            preferences.edit().remove(PREFERENCES_PHOTO_3).apply();
         }
 
         if(preferences.contains(PREFERENCES_PHOTO_4))
@@ -597,7 +546,7 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
         {
             int border_color = preferences.getInt(PREFERENCES_BORDER_COLOR, Color.rgb(13,71,161));
             background.setBackgroundColor(border_color);
-            preferences.edit().remove(PREFERENCES_BORDER_COLOR).commit();
+            preferences.edit().remove(PREFERENCES_BORDER_COLOR).apply();
         }
 
         if(preferences.contains(PREFERENCES_ITEM_X))
@@ -614,11 +563,11 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
             item.setImageResource(preferences.getInt(PREFERENCES_ITEM_IMAGE, R.drawable.smile_item));
             actual_sticker = preferences.getInt(PREFERENCES_ITEM_IMAGE, R.drawable.smile_item);
 
-            preferences.edit().remove(PREFERENCES_ITEM_SCALE).commit();
-            preferences.edit().remove(PREFERENCES_ITEM_X).commit();
-            preferences.edit().remove(PREFERENCES_ITEM_Y).commit();
-            preferences.edit().remove(PREFERENCES_ITEM_ROTATION).commit();
-            preferences.edit().remove(PREFERENCES_ITEM_IMAGE).commit();
+            preferences.edit().remove(PREFERENCES_ITEM_SCALE).apply();
+            preferences.edit().remove(PREFERENCES_ITEM_X).apply();
+            preferences.edit().remove(PREFERENCES_ITEM_Y).apply();
+            preferences.edit().remove(PREFERENCES_ITEM_ROTATION).apply();
+            preferences.edit().remove(PREFERENCES_ITEM_IMAGE).apply();
         }
         else
         {
@@ -647,13 +596,13 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
 
             insertedText.setText(preferences.getString(PREFERENCES_TEXT_VALUE, ""));
 
-            preferences.edit().remove(PREFERENCES_TEXT_X).commit();
-            preferences.edit().remove(PREFERENCES_TEXT_Y).commit();
-            preferences.edit().remove(PREFERENCES_TEXT_SCALE).commit();
-            preferences.edit().remove(PREFERENCES_TEXT_ROTATION).commit();
-            preferences.edit().remove(PREFERENCES_TEXT_FONT).commit();
-            preferences.edit().remove(PREFERENCES_TEXT_COLOR).commit();
-            preferences.edit().remove(PREFERENCES_TEXT_VALUE).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_X).apply();
+            preferences.edit().remove(PREFERENCES_TEXT_Y).apply();
+            preferences.edit().remove(PREFERENCES_TEXT_SCALE).apply();
+            preferences.edit().remove(PREFERENCES_TEXT_ROTATION).apply();
+            preferences.edit().remove(PREFERENCES_TEXT_FONT).apply();
+            preferences.edit().remove(PREFERENCES_TEXT_COLOR).apply();
+            preferences.edit().remove(PREFERENCES_TEXT_VALUE).apply();
         }
         else
         {
@@ -719,7 +668,7 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
                 photo_third.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 photo_fourth.setScaleType(ImageView.ScaleType.FIT_CENTER);
             }
-            preferences.edit().remove(PREFERENCES_VERTICAL_ORIENTATION).commit();
+            preferences.edit().remove(PREFERENCES_VERTICAL_ORIENTATION).apply();
         }
 
 
@@ -820,7 +769,7 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
 
         preferencesEditor.putBoolean(PREFERENCES_VERTICAL_ORIENTATION, VERTICAL_ORIENTATION);
 
-        preferencesEditor.commit();
+        preferencesEditor.apply();
     }
 
     @Override
@@ -896,6 +845,7 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
     }
 
 
+    @SuppressLint("IntentReset")
     public void onSelectAlbum() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
@@ -909,13 +859,10 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
         if(item.isEnabled() || insertedText.isEnabled() || photo_first.getDrawable().getConstantState() != getResources().getDrawable( R.drawable.camera).getConstantState()) {
             AlertDialog.Builder alertBox = new AlertDialog.Builder(TemplateFourPhotos.this);
             alertBox.setMessage("Are you sure to exit?");
-            alertBox.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
-                    goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(goToMainActivity);
-                }
+            alertBox.setPositiveButton("Yes", (dialog, which) -> {
+                Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
+                goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(goToMainActivity);
             });
             alertBox.setNegativeButton("No", null);
             alertBox.create().show();
@@ -1047,24 +994,22 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
 
             File direct = new File(Environment.getExternalStorageDirectory() + "/Pictures/CardMaker");
             if (!direct.exists()) {
-                File wallpaperDirectory = new File("/sdcard/Pictures/CardMaker/");
+                @SuppressLint("SdCardPath") File wallpaperDirectory = new File("/sdcard/Pictures/CardMaker/");
                 wallpaperDirectory.mkdirs();
             }
 
-            File file = new File(new File("/sdcard/Pictures/CardMaker/"), name + ".jpg");
+            @SuppressLint("SdCardPath") File file = new File(new File("/sdcard/Pictures/CardMaker/"), name + ".jpg");
             try {
                 OutputStream out = new FileOutputStream(file);
                 Bitmap photoBitmap = ((BitmapDrawable)tmpPhoto).getBitmap();
                 photoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
                 out.flush();
                 out.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        String result = "/sdcard/Pictures/CardMaker/" + name + ".jpg";
+        @SuppressLint("SdCardPath") String result = "/sdcard/Pictures/CardMaker/" + name + ".jpg";
         return result;
     }
 

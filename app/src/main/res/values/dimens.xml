@@ -3,4 +3,13 @@
 
     <dimen name="template_button_margin_inner">5dp</dimen>
 
+    <dimen name="button_elevation">3dp</dimen>
+
+
+    <dimen name="template_button_size_textsize">20dp</dimen>
+
+    <dimen name="border_setting_value_text_size">30dp</dimen>
+
+    <dimen name="text_size_seekbar">20dp</dimen>
+
 </resources>

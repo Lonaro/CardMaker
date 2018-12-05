@@ -330,37 +330,26 @@ public class TemplateTwoPlusOneHorizontal extends AppCompatActivity implements S
             }
         });
 
-        add_item_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                templatePresenter.setFragment(TemplateTwoPlusOneHorizontal.this, stickerFragment);
-            }
-        });
+        add_item_button.setOnClickListener(v -> templatePresenter.setFragment(TemplateTwoPlusOneHorizontal.this, stickerFragment));
 
-        size_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // setup the alert builder
-                AlertDialog.Builder builder = new AlertDialog.Builder(TemplateTwoPlusOneHorizontal.this);
-                builder.setTitle("Choose a format:");
+        size_button.setOnClickListener(view -> {
+            // setup the alert builder
+            AlertDialog.Builder builder = new AlertDialog.Builder(TemplateTwoPlusOneHorizontal.this);
+            builder.setTitle("Choose a format:");
 
-                // add a list
-                String[] animals = {"A6 (800x1200)", "A5 (1200x1800)", "A4 (1800x2700)", "A3 (2700x4050)"};
-                builder.setItems(animals, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0: size_button.setText("A6"); break;
-                            case 1: size_button.setText("A5"); break;
-                            case 2: size_button.setText("A4"); break;
-                            case 3: size_button.setText("A3"); break;
-                        }
-                    }
-                });
+            // add a list
+            String[] tempSizes = templatePresenter.getTempSizes();
+            builder.setItems(tempSizes, (dialog, which) -> {
+                switch (which) {
+                    case 0: size_button.setText("A6"); break;
+                    case 1: size_button.setText("A5"); break;
+                    case 2: size_button.setText("A4"); break;
+                    case 3: size_button.setText("A3"); break;
+                }
+            });
 
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
+            AlertDialog dialog = builder.create();
+            dialog.show();
         });
 
         merge_button.setOnClickListener(new View.OnClickListener() {

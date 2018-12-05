@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import michal.cardmaker.R;
 import michal.cardmaker.presenter.cropViewLibrary.CropLayout;
@@ -14,9 +15,9 @@ import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
 public class CropActivity extends AppCompatActivity {
 
     private CropLayout mCropLayout;
-    private Button mDoneButton;
-    private Button mResetButton;
-    private Button mMaxButton;
+    private ImageButton mDoneButton;
+    private ImageButton mResetButton;
+    private ImageButton mMaxButton;
     private int template_number;
     private int photo_number;
 
