@@ -270,12 +270,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
             }
         });
 
-        add_item_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, stickerFragment);
-            }
-        });
+        add_item_button.setOnClickListener(v -> templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, stickerFragment));
 
         size_button.setOnClickListener(view -> {
             // setup the alert builder
