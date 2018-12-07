@@ -93,7 +93,7 @@ public class HistoryPostcardAdapter extends RecyclerView.Adapter<HistoryPostcard
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder alertBox = new AlertDialog.Builder(context);
-                alertBox.setMessage("Are you sure?");
+                alertBox.setMessage(R.string.delete_item_communicate);
                 alertBox.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

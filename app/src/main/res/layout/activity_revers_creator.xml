@@ -17,29 +17,19 @@
         app:layout_constraintDimensionRatio="H, 3:2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:elevation="10dp"
+        android:background="@color/colorWhite">
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:src="@drawable/reverse"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/reverse_message_value"
-            android:layout_width="150dp"
+            android:layout_width="160dp"
             android:layout_height="match_parent"
 
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="5dp"
             android:layout_marginTop="20dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="5dp"
             android:layout_marginBottom="20dp"
             android:inputType="textMultiLine"
 
@@ -61,10 +51,10 @@
 
         <TextView
             android:id="@+id/recipient_values"
-            android:layout_width="120dp"
+            android:layout_width="135dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="15dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
             android:inputType="textMultiLine"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -108,7 +98,8 @@
         android:elevation="@dimen/button_elevation"
         android:src="@drawable/validate"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/reverse_save" />
+        app:layout_constraintEnd_toStartOf="@+id/reverse_save"
+        android:visibility="invisible"/>
 
 
     <ImageButton
@@ -128,11 +119,12 @@
         android:layout_height="0dp"
         android:layout_marginStart="35dp"
         android:layout_marginEnd="35dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="20dp"
         android:layout_marginBottom="8dp"
         android:clickable="false"
         app:layout_constraintBottom_toTopOf="@+id/reverse_save"
         app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
 
         app:layout_constraintTop_toBottomOf="@+id/reverse_frame">

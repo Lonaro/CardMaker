@@ -25,7 +25,7 @@
             android:id="@+id/reverse_empty_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="List is empty"
+            android:text="@string/empty_list_text"
             android:textAlignment="center"
             android:textSize="25dp"/>
 

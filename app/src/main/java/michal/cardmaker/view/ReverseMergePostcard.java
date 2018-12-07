@@ -8,8 +8,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.pdf.PdfDocument;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
+import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -17,6 +21,7 @@ import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -30,14 +35,15 @@ import java.util.Date;
 
 import michal.cardmaker.R;
 
-public class ReverseMergePostcard extends Activity {
+public class ReverseMergePostcard extends AppCompatActivity{
 
     String postcard_path;
     String reverse_path;
 
     ImageView postcardMerge;
     ImageView reverseMerge;
-    Button exportPDF;
+    ImageButton exportPDF;
+    ImageButton sharePDF;
 
     Bitmap postcard_bitmap;
     Bitmap reverse_bitmap;
@@ -46,6 +52,9 @@ public class ReverseMergePostcard extends Activity {
     float page_height;
 
     boolean boolean_save;
+
+    String path;
+    String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +65,7 @@ public class ReverseMergePostcard extends Activity {
         postcard_path = intent.getStringExtra("PATH_POSTCARD");
         reverse_path = intent.getStringExtra("PATH_REVERSE");
         exportPDF = findViewById(R.id.button_export_to_pdf);
+        sharePDF = findViewById(R.id.button_export_to_pdf_share);
 
         postcardMerge = findViewById(R.id.merge_postcard);
         reverseMerge = findViewById(R.id.merge_reverse);
@@ -69,6 +79,23 @@ public class ReverseMergePostcard extends Activity {
         setPageSize();
 
         exportPDF.setOnClickListener(view -> savePdf());
+        sharePDF.setOnClickListener(view -> sharePdf());
+    }
+
+    private void sharePdf() {
+
+        savePdf();
+
+        File outputFile = new File(path,fileName);
+        //Uri uri = Uri.fromFile(outputFile);
+        Uri uri = FileProvider.getUriForFile(this, this.getPackageName() + ".provider", outputFile);
+
+        Intent intent1 = new Intent(Intent.ACTION_SEND);
+        intent1.setType("application/pdf");
+        intent1.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent1.putExtra(Intent.EXTRA_STREAM, uri);
+        startActivity(Intent.createChooser(intent1, "Share postcard"));
+
     }
 
     //String[] animals = {"A6 (800x1200)", "A5 (1200x1800)", "A4 (1800x2700)", "A3 (2700x4050)"};
@@ -154,16 +181,16 @@ public class ReverseMergePostcard extends Activity {
             wallpaperDirectory.mkdirs();
         }
 
-        String path = "";
         Date currentTime;
         DateFormat dateFormat;
 
         dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
         currentTime = Calendar.getInstance().getTime();
         path = "/sdcard/Pictures/CardMaker/Pdf/";
+        fileName = dateFormat.format(currentTime).toString()+".pdf";
 
         try {
-            document.writeTo(new FileOutputStream(path + dateFormat.format(currentTime).toString()+".pdf"));
+            document.writeTo(new FileOutputStream(path + fileName));
             //btn_convert.setText("Check PDF");
             boolean_save=true;
         } catch (IOException e) {

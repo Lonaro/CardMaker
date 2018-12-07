@@ -58,7 +58,7 @@ public class ReverseAdapter extends RecyclerView.Adapter<ReverseViewHolder>{
 
         reverseViewHolder.delete_button.setOnClickListener(v -> {
             AlertDialog.Builder alertBox = new AlertDialog.Builder(context);
-            alertBox.setMessage("Are you sure?");
+            alertBox.setMessage(R.string.delete_item_communicate);
             alertBox.setPositiveButton("Yes", (dialog, which) -> {
                 File direct = new File(reverses.get(i).getPath());
                 direct.delete();

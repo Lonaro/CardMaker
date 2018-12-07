@@ -613,6 +613,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                     photo.setImageResource(R.drawable.camera);
                     photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     VERTICAL_ORIENTATION = false;
+                    photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 } else {
                     RelativeLayout photoAll = findViewById(R.id.frame_template);
                     ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
@@ -623,7 +624,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                     photo.setImageResource(R.drawable.camera);
                     photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
                     VERTICAL_ORIENTATION = true;
-
+                    photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 }
                 if(item.getVisibility() == View.VISIBLE)
                 {
@@ -651,7 +652,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
         if(item.isEnabled() || insertedText.isEnabled() || photo.getDrawable().getConstantState() != getResources().getDrawable( R.drawable.camera).getConstantState()) {
             AlertDialog.Builder alertBox = new AlertDialog.Builder(TemplateSinglePhoto.this);
-            alertBox.setMessage("Are you sure to exit?");
+            alertBox.setMessage(R.string.exit_from_templates);
             alertBox.setPositiveButton("Yes", (dialog, which) -> {
                 Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
                 goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

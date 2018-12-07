@@ -858,7 +858,7 @@ public class TemplateFourPhotos extends AppCompatActivity implements StickerFrag
 
         if(item.isEnabled() || insertedText.isEnabled() || photo_first.getDrawable().getConstantState() != getResources().getDrawable( R.drawable.camera).getConstantState()) {
             AlertDialog.Builder alertBox = new AlertDialog.Builder(TemplateFourPhotos.this);
-            alertBox.setMessage("Are you sure to exit?");
+            alertBox.setMessage(R.string.exit_from_templates);
             alertBox.setPositiveButton("Yes", (dialog, which) -> {
                 Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
                 goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

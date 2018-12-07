@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.ReverseMergePostcard"
-    android:background="#cfd7f2">
+    tools:context=".view.ReverseMergePostcard">
 
     <ImageView
         android:id="@+id/merge_postcard"
@@ -25,16 +24,41 @@
         app:layout_constraintDimensionRatio="H, 3:2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/merge_postcard" />
+        app:layout_constraintTop_toBottomOf="@+id/merge_postcard"
+        android:elevation="10dp"
+        android:background="@color/colorWhite"
+        />
 
-    <Button
-        android:id="@+id/button_export_to_pdf"
+    <android.support.constraint.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="EXPORT TO PDF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/merge_reverse" />
+        app:layout_constraintTop_toBottomOf="@+id/merge_reverse">
+
+        <ImageButton
+            android:id="@+id/button_export_to_pdf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorAccent"
+            android:elevation="@dimen/button_elevation"
+            android:src="@drawable/export_pdf"
+            android:textColor="@color/colorWhite" />
+
+        <ImageButton
+            android:id="@+id/button_export_to_pdf_share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/colorAccent"
+            android:elevation="@dimen/button_elevation"
+            android:src="@drawable/share"
+            android:textColor="@color/colorWhite"
+            app:layout_constraintStart_toEndOf="@+id/button_export_to_pdf" />
+
+    </android.support.constraint.ConstraintLayout>
+
+
 
 </android.support.constraint.ConstraintLayout>

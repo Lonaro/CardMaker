@@ -851,7 +851,7 @@ public class TemplateTwoPlusOneVertical extends AppCompatActivity implements Sti
 
         if(item.isEnabled() || insertedText.isEnabled() || photo_first.getDrawable().getConstantState() != getResources().getDrawable( R.drawable.camera).getConstantState()) {
             AlertDialog.Builder alertBox = new AlertDialog.Builder(TemplateTwoPlusOneVertical.this);
-            alertBox.setMessage("Are you sure to exit?");
+            alertBox.setMessage(R.string.exit_from_templates);
             alertBox.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {

@@ -2,6 +2,7 @@ package michal.cardmaker.view;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -16,6 +17,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -48,7 +50,7 @@ import java.util.Date;
 import michal.cardmaker.R;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
-public class ReverseCreator extends Activity {
+public class ReverseCreator extends AppCompatActivity {
 
     ConstraintLayout recipientLayout;
     ConstraintLayout messageLayout;
@@ -364,6 +366,30 @@ public class ReverseCreator extends Activity {
         });
 
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(messageSumUp.getText().length() == 0 && recipientSumUp.getText().length() == 0)
+        {
+            Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
+            goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            goToMainActivity.putExtra("FRAGMENT", "REVERSE");
+            startActivity(goToMainActivity);
+        }
+        else
+        {
+            AlertDialog.Builder alertBox = new AlertDialog.Builder(this);
+            alertBox.setMessage(R.string.exit_from_templates);
+            alertBox.setPositiveButton("Yes", (dialog, which) -> {
+                Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
+                goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                goToMainActivity.putExtra("FRAGMENT", "REVERSE");
+                startActivity(goToMainActivity);
+            });
+            alertBox.setNegativeButton("No", null);
+            alertBox.create().show();
+        }
     }
 
     private void openColorPicker() {
