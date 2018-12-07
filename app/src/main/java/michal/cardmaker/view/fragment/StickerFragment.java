@@ -1,6 +1,5 @@
 package michal.cardmaker.view.fragment;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,8 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import michal.cardmaker.R;
-import michal.cardmaker.presenter.LinearHorizontalItemDecoration;
-import michal.cardmaker.presenter.StickerFragmentListener;
+import michal.cardmaker.presenter.decoration.LinearHorizontalItemDecoration;
 import michal.cardmaker.presenter.adapter.ItemAdapter;
 
 public class StickerFragment extends Fragment{

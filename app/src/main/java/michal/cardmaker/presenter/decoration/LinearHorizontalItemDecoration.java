@@ -1,4 +1,4 @@
-package michal.cardmaker.presenter;
+package michal.cardmaker.presenter.decoration;
 
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;

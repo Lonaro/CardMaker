@@ -54,6 +54,9 @@ public class CropView extends View {
     private static final int TOUCH_MODE_ZOOM = 2;
     int mTouchMode = TOUCH_MODE_NONE;
 
+    float mNewX = 0;
+    float mNewY = 0;
+
     public CropView(Context context) {
         super(context);
         setup(context);
@@ -160,6 +163,12 @@ public class CropView extends View {
         return result;
     }
 
+    public void resetImagePosition() {
+        clearDisplay();
+        mNewX = 0;
+        mNewY = 0;
+    }
+
     public static class Result {
         public RectF displayCropRect;
         public RectF rawImageRect;
@@ -217,6 +226,12 @@ public class CropView extends View {
                             event.getY() - mLastY);
                     mImageCropInverse.postTranslate((event.getX() - mLastX),
                             (event.getY() - mLastY));
+
+                    mNewX = event.getX();
+                    mNewY = event.getY();
+
+                    Log.d("LastX", String.valueOf(mNewX));
+                    Log.d("LastY", String.valueOf(mNewY));
                     invalidate();
                 }
                 break;
@@ -254,7 +269,7 @@ public class CropView extends View {
     // clearDisplay();
     // }
 
-    private void clearDisplay() {
+    public void clearDisplay() {
         mDisplayImageMatrix = null;
         mDisplayCropMatrix = null;
         invalidate();
@@ -321,4 +336,43 @@ public class CropView extends View {
         // Draw crop rect
         CropDrawingUtils.drawCropRect(canvas, mBorderPaint, mCropInScreen);
     }
+
+    public void maximizeImage(float innerWidth, float innerHeigth, float outerWidth, float outerHeight) {
+        float scale = 1;
+        if(mImage.getWidth() < innerWidth)
+        {
+            scale = (float)Math.ceil((innerWidth/mImage.getWidth())*100)/100;
+        }
+
+        //clearDisplay();
+
+        mSavedImageCropInverse.set(new Matrix());
+        mSavedImageMatrix.set(new Matrix());
+
+        mDisplayImageMatrix = new Matrix();
+        mImageCropInverse = new Matrix();
+
+        mDisplayImageMatrix.set(new Matrix());
+        mImageCropInverse.set(new Matrix());
+//
+
+//
+//        mDisplayImageMatrix.set(new Matrix());
+//        mImageCropInverse.set(new Matrix());
+
+//        Log.d("Scale", String.valueOf(scale));
+        Log.d("Scale_size", String.valueOf(outerWidth) + " " + String.valueOf(outerHeight));
+
+        mDisplayImageMatrix.postScale(scale, scale, innerWidth/2, innerHeigth/2);
+        mImageCropInverse.postScale(scale, scale, innerWidth/2, innerHeigth/2);
+
+        float leftOffset = (outerWidth - mImage.getWidth()) / 2f + 5;
+        float topOffset = (outerHeight - mImage.getHeight()) / 2f;
+
+        mDisplayImageMatrix.postTranslate(leftOffset, topOffset);
+        //mImageCropInverse.postTranslate(leftOffset, topOffset);
+
+        invalidate();
+    }
+
 }

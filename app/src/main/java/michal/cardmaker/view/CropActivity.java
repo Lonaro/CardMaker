@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import michal.cardmaker.R;
 import michal.cardmaker.presenter.cropViewLibrary.CropLayout;
@@ -15,7 +15,11 @@ import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
 public class CropActivity extends AppCompatActivity {
 
     private CropLayout mCropLayout;
-    private Button mDoneButton;
+    private ImageButton mDoneButton;
+    private ImageButton mResetButton;
+    private ImageButton mMaxButton;
+    private int template_number;
+    private int photo_number;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +30,8 @@ public class CropActivity extends AppCompatActivity {
         if (intent == null) {
             return;
         }
-
+        template_number = intent.getIntExtra("TEMPLATE_NUMBER", 0);
+        photo_number = intent.getIntExtra("PHOTO_NUMBER", 0);
         Uri sourceUri = intent.getData();
         int outputX = intent
                 .getIntExtra("outputX", CropUtils.dip2px(this, 200));
@@ -34,8 +39,14 @@ public class CropActivity extends AppCompatActivity {
                 .getIntExtra("outputY", CropUtils.dip2px(this, 200));
         String outputFormat = intent.getStringExtra("outputFormat");
 
-        mDoneButton = (Button) this.findViewById(R.id.done);
+
+        mDoneButton = this.findViewById(R.id.crop_done);
+        mResetButton = this.findViewById(R.id.crop_reset);
+        mMaxButton = this.findViewById(R.id.crop_maximize);
+
         mDoneButton.setOnClickListener(mOnClickListener);
+        mResetButton.setOnClickListener(mOnClickListener);
+        mMaxButton.setOnClickListener(mOnClickListener);
 
         // bellow
         mCropLayout = (CropLayout) this.findViewById(R.id.crop);
@@ -49,8 +60,16 @@ public class CropActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.done: {
+                case R.id.crop_done: {
                     mCropLayout.requestCropResult();
+                    break;
+                }
+                case R.id.crop_reset: {
+                    mCropLayout.resetImagePosition();
+                    break;
+                }
+                case R.id.crop_maximize: {
+                    mCropLayout.maximizeImage();
                     break;
                 }
                 default:
@@ -63,7 +82,31 @@ public class CropActivity extends AppCompatActivity {
 
         @Override
         public void onCropResult(Uri data) {
-            Intent intent = new Intent(CropActivity.this, TemplateSinglePhoto.class);
+            Intent intent;
+
+            switch(template_number){
+                case 0:
+                    intent = new Intent(CropActivity.this, TemplateSinglePhoto.class);
+                    break;
+                case 1:
+                    intent = new Intent(CropActivity.this, TemplateTwoVerticalPhotos.class);
+                    break;
+                case 2:
+                    intent = new Intent(CropActivity.this, TemplateTwoHorizontalPhotos.class);
+                    break;
+                case 3:
+                    intent = new Intent(CropActivity.this, TemplateTwoPlusOneHorizontal.class);
+                    break;
+                case 4:
+                    intent = new Intent(CropActivity.this, TemplateTwoPlusOneVertical.class);
+                    break;
+                case 5:
+                    intent = new Intent(CropActivity.this, TemplateFourPhotos.class);
+                    break;
+                default:
+                    intent = new Intent(CropActivity.this, TemplateSinglePhoto.class);
+            }
+            intent.putExtra("PHOTO_NUMBER", photo_number);
             intent.setData(data);
             startActivity(intent);
         }

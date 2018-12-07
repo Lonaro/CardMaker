@@ -3,6 +3,8 @@ package michal.cardmaker.view;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -13,7 +15,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
@@ -30,6 +32,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -38,11 +41,11 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import michal.cardmaker.R;
-import michal.cardmaker.presenter.BorderSettingsFragmentListener;
-import michal.cardmaker.presenter.InsertTextFragmentListener;
-import michal.cardmaker.presenter.ResetItemFragmentListener;
-import michal.cardmaker.presenter.ResetTextFragmentListener;
-import michal.cardmaker.presenter.StickerFragmentListener;
+import michal.cardmaker.presenter.listener.BorderSettingsFragmentListener;
+import michal.cardmaker.presenter.listener.InsertTextFragmentListener;
+import michal.cardmaker.presenter.listener.ResetItemFragmentListener;
+import michal.cardmaker.presenter.listener.ResetTextFragmentListener;
+import michal.cardmaker.presenter.listener.StickerFragmentListener;
 import michal.cardmaker.presenter.TemplateSinglePhotoPresenter;
 import michal.cardmaker.presenter.cropViewLibrary.CropUtils;
 import michal.cardmaker.view.fragment.BorderSettingFragment;
@@ -53,14 +56,18 @@ import michal.cardmaker.view.fragment.StickerFragment;
 
 public class TemplateSinglePhoto extends AppCompatActivity implements StickerFragmentListener, BorderSettingsFragmentListener, InsertTextFragmentListener, ResetItemFragmentListener, ResetTextFragmentListener {
 
+    private static final int TEMPLATE_NUMBER = 0;
+
     private ImageView background;
     private ImageView photo;
     private ImageView item;
-    private Button merge_button;
-    private Button add_item_button;
-    private Button borderSettingsButton;
-    private Button add_text_button;
-    private Button clear_button;
+    private ImageButton merge_button;
+    private ImageButton add_item_button;
+    private ImageButton borderSettingsButton;
+    private ImageButton add_text_button;
+    private ImageButton clear_button;
+    private Button size_button;
+    private ImageButton share_button;
     private TextView insertedText;
 
     private StickerFragment stickerFragment;
@@ -75,13 +82,11 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     private static final String PREFERENCES_NAME = "myPreferences";
     private static final String PREFERENCES_BORDER_MARGIN = "BORDER_MARGIN";
     private static final String PREFERENCES_BORDER_COLOR = "BORDER_COLOR";
-
     private static final String PREFERENCES_ITEM_X= "ITEM_X";
     private static final String PREFERENCES_ITEM_Y = "ITEM_Y";
     private static final String PREFERENCES_ITEM_SCALE = "ITEM_SCALE";
     private static final String PREFERENCES_ITEM_ROTATION = "ITEM_ROTATION";
     private static final String PREFERENCES_ITEM_IMAGE = "ITEM_IMAGE";
-
     private static final String PREFERENCES_TEXT_X= "TEXT_X";
     private static final String PREFERENCES_TEXT_Y = "TEXT_Y";
     private static final String PREFERENCES_TEXT_SCALE = "TEXT_SCALE";
@@ -102,6 +107,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
     float move_y_item;
     int actual_sticker;
     public String actual_font;
+    int border_margin_text;
 
     float move_x_text;
     float move_y_text;
@@ -114,7 +120,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
     private int sticker;
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint({"ResourceAsColor", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,10 +137,10 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         add_text_button = findViewById(R.id.add_text_button);
         insertedText = findViewById(R.id.text);
         clear_button = findViewById(R.id.clear_button);
+        size_button = findViewById(R.id.size_button);
+        share_button = findViewById(R.id.share_button);
 
-        preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
-
-        int border_margin_text = preferences.getInt(PREFERENCES_BORDER_MARGIN, 30);
+        loadData();
 
         stickerFragment = new StickerFragment();
         seekBarsFragment = new SeekBarsFragment(item, this);
@@ -143,129 +149,11 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         editTextFragment = new EditTextFragment(this);
 
 
-        if(preferences.contains(PREFERENCES_BORDER_MARGIN))
-        {
-            int border_margin = preferences.getInt(PREFERENCES_BORDER_MARGIN, 30);
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
-            params.setMargins(border_margin, border_margin, border_margin, border_margin);
-            photo.setLayoutParams(params);
-
-            preferences.edit().remove(PREFERENCES_BORDER_MARGIN).commit();
-
-        }
-        else {
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
-            int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
-            params.setMargins(first_margin, first_margin, first_margin, first_margin);
-            photo.setLayoutParams(params);
-            photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        }
-
-        if(preferences.contains(PREFERENCES_BORDER_COLOR))
-        {
-            int border_color = preferences.getInt(PREFERENCES_BORDER_COLOR, Color.rgb(13,71,161));
-            background.setBackgroundColor(border_color);
-            preferences.edit().remove(PREFERENCES_BORDER_COLOR).commit();
-        }
-
-        if(preferences.contains(PREFERENCES_ITEM_X))
-        {
-            item.setEnabled(true);
-            item.setClickable(true);
-            item.setVisibility(View.VISIBLE);
-
-            item.setScaleX(preferences.getFloat(PREFERENCES_ITEM_SCALE, 1));
-            item.setScaleY(preferences.getFloat(PREFERENCES_ITEM_SCALE, 1));
-            item.setX((int)preferences.getFloat(PREFERENCES_ITEM_X, 500));
-            item.setY((int)preferences.getFloat(PREFERENCES_ITEM_Y, 500));
-            item.setRotation(preferences.getFloat(PREFERENCES_ITEM_ROTATION, 0));
-            item.setImageResource(preferences.getInt(PREFERENCES_ITEM_IMAGE, R.drawable.smile_item));
-            actual_sticker = preferences.getInt(PREFERENCES_ITEM_IMAGE, R.drawable.smile_item);
-
-            preferences.edit().remove(PREFERENCES_ITEM_SCALE).commit();
-            preferences.edit().remove(PREFERENCES_ITEM_X).commit();
-            preferences.edit().remove(PREFERENCES_ITEM_Y).commit();
-            preferences.edit().remove(PREFERENCES_ITEM_ROTATION).commit();
-            preferences.edit().remove(PREFERENCES_ITEM_IMAGE).commit();
-        }
-        else
-        {
-            item.setClickable(false);
-            item.setEnabled(false);
-            item.setVisibility(View.INVISIBLE);
-        }
-
-        if(preferences.contains(PREFERENCES_TEXT_X))
-        {
-            insertedText.setClickable(true);
-            insertedText.setEnabled(true);
-            insertedText.setVisibility(View.VISIBLE);
-
-            insertedText.setScaleX(preferences.getFloat(PREFERENCES_TEXT_SCALE, 1));
-            insertedText.setScaleY(preferences.getFloat(PREFERENCES_TEXT_SCALE, 1));
-            insertedText.setX((int)preferences.getFloat(PREFERENCES_TEXT_X, 500));
-            insertedText.setY((int)preferences.getFloat(PREFERENCES_TEXT_Y, 500));
-            insertedText.setRotation(preferences.getFloat(PREFERENCES_TEXT_ROTATION, 0));
-
-            String fontName = (preferences.getString(PREFERENCES_TEXT_FONT, "arial")).replaceAll("\\s+","_").toLowerCase();
-            Typeface fontStyle = ResourcesCompat.getFont(this, getResources().getIdentifier(fontName, "font", getPackageName()));
-            insertedText.setTypeface(fontStyle);
-            insertedText.setTextColor(preferences.getInt(PREFERENCES_TEXT_COLOR, 0));
-            actual_font = fontName;
-
-            insertedText.setText(preferences.getString(PREFERENCES_TEXT_VALUE, ""));
-
-            preferences.edit().remove(PREFERENCES_TEXT_X).commit();
-            preferences.edit().remove(PREFERENCES_TEXT_Y).commit();
-            preferences.edit().remove(PREFERENCES_TEXT_SCALE).commit();
-            preferences.edit().remove(PREFERENCES_TEXT_ROTATION).commit();
-            preferences.edit().remove(PREFERENCES_TEXT_FONT).commit();
-            preferences.edit().remove(PREFERENCES_TEXT_COLOR).commit();
-            preferences.edit().remove(PREFERENCES_TEXT_VALUE).commit();
-        }
-        else
-        {
-            insertedText.setClickable(false);
-            insertedText.setEnabled(false);
-            insertedText.setVisibility(View.INVISIBLE);
-        }
-
-
-
-
-        if(preferences.contains(PREFERENCES_VERTICAL_ORIENTATION)) {
-            VERTICAL_ORIENTATION = preferences.getBoolean(PREFERENCES_VERTICAL_ORIENTATION, true);
-            if (!VERTICAL_ORIENTATION) {
-                RelativeLayout photoAll = findViewById(R.id.frame_template);
-                ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
-                int layout_height = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 270, Resources.getSystem().getDisplayMetrics()));
-                fullPhoto.height = layout_height;
-                fullPhoto.width = 0;
-                fullPhoto.dimensionRatio = "V, 2:3";
-                photoAll.setLayoutParams(fullPhoto);
-
-                photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-
-            } else {
-                RelativeLayout photoAll = findViewById(R.id.frame_template);
-                ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
-                fullPhoto.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
-                fullPhoto.height = 0;
-                fullPhoto.dimensionRatio = "H, 3:2";
-                photoAll.setLayoutParams(fullPhoto);
-                photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            }
-            preferences.edit().remove(PREFERENCES_VERTICAL_ORIENTATION).commit();
-        }
-
-
-        // setFragment(this, stickerFragment);
-        Log.d("ITEM_CONFIG", String.valueOf(item.getX()) + " " + String.valueOf(item.getY()) + " " + String.valueOf(item.getScaleX()) + " " + String.valueOf(item.getRotation()));
-        Log.d("TEXT_CONFIG", String.valueOf(insertedText.getX()) + " " + String.valueOf(insertedText.getY()) + " " + String.valueOf(insertedText.getScaleX()) + " " + String.valueOf(insertedText.getRotation()));
         Intent intent = getIntent();
 
         if (intent == null && intent.getData() == null) {
             photo.setImageResource(R.drawable.camera);
+            photo.setBackgroundColor(R.color.colorAccent);
         }
         else
         {
@@ -382,69 +270,286 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
             }
         });
 
-        add_item_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, stickerFragment);
-            }
+        add_item_button.setOnClickListener(v -> templateSinglePhotoPresenter.setFragment(TemplateSinglePhoto.this, stickerFragment));
+
+        size_button.setOnClickListener(view -> {
+            // setup the alert builder
+            AlertDialog.Builder builder = new AlertDialog.Builder(TemplateSinglePhoto.this);
+            builder.setTitle("Choose a format:");
+
+            // add a list
+            String[] tempSizes = templateSinglePhotoPresenter.getTempSizes();
+            builder.setItems(tempSizes, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    switch (which) {
+                        case 0: size_button.setText("A6"); break;
+                        case 1: size_button.setText("A5"); break;
+                        case 2: size_button.setText("A4"); break;
+                        case 3: size_button.setText("A3"); break;
+                    }
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
         });
 
-        merge_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        merge_button.setOnClickListener(v -> {
 
-                Bitmap bitmapPostcard = Bitmap.createBitmap(background.getWidth(), background.getHeight(), Bitmap.Config.ARGB_8888);
-                bitmapPostcard.eraseColor(((ColorDrawable)background.getBackground()).getColor());
+            Bitmap bitmapPostcard = merge();
 
-                Canvas canvasPostcard = new Canvas(bitmapPostcard);
+            String postcardSize = String.valueOf(size_button.getText());
+            int width;
+            int height;
 
-                // Drawing photo
-                templateSinglePhotoPresenter.mergePhoto(photo, canvasPostcard, background);
 
-                if(item.getVisibility() == View.VISIBLE)
-                {
-                    templateSinglePhotoPresenter.mergeItem(item, canvasPostcard);
+            switch(postcardSize) {
+                case "A6": {
+                    if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                    {
+                        width = 1200;
+                        height = 800;
+                    } else {
+                        width = 800;
+                        height = 1200;
+                    }
+                    break;
                 }
-
-                if(insertedText.getVisibility() == View.VISIBLE)
-                {
-                    templateSinglePhotoPresenter.mergeText(insertedText, canvasPostcard);
+                case "A5": {
+                    if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                    {
+                        width = 1800;
+                        height = 1200;
+                    } else {
+                        width = 1200;
+                        height = 1800;
+                    }
+                    break;
                 }
-
-                templateSinglePhotoPresenter.savePostcard(TemplateSinglePhoto.this, bitmapPostcard);
+                case "A4": {
+                    if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                    { // 210x297
+                        width = 2700;
+                        height = 1800;
+                    } else {
+                        width = 1800;
+                        height = 2700;
+                    }
+                    break;
+                }
+                case "A3": {
+                    if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                    {
+                        width = 4050;
+                        height = 2700;
+                    } else {
+                        width = 2700;
+                        height = 4050;
+                    }
+                    break;
+                }
+                default:{
+                    if(bitmapPostcard.getHeight() < bitmapPostcard.getWidth())
+                    {
+                        width = 1800;
+                        height = 1200;
+                    } else {
+                        width = 1200;
+                        height = 1800;
+                    }
+                }
             }
+
+            templateSinglePhotoPresenter.savePostcard(TemplateSinglePhoto.this, bitmapPostcard, width, height);
         });
 
-        clear_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        clear_button.setOnClickListener(v -> {
 
-                int border_color = preferences.getInt(PREFERENCES_BORDER_COLOR, Color.rgb(13,71,161));
-                background.setBackgroundColor(border_color);
+            int border_color = preferences.getInt(PREFERENCES_BORDER_COLOR, Color.rgb(13,71,161));
+            background.setBackgroundColor(border_color);
 
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
-                int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
-                params.setMargins(first_margin, first_margin, first_margin, first_margin);
-                photo.setLayoutParams(params);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+            int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
+            params.setMargins(first_margin, first_margin, first_margin, first_margin);
+            photo.setLayoutParams(params);
+            photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            photo.setImageResource(R.drawable.camera);
+
+            if(item.isEnabled())
+            {
+                seekBarsFragment.clearItem();
+            }
+
+            if(insertedText.isEnabled())
+            {
+                editTextFragment.clearText();
+            }
+
+            FrameLayout frameLayout = findViewById(R.id.frameLayout2);
+            frameLayout.removeAllViews();
+
+        });
+
+        share_button.setOnClickListener(v -> {
+            Bitmap bitmapPostcard = merge();
+
+            String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmapPostcard, "Postcard from CardMaker", null);
+            Uri uri = Uri.parse(path);
+
+            Intent intent1 = new Intent(Intent.ACTION_SEND);
+            intent1.setType("image/jpeg");
+            intent1.putExtra(Intent.EXTRA_STREAM, uri);
+            startActivity(Intent.createChooser(intent1, "Share postcard"));
+        });
+    }
+
+    private void loadData() {
+
+        preferences = getSharedPreferences(PREFERENCES_NAME, Activity.MODE_PRIVATE);
+
+        border_margin_text = preferences.getInt(PREFERENCES_BORDER_MARGIN, 30);
+
+        if(preferences.contains(PREFERENCES_BORDER_MARGIN))
+        {
+            int border_margin = preferences.getInt(PREFERENCES_BORDER_MARGIN, 30);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+            params.setMargins(border_margin, border_margin, border_margin, border_margin);
+            photo.setLayoutParams(params);
+            preferences.edit().remove(PREFERENCES_BORDER_MARGIN).commit();
+
+        }
+        else {
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+            int first_margin = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, Resources.getSystem().getDisplayMetrics()));
+            params.setMargins(first_margin, first_margin, first_margin, first_margin);
+            photo.setLayoutParams(params);
+            photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        }
+
+        if(preferences.contains(PREFERENCES_BORDER_COLOR))
+        {
+            int border_color = preferences.getInt(PREFERENCES_BORDER_COLOR, Color.rgb(13,71,161));
+            background.setBackgroundColor(border_color);
+            preferences.edit().remove(PREFERENCES_BORDER_COLOR).commit();
+        }
+
+        if(preferences.contains(PREFERENCES_ITEM_X))
+        {
+            item.setEnabled(true);
+            item.setClickable(true);
+            item.setVisibility(View.VISIBLE);
+
+            item.setScaleX(preferences.getFloat(PREFERENCES_ITEM_SCALE, 1));
+            item.setScaleY(preferences.getFloat(PREFERENCES_ITEM_SCALE, 1));
+            item.setX((int)preferences.getFloat(PREFERENCES_ITEM_X, 500));
+            item.setY((int)preferences.getFloat(PREFERENCES_ITEM_Y, 500));
+            item.setRotation(preferences.getFloat(PREFERENCES_ITEM_ROTATION, 0));
+            item.setImageResource(preferences.getInt(PREFERENCES_ITEM_IMAGE, R.drawable.smile_item));
+            actual_sticker = preferences.getInt(PREFERENCES_ITEM_IMAGE, R.drawable.smile_item);
+
+            preferences.edit().remove(PREFERENCES_ITEM_SCALE).commit();
+            preferences.edit().remove(PREFERENCES_ITEM_X).commit();
+            preferences.edit().remove(PREFERENCES_ITEM_Y).commit();
+            preferences.edit().remove(PREFERENCES_ITEM_ROTATION).commit();
+            preferences.edit().remove(PREFERENCES_ITEM_IMAGE).commit();
+        }
+        else
+        {
+            item.setClickable(false);
+            item.setEnabled(false);
+            item.setVisibility(View.INVISIBLE);
+        }
+
+        if(preferences.contains(PREFERENCES_TEXT_X))
+        {
+            insertedText.setClickable(true);
+            insertedText.setEnabled(true);
+            insertedText.setVisibility(View.VISIBLE);
+
+            insertedText.setScaleX(preferences.getFloat(PREFERENCES_TEXT_SCALE, 1));
+            insertedText.setScaleY(preferences.getFloat(PREFERENCES_TEXT_SCALE, 1));
+            insertedText.setX((int)preferences.getFloat(PREFERENCES_TEXT_X, 500));
+            insertedText.setY((int)preferences.getFloat(PREFERENCES_TEXT_Y, 500));
+            insertedText.setRotation(preferences.getFloat(PREFERENCES_TEXT_ROTATION, 0));
+
+            String fontName = (preferences.getString(PREFERENCES_TEXT_FONT, "arial")).replaceAll("\\s+","_").toLowerCase();
+            Typeface fontStyle = ResourcesCompat.getFont(this, getResources().getIdentifier(fontName, "font", getPackageName()));
+            insertedText.setTypeface(fontStyle);
+            insertedText.setTextColor(preferences.getInt(PREFERENCES_TEXT_COLOR, 0));
+            actual_font = fontName;
+
+            insertedText.setText(preferences.getString(PREFERENCES_TEXT_VALUE, ""));
+
+            preferences.edit().remove(PREFERENCES_TEXT_X).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_Y).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_SCALE).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_ROTATION).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_FONT).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_COLOR).commit();
+            preferences.edit().remove(PREFERENCES_TEXT_VALUE).commit();
+        }
+        else
+        {
+            insertedText.setClickable(false);
+            insertedText.setEnabled(false);
+            insertedText.setVisibility(View.INVISIBLE);
+        }
+
+
+
+
+        if(preferences.contains(PREFERENCES_VERTICAL_ORIENTATION)) {
+            VERTICAL_ORIENTATION = preferences.getBoolean(PREFERENCES_VERTICAL_ORIENTATION, true);
+            if (!VERTICAL_ORIENTATION) {
+                RelativeLayout photoAll = findViewById(R.id.frame_template);
+                ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
+                int layout_height = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 270, Resources.getSystem().getDisplayMetrics()));
+                fullPhoto.height = layout_height;
+                fullPhoto.width = 0;
+                fullPhoto.dimensionRatio = "V, 2:3";
+                photoAll.setLayoutParams(fullPhoto);
+
                 photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                photo.setImageResource(R.drawable.camera);
 
-                if(item.isEnabled())
-                {
-                    seekBarsFragment.clearItem();
-
-                }
-
-                if(insertedText.isEnabled())
-                {
-                    editTextFragment.clearText();
-                }
-
-                FrameLayout frameLayout = findViewById(R.id.frameLayout2);
-                frameLayout.removeAllViews();
-
+            } else {
+                RelativeLayout photoAll = findViewById(R.id.frame_template);
+                ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
+                fullPhoto.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
+                fullPhoto.height = 0;
+                fullPhoto.dimensionRatio = "H, 3:2";
+                photoAll.setLayoutParams(fullPhoto);
+                photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
             }
-        });
+            preferences.edit().remove(PREFERENCES_VERTICAL_ORIENTATION).commit();
+        }
+
+    }
+
+    private Bitmap merge() {
+
+        //Bitmap bitmapPostcard = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Bitmap bitmapPostcard = Bitmap.createBitmap(background.getWidth(), background.getHeight(), Bitmap.Config.ARGB_8888);
+        bitmapPostcard.eraseColor(((ColorDrawable)background.getBackground()).getColor());
+
+        Canvas canvasPostcard = new Canvas(bitmapPostcard);
+        RelativeLayout.LayoutParams background_params = (RelativeLayout.LayoutParams) photo.getLayoutParams();
+
+        // Drawing photo
+        templateSinglePhotoPresenter.mergePhotoSingle(photo, canvasPostcard, bitmapPostcard, background_params.leftMargin, background_params.topMargin);
+
+        if(item.getVisibility() == View.VISIBLE)
+        {
+            templateSinglePhotoPresenter.mergeItem(item, canvasPostcard);
+        }
+
+        if(insertedText.getVisibility() == View.VISIBLE)
+        {
+            templateSinglePhotoPresenter.mergeText(insertedText, canvasPostcard);
+        }
+
+        return bitmapPostcard;
+
     }
 
 
@@ -486,12 +591,13 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         return true;
     }
 
+    @SuppressLint("ResourceAsColor")
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
 
-        switch(item.getItemId()) {
-            case R.id.nav_rotate_template:
-                if(VERTICAL_ORIENTATION) {
+        switch(menuItem.getItemId()) {
+            case R.id.nav_rotate_template: {
+                if (VERTICAL_ORIENTATION) {
                     RelativeLayout photoAll = findViewById(R.id.frame_template);
                     ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
                     int layout_height = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 270, Resources.getSystem().getDisplayMetrics()));
@@ -499,48 +605,65 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
                     fullPhoto.width = 0;
                     fullPhoto.dimensionRatio = "V, 2:3";
                     photoAll.setLayoutParams(fullPhoto);
-
+                    photo.setImageResource(R.drawable.camera);
                     photo.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     VERTICAL_ORIENTATION = false;
-                }
-                else
-                {
+                    photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                } else {
                     RelativeLayout photoAll = findViewById(R.id.frame_template);
                     ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
                     fullPhoto.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
                     fullPhoto.height = 0;
                     fullPhoto.dimensionRatio = "H, 3:2";
                     photoAll.setLayoutParams(fullPhoto);
+                    photo.setImageResource(R.drawable.camera);
                     photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
                     VERTICAL_ORIENTATION = true;
-
+                    photo.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 }
+                if(item.getVisibility() == View.VISIBLE)
+                {
+                    seekBarsFragment.clearItem();
+                }
+
+                if(insertedText.getVisibility() == View.VISIBLE)
+                {
+                    editTextFragment.clearText();
+                }
+            }
         }
 
         return true;
     }
 
     public void onSelectAlbum() {
-
-        if (Build.VERSION.SDK_INT <= 19) {
-            Intent intent = new Intent();
-            intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            startActivityForResult(intent, REQUEST_CODE_ALBUM);
-        } else {
-            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            intent.setType("image/*");
-            startActivityForResult(intent, REQUEST_CODE_ALBUM);
-        }
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        startActivityForResult(intent, REQUEST_CODE_ALBUM);
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
-        goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(goToMainActivity);
+
+        if(item.isEnabled() || insertedText.isEnabled() || photo.getDrawable().getConstantState() != getResources().getDrawable( R.drawable.camera).getConstantState()) {
+            AlertDialog.Builder alertBox = new AlertDialog.Builder(TemplateSinglePhoto.this);
+            alertBox.setMessage(R.string.exit_from_templates);
+            alertBox.setPositiveButton("Yes", (dialog, which) -> {
+                Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
+                goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(goToMainActivity);
+            });
+            alertBox.setNegativeButton("No", null);
+            alertBox.create().show();
+        }
+        else
+        {
+            Intent goToMainActivity = new Intent(getApplicationContext(), MainActivity.class);
+            goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(goToMainActivity);
+        }
+
+        //super.onBackPressed();
     }
 
     @Override
@@ -550,6 +673,7 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
             return;
         }
 
+        int photo_number = data.getIntExtra("PHOTO_NUMBER", 0);
         if(ContextCompat.checkSelfPermission(TemplateSinglePhoto.this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -558,11 +682,11 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
 
             switch (requestCode) {
                 case REQUEST_CODE_CAMERA:
-                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_CAMERA, data, background.getWidth()-backgroundParams.leftMargin*2, background.getHeight()-backgroundParams.topMargin*2);
+                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_CAMERA, data, background.getWidth()-backgroundParams.leftMargin*2, background.getHeight()-backgroundParams.topMargin*2, TEMPLATE_NUMBER, photo_number);
                     Log.d("First_size", String.valueOf(background.getWidth()-backgroundParams.leftMargin*2) + " " + String.valueOf(background.getHeight()-backgroundParams.topMargin*2));
                     break;
                 case REQUEST_CODE_ALBUM:
-                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_ALBUM, data, background.getWidth()-backgroundParams.leftMargin*2, background.getHeight()-backgroundParams.topMargin*2);
+                    templateSinglePhotoPresenter.startCropper(REQUEST_CODE_ALBUM, data, background.getWidth()-backgroundParams.leftMargin*2, background.getHeight()-backgroundParams.topMargin*2, TEMPLATE_NUMBER, photo_number);
                     Log.d("First_size", String.valueOf(background.getWidth()-backgroundParams.leftMargin*2) + " " + String.valueOf(background.getHeight()-backgroundParams.topMargin*2));
                     break;
                 default:
@@ -633,5 +757,10 @@ public class TemplateSinglePhoto extends AppCompatActivity implements StickerFra
         insertTextFragment.clearText();
         templateSinglePhotoPresenter.setFragment(this, insertTextFragment);
         insertTextFragment.clearText();
+    }
+
+    @Override
+    public void setActualFont(String font) {
+        actual_font = font;
     }
 }

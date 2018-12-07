@@ -14,14 +14,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import michal.cardmaker.R;
-import michal.cardmaker.presenter.ResetTextFragmentListener;
-import michal.cardmaker.view.TemplateSinglePhoto;
+import michal.cardmaker.presenter.listener.ResetTextFragmentListener;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class EditTextFragment extends Fragment {
@@ -30,10 +29,13 @@ public class EditTextFragment extends Fragment {
     SeekBar seekBarTextRotation;
     TextView insertedText;
     Spinner fontListSpinner;
-    Button changeColor;
-    Button button_reset_text;
-    Button button_clear_text;
+    ImageButton changeColor;
+    ImageButton button_reset_text;
+    ImageButton button_clear_text;
     int default_color;
+
+    TextView textRotationValue;
+    TextView textScaleValue;
 
     ResetTextFragmentListener resetTextFragmentListener;
 
@@ -73,6 +75,13 @@ public class EditTextFragment extends Fragment {
         button_reset_text = view.findViewById(R.id.button_reset_text);
         button_clear_text = view.findViewById(R.id.button_clear_text);
 
+
+        textRotationValue = view.findViewById(R.id.seekBarTextRotationValue);
+        textScaleValue = view.findViewById(R.id.seekBarTextScaleValue);
+
+        textRotationValue.setText("0°");
+        textScaleValue.setText("x1");
+
         seekBarTextRotation.setMax(360);
         seekBarTextRotation.setProgress(180);
 
@@ -83,8 +92,8 @@ public class EditTextFragment extends Fragment {
 
         String [] font_list = {"Arial", "Comics Sans", "Segoe"};
         Typeface [] fonts = {ResourcesCompat.getFont(getContext(), R.font.arial),
-                            ResourcesCompat.getFont(getContext(), R.font.comics_sans),
-                            ResourcesCompat.getFont(getContext(), R.font.segoe)};
+                ResourcesCompat.getFont(getContext(), R.font.comics_sans),
+                ResourcesCompat.getFont(getContext(), R.font.segoe)};
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item, font_list);
         fontListSpinner.setAdapter(dataAdapter);
 
@@ -94,7 +103,8 @@ public class EditTextFragment extends Fragment {
                 insertedText.setTypeface(fonts[position]);
                 insertedText.setPivotX(insertedText.getMeasuredWidth()/2);
                 insertedText.setPivotY(insertedText.getMeasuredHeight()/2);
-                ((TemplateSinglePhoto)getActivity()).actual_font = font_list[position];
+
+                resetTextFragmentListener.setActualFont(font_list[position]);
             }
 
             @Override
@@ -114,6 +124,7 @@ public class EditTextFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 insertedText.setRotation(progress - 180);
+                textRotationValue.setText(String.valueOf(progress - 180)+"°");
             }
 
             @Override
@@ -130,6 +141,7 @@ public class EditTextFragment extends Fragment {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 insertedText.setScaleX((float) (progress) / 50.f);
                 insertedText.setScaleY((float) (progress) / 50.f);
+                textScaleValue.setText("x"+String.valueOf(progress / 50.f));
             }
 
             @Override
@@ -141,20 +153,12 @@ public class EditTextFragment extends Fragment {
             }
         });
 
-        button_reset_text.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                resetText();
-            }
-        });
+        button_reset_text.setOnClickListener(v -> resetText());
 
-        button_clear_text.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearText();
+        button_clear_text.setOnClickListener(v -> {
+            clearText();
 
-                resetTextFragmentListener.changeFragmentOnTextReset();
-            }
+            resetTextFragmentListener.changeFragmentOnTextReset();
         });
 
         return view;
@@ -176,6 +180,9 @@ public class EditTextFragment extends Fragment {
         insertedText.setEnabled(false);
         insertedText.setClickable(false);
         insertedText.setVisibility(View.INVISIBLE);
+
+        textRotationValue.setText("0°");
+        textScaleValue.setText("x1");
     }
 
     public void resetText() {
@@ -190,6 +197,9 @@ public class EditTextFragment extends Fragment {
         seekBarTextScale.setProgress(50);
         insertedText.setTypeface(ResourcesCompat.getFont(getContext(), R.font.arial));
         fontListSpinner.setSelection(0);
+
+        textRotationValue.setText("0°");
+        textScaleValue.setText("x1");
     }
 
     private void openColorPicker() {

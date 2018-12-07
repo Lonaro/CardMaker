@@ -22,17 +22,19 @@
             android:id="@+id/background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:contentDescription="Border"
             android:background="@color/colorPrimary"
             android:layout_gravity="center"/>
 
-        <ImageView
-            android:id="@+id/temp_single_photo"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/colorAccent"
-            android:contentDescription="Photo"
-            android:src="@drawable/camera" />
+            <ImageView
+                android:id="@+id/temp_single_photo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:background="@color/colorAccent"
+                android:src="@drawable/camera" />
 
         <ImageView
             android:id="@+id/item"
@@ -43,7 +45,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:scaleType="fitCenter"
-            tools:srcCompat="@drawable/sun" />
+            tools:srcCompat="@drawable/palm_tree" />
 
         <TextView
             android:id="@+id/text"
@@ -86,104 +88,132 @@
         android:layout_marginBottom="15dp">
 
         <android.support.constraint.ConstraintLayout
-            android:id="@+id/template_left_buttons"
+            android:id="@+id/top_buttons"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_buttons"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/merge_button"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="0dp">
 
-            <Button
+            <ImageButton
                 android:id="@+id/border_button"
-                style="@style/template_button"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_marginTop="@dimen/template_button_margin_inner"
-                android:layout_marginEnd="@dimen/template_button_margin_inner"
-                android:layout_marginBottom="@dimen/template_button_margin_inner"
-                android:text="Border"
-                app:layout_constraintBottom_toTopOf="@id/add_item_button"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:src="@drawable/set_border"
+                android:scaleType="fitCenter"
+                android:backgroundTint="@color/colorAccent"
+                android:elevation="@dimen/button_elevation"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/add_item_button"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                />
+                app:layout_constraintTop_toTopOf="parent"/>
 
-
-            <Button
+            <ImageButton
                 android:id="@+id/add_item_button"
-                style="@style/template_button"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_marginTop="@dimen/template_button_margin_inner"
-                android:layout_marginRight="@dimen/template_button_margin_inner"
-                android:text="Item"
+                android:padding="10dp"
+                android:src="@drawable/plam_tree_icon"
+                android:scaleType="fitCenter"
+                android:backgroundTint="@color/colorAccent"
+                android:elevation="@dimen/button_elevation"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/add_text_button"
+                app:layout_constraintStart_toEndOf="@id/border_button"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <ImageButton
+                android:id="@+id/add_text_button"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:padding="10dp"
+                android:src="@drawable/set_text"
+                android:scaleType="fitCenter"
+                android:backgroundTint="@color/colorAccent"
+                android:elevation="@dimen/button_elevation"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/border_button" />
+                app:layout_constraintStart_toEndOf="@id/add_item_button"
+                app:layout_constraintTop_toTopOf="parent"/>
+
 
 
         </android.support.constraint.ConstraintLayout>
 
-        <Button
-            android:id="@+id/merge_button"
-            style="@style/template_button"
-            android:layout_width="110dp"
-            android:layout_height="0dp"
-            android:layout_marginLeft="@dimen/template_button_margin_inner"
-            android:layout_marginTop="@dimen/template_button_margin_inner"
-            android:layout_marginRight="@dimen/template_button_margin_inner"
-            android:text="Merge"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@id/template_right_buttons"
-            app:layout_constraintStart_toEndOf="@id/template_left_buttons"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="MissingConstraints" />
 
         <android.support.constraint.ConstraintLayout
-            android:id="@+id/template_right_buttons"
-            android:layout_width="0dp"
+            android:id="@+id/bottom_buttons"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginLeft="@dimen/template_button_margin_inner"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/merge_button"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/top_buttons"
+            app:layout_constraintBottom_toBottomOf="parent">
 
-            <Button
-                android:id="@+id/add_text_button"
-                style="@style/template_button"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginLeft="@dimen/template_button_margin_inner"
-                android:layout_marginTop="@dimen/template_button_margin_inner"
-                android:layout_marginBottom="@dimen/template_button_margin_inner"
-                android:text="Text"
-                app:layout_constraintBottom_toTopOf="@id/clear_button"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-
-                app:layout_constraintVertical_chainStyle="spread_inside"
-                />
-
-            <Button
+            <ImageButton
                 android:id="@+id/clear_button"
-                style="@style/template_button"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_marginLeft="@dimen/template_button_margin_inner"
-                android:layout_marginTop="@dimen/template_button_margin_inner"
-                android:text="Clear"
+                android:src="@drawable/clear"
+                android:scaleType="fitCenter"
+                android:backgroundTint="@color/colorAccent"
+                android:elevation="@dimen/button_elevation"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/size_button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+
+
+            <Button
+                android:id="@+id/size_button"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/template_button_size_textsize"
+                android:text="@string/template_button_size_text"
+                android:drawableTop="@drawable/set_size"
+                android:drawablePadding="-8dp"
+                android:backgroundTint="@color/colorAccent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/clear_button"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/merge_button"
+                android:stateListAnimator="@null"
+                android:elevation="@dimen/button_elevation"/>
+
+
+
+            <ImageButton
+                android:id="@+id/merge_button"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:padding="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/share_button"
+                app:layout_constraintStart_toEndOf="@+id/size_button"
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/download"
+                android:scaleType="fitCenter"
+                android:backgroundTint="@color/colorAccent"
+                android:elevation="@dimen/button_elevation"/>
+
+            <ImageButton
+                android:id="@+id/share_button"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:padding="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-
-                app:layout_constraintTop_toBottomOf="@+id/add_text_button" />
+                app:layout_constraintStart_toEndOf="@id/merge_button"
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/share"
+                android:scaleType="fitCenter"
+                android:backgroundTint="@color/colorAccent"
+                android:elevation="@dimen/button_elevation"/>
 
 
         </android.support.constraint.ConstraintLayout>
+
 
     </android.support.constraint.ConstraintLayout>
 

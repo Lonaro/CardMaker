@@ -12,9 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import michal.cardmaker.R;
-import michal.cardmaker.presenter.InsertTextFragmentListener;
-import michal.cardmaker.presenter.StickerFragmentListener;
-import michal.cardmaker.view.TemplateSinglePhoto;
+import michal.cardmaker.presenter.listener.InsertTextFragmentListener;
 
 
 public class InsertTextFragment extends Fragment {

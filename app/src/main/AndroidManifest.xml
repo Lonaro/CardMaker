@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="michal.cardmaker">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -11,8 +13,11 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".view.MainActivity">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity
+            android:name=".view.MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,11 +26,53 @@
         </activity>
         <activity
             android:name=".view.TemplateSinglePhoto"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".view.CropActivity"
-            android:noHistory="true" />
-        <activity android:name=".view.MaximizePostcard"></activity>
+            android:noHistory="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.MaximizePostcard"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.TemplateTwoVerticalPhotos"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".view.TemplateTwoHorizontalPhotos"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".view.TemplateFourPhotos"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".view.ReverseCreator"
+            android:noHistory="true"
+            android:screenOrientation="portrait" />
+        <activity android:name=".view.MaximizeReverse" />
+        <activity android:name=".view.TemplateTwoPlusOneHorizontal"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".view.TemplateTwoPlusOneVertical"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".view.ReverseToMergeSelection"
+            android:screenOrientation="portrait"
+            android:noHistory="true"/>
+        <activity android:name=".view.ReverseMergePostcard"
+            android:screenOrientation="portrait"/>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
     </application>
+
+
 
 </manifest>
