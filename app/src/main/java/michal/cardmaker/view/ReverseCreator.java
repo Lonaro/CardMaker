@@ -282,11 +282,13 @@ public class ReverseCreator extends AppCompatActivity {
                 Bitmap bitmapReverse = Bitmap.createBitmap(3000, 2000, Bitmap.Config.ARGB_8888);
                 bitmapReverse.eraseColor(getResources().getColor(R.color.colorWhite));
 
-                Canvas canvasReverse = new Canvas(bitmapReverse);
+                Canvas canvasReverse = scaleBitmapToCanvas(bitmapReverse, scale);//new Canvas(bitmapReverse);
 
-                Bitmap drawableBitmap = ((BitmapDrawable)reverseLine.getDrawable()).getBitmap();
-                Bitmap line = Bitmap.createScaledBitmap(drawableBitmap, (int)(drawableBitmap.getWidth()*scale), (int)(drawableBitmap.getHeight()*scale), false);
-                canvasReverse.drawBitmap(line, reverseLine.getX()*scale, reverseLine.getY()*scale, null);
+                //*******
+//                Bitmap drawableBitmap = ((BitmapDrawable)reverseLine.getDrawable()).getBitmap();
+//                Bitmap line = Bitmap.createScaledBitmap(drawableBitmap, (int)(drawableBitmap.getWidth()*scale), (int)(drawableBitmap.getHeight()*scale), false);
+//                canvasReverse.drawBitmap(line, reverseLine.getX()*scale, reverseLine.getY()*scale, null);
+                //*******
 
                 messageSumUp.setBackgroundColor(getResources().getColor(R.color.colorWhiteTransparent));
                 messageSumUp.buildDrawingCache();
@@ -366,6 +368,16 @@ public class ReverseCreator extends AppCompatActivity {
         });
 
 
+    }
+
+    public Canvas scaleBitmapToCanvas(Bitmap bitmap, float scale) {
+        Canvas canvasReverse = new Canvas(bitmap);
+
+        Bitmap drawableBitmap = ((BitmapDrawable)reverseLine.getDrawable()).getBitmap();
+        Bitmap line = Bitmap.createScaledBitmap(drawableBitmap, (int)(drawableBitmap.getWidth()*scale), (int)(drawableBitmap.getHeight()*scale), false);
+        canvasReverse.drawBitmap(line, reverseLine.getX()*scale, reverseLine.getY()*scale, null);
+
+        return canvasReverse;
     }
 
     @Override
