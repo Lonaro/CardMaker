@@ -194,8 +194,10 @@ public class CropView extends View {
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 mTouchMode = TOUCH_MODE_DRAG;
+
                 mLastX = event.getX();
                 mLastY = event.getY();
+                Log.d("point_cord", String.valueOf(mLastX) + " " + String.valueOf(mLastY));
                 mSavedImageMatrix.set(mDisplayImageMatrix);
                 mSavedImageCropInverse.set(mImageCropInverse);
                 break;
@@ -337,42 +339,78 @@ public class CropView extends View {
         CropDrawingUtils.drawCropRect(canvas, mBorderPaint, mCropInScreen);
     }
 
-    public void maximizeImage(float innerWidth, float innerHeigth, float outerWidth, float outerHeight) {
-        float scale = 1;
-        if(mImage.getWidth() < innerWidth)
-        {
-            scale = (float)Math.ceil((innerWidth/mImage.getWidth())*100)/100;
-        }
+    public void maximizeImage(Rect inner, CropView outer, float bitmapWidth, float bitmapHeight) {
+        float scale = 2f;
 
-        //clearDisplay();
+        mSavedImageMatrix.set(mDisplayImageMatrix);
+        mSavedImageCropInverse.set(mImageCropInverse);
 
-        mSavedImageCropInverse.set(new Matrix());
-        mSavedImageMatrix.set(new Matrix());
+        mDisplayImageMatrix.set(mSavedImageMatrix);
+        mImageCropInverse.set(mSavedImageCropInverse);
 
-        mDisplayImageMatrix = new Matrix();
-        mImageCropInverse = new Matrix();
+        float [] values = new float[9];
+        mDisplayImageMatrix.getValues(values);
 
-        mDisplayImageMatrix.set(new Matrix());
-        mImageCropInverse.set(new Matrix());
-//
+        scale = 1.1f;//(float) Math.ceil(((float) inner.width() / (float) mImage.getWidth()) * 100) / 100;
 
-//
-//        mDisplayImageMatrix.set(new Matrix());
-//        mImageCropInverse.set(new Matrix());
 
-//        Log.d("Scale", String.valueOf(scale));
-        Log.d("Scale_size", String.valueOf(outerWidth) + " " + String.valueOf(outerHeight));
+        mDisplayImageMatrix.postScale(scale, scale, outer.getWidth()/2, outer.getHeight()/2);
+        mImageCropInverse.postScale(scale, scale,  outer.getWidth()/2, outer.getHeight()/2);
 
-        mDisplayImageMatrix.postScale(scale, scale, innerWidth/2, innerHeigth/2);
-        mImageCropInverse.postScale(scale, scale, innerWidth/2, innerHeigth/2);
+        Log.d("scale_size_matrix", String.valueOf(values[Matrix.MSCALE_X]));
 
-        float leftOffset = (outerWidth - mImage.getWidth()) / 2f + 5;
-        float topOffset = (outerHeight - mImage.getHeight()) / 2f;
+//        mDisplayImageMatrix.postScale(scale, scale, outer.getWidth()/2, outer.getHeight()/2);
+//        mImageCropInverse.postScale(scale, scale, outer.getWidth()/2, outer.getHeight()/2);
 
-        mDisplayImageMatrix.postTranslate(leftOffset, topOffset);
-        //mImageCropInverse.postTranslate(leftOffset, topOffset);
+        mNewX = outer.getWidth()/2;
+        mNewY = outer.getHeight()/2;
 
         invalidate();
+
+
+//        if(inner.width() > inner.height()) {
+//            if (bitmapWidth < bitmapHeight) {
+//                scale = (float) Math.ceil(((float) inner.width() / (float) mImage.getWidth()) * 100) / 100;
+//                mDisplayImageMatrix.postScale(scale, scale, 0,0);
+//                mImageCropInverse.postScale(scale, scale, 0, 0);
+//
+//                Log.d("image_outer_cord", String.valueOf(outer.getX()) + " " + String.valueOf(outer.getY()));
+//
+//
+//                //mImageCropInverse.postScale(scale, scale, bitmapWidth, bitmapHeight);
+//
+//                float leftOffset = (outer.getWidth() - inner.width()) / 2;
+//                float topOffset = (outer.getHeight() - inner.height()) / 2;
+//
+////                float leftOffset = 0;
+////                float topOffset = 0;
+////
+//                mDisplayImageMatrix.postTranslate(leftOffset, topOffset);
+//                mImageCropInverse.postTranslate(leftOffset, topOffset);
+//            }
+////            else {
+////                scale = (float) Math.ceil(((float) inner.width() / (float) mImage.getWidth()) * 100) / 100;
+////                mDisplayImageMatrix.postScale(scale, scale, 0, 0);
+////                mDisplayCropMatrix.postScale(scale, scale, 0, 0);
+////
+////                float leftOffset = ((outer.getWidth() - inner.width()) / 2) - 5;
+////                float topOffset = (outer.getHeight() - inner.height()) / 2 - (mImage.getHeight() * scale - inner.height()) / 2 + 5;
+////
+////                mDisplayImageMatrix.postTranslate(leftOffset, topOffset);
+////                mDisplayCropMatrix.postTranslate(leftOffset, topOffset);
+////            }
+//
+//        }
+
+
+//        Log.d("Scale", String.valueOf(scale));
+        Log.d("Scale_size", String.valueOf(scale));
+        Log.d("Scale_size_bitmap", String.valueOf(bitmapWidth) + " " + String.valueOf(bitmapHeight));
+        Log.d("Scale_size_inner", String.valueOf(inner.width()) + " " + String.valueOf(inner.height()));
+        Log.d("Scale_size_outer", String.valueOf(outer.getWidth()) + " " + String.valueOf(outer.getHeight()));
+        Log.d("Scale_size_mImage", String.valueOf(mImage.getWidth()) + " " + String.valueOf(mImage.getHeight()));
+
+        //invalidate();
     }
 
 }

@@ -408,7 +408,7 @@ public class CropLayout extends FrameLayout {
     }
 
     public void maximizeImage() {
-        mCropView.maximizeImage(mCropRect.width(), mCropRect.height(), mCropView.getWidth(), mCropView.getHeight());
+        mCropView.maximizeImage(mCropRect, mCropView, mOriginalBounds.width(), mOriginalBounds.height());
 
         Log.d("mCropView_cord", String.valueOf(mCropView.mEventCenter.x) + " " + String.valueOf(mCropView.mEventCenter.y));
     }

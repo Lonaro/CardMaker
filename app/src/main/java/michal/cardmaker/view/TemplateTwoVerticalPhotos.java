@@ -104,6 +104,7 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
     private static final String PREFERENCES_TEXT_COLOR = "TEXT_COLOR";
     private static final String PREFERENCES_TEXT_VALUE = "TEXT_VALUE";
     private static final String PREFERENCES_VERTICAL_ORIENTATION = "VERTICAL_ORIENTATION";
+    private static final String PREFERENCES_VERTICAL_HEIGHT = "VERTICAL_HEIGHT";
 
     private static final String PREFERENCES_PHOTO_1 = "PHOTO_1";
     private static final String PREFERENCES_PHOTO_2 = "PHOTO_2";
@@ -133,6 +134,8 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
     private boolean VERTICAL_ORIENTATION = true;
 
     private int sticker;
+
+    int vertical_height;
 
     @SuppressLint({"ResourceAsColor", "ClickableViewAccessibility"})
     @Override
@@ -584,8 +587,8 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
             if (!VERTICAL_ORIENTATION) {
                 RelativeLayout photoAll = findViewById(R.id.frame_template);
                 ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
-                int layout_height = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 270, Resources.getSystem().getDisplayMetrics()));
-                fullPhoto.height = layout_height;
+                //int layout_height = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 270, Resources.getSystem().getDisplayMetrics()));
+                fullPhoto.height = preferences.getInt(PREFERENCES_VERTICAL_HEIGHT, 223) == 0 ? 0 : preferences.getInt(PREFERENCES_VERTICAL_HEIGHT, 223);
                 fullPhoto.width = 0;
                 fullPhoto.dimensionRatio = "V, 2:3";
                 photoAll.setLayoutParams(fullPhoto);
@@ -721,6 +724,7 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
         }
 
         preferencesEditor.putBoolean(PREFERENCES_VERTICAL_ORIENTATION, VERTICAL_ORIENTATION);
+        preferencesEditor.putInt(PREFERENCES_VERTICAL_HEIGHT, vertical_height);
 
         preferencesEditor.commit();
     }
@@ -741,8 +745,9 @@ public class TemplateTwoVerticalPhotos extends AppCompatActivity implements Stic
                 if (VERTICAL_ORIENTATION) {
                     RelativeLayout photoAll = findViewById(R.id.frame_template);
                     ConstraintLayout.LayoutParams fullPhoto = (ConstraintLayout.LayoutParams) photoAll.getLayoutParams();
-                    int layout_height = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 270, Resources.getSystem().getDisplayMetrics()));
-                    fullPhoto.height = layout_height;
+                    //int layout_height = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 270, Resources.getSystem().getDisplayMetrics()));
+                    fullPhoto.height = background.getHeight();
+                    vertical_height = background.getHeight();
                     fullPhoto.width = 0;
                     fullPhoto.dimensionRatio = "V, 2:3";
                     photoAll.setLayoutParams(fullPhoto);

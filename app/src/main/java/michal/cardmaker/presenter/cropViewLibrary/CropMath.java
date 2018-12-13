@@ -235,7 +235,7 @@ public class CropMath {
         return r * 90;
     }
 
-    private static float getUnrotated(float[] rotatedRect, float[] center,
+    public static float getUnrotated(float[] rotatedRect, float[] center,
                                       RectF unrotated) {
         float dy = rotatedRect[1] - rotatedRect[3];
         float dx = rotatedRect[0] - rotatedRect[2];
